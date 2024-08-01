@@ -13,8 +13,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -25,7 +25,6 @@ const FormInput = () => {
   const [loading, setLoading] = useState(false);
   const [showError, setShowError] = useState(false);
   const [error, setError] = useState("");
-  const router = useRouter();
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -35,10 +34,9 @@ const FormInput = () => {
     },
   });
 
-  // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
-    setShowError(false); // Reset error visibility before making the request
+    setShowError(false);
 
     setTimeout(async () => {
       try {
@@ -48,7 +46,6 @@ const FormInput = () => {
           password: values?.password,
           callbackUrl: "/dashboard",
         });
-        console.log(res);
         if (res?.status === 401) {
           setShowError(true);
           setError("Invalid username or password");
@@ -67,52 +64,72 @@ const FormInput = () => {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-base font-bold">Email</FormLabel>
-              <FormControl>
-                <Input
-                  className="h-[56px] placeholder:text-[#919BA2] text-base"
-                  placeholder="Type your email"
-                  {...field}
-                />
-              </FormControl>
+    <div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          {loading ? (
+            <div className="h-[208px] flex justify-center items-center">
+              <Loader2 className="mr-2 size-12 animate-spin" />
+            </div>
+          ) : (
+            <div className="flex flex-col gap-8">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field, fieldState: { error } }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-bold">Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="h-[56px] placeholder:text-[#919BA2] text-base"
+                        placeholder="Type your email"
+                        {...field}
+                        error={error?.message}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field, fieldState: { error } }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-bold">
+                      Password
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        className="h-[56px] placeholder:text-[#919BA2] text-base"
+                        placeholder="Type your password"
+                        error={error?.message}
+                        {...field}
+                      />
+                    </FormControl>
 
-              <FormMessage />
-            </FormItem>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-base font-bold">Password</FormLabel>
-              <FormControl>
-                <Input
-                  className="h-[56px] placeholder:text-[#919BA2] text-base"
-                  placeholder="Type your password"
-                  {...field}
-                />
-              </FormControl>
 
-              <FormMessage />
-            </FormItem>
+          {error && showError && (
+            <p className="text-center text-sm text-danger-500 font-bold">
+              {error}
+            </p>
           )}
-        />
-        <Button
-          className="w-full h-[56px] bg-[#2F414D] text-base font-bold"
-          type="submit"
-        >
-          Submit
-        </Button>
-      </form>
-    </Form>
+          <Button
+            className="w-full h-[56px]  text-white capitalize bg-secondary-500 text-base font-bold"
+            type="submit"
+            disabled={loading}
+          >
+            login
+          </Button>
+        </form>
+      </Form>
+    </div>
   );
 };
 

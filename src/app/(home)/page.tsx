@@ -15,7 +15,7 @@ export default function Home() {
         <FormInput />
         <div className="w-full text-center text-base">
           Don’t have account?{" "}
-          <Link className="text-[#D62027] font-bold" href={"/register"}>
+          <Link className="text-primary-500 font-bold" href={"/register"}>
             Create Account
           </Link>
         </div>
