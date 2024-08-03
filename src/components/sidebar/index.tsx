@@ -2,10 +2,8 @@
 import React, { useState } from "react";
 
 import { cn } from "@/lib/utils";
-import { useSidebar } from "@/hooks/useSidebar";
 import { SideNav } from "./side-nav";
 import { NavItems } from "../constant/side-nav";
-import { BsArrowLeftShort } from "react-icons/bs";
 
 interface SidebarProps {
   className?: string;

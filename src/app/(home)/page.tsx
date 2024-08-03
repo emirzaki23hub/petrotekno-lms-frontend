@@ -21,7 +21,7 @@ export default function Home() {
         </div>
       </div>
       <div className="flex justify-center items-center lg:w-[553px] h-full">
-        <h2 className="text-white text-[40px] max-lg:text-3xl  text-center max-lg:order-1 lg:text-justify leading-[44px] font-bold">
+        <h2 className="text-white text-[40px] max-lg:text-2xl  text-center max-lg:order-1 lg:text-justify lg:leading-[44px] font-bold">
           International Leading Provider of Operations, Maintenance and
           Construction Skills Training
         </h2>

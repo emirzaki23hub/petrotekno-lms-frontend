@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useSidebar } from "@/hooks/useSidebar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { NavItem } from "@/types";
@@ -18,18 +17,8 @@ interface SideNavProps {
 
 export function SideNav({ items, setOpen, className }: SideNavProps) {
   const path = usePathname();
-  const { isOpen } = useSidebar();
   const [openItem, setOpenItem] = useState("");
   const [lastOpenItem, setLastOpenItem] = useState("");
-
-  useEffect(() => {
-    if (isOpen) {
-      setOpenItem(lastOpenItem);
-    } else {
-      setLastOpenItem(openItem);
-      setOpenItem("");
-    }
-  }, [isOpen]);
 
   const toggleItem = (title: string) => {
     setOpenItem((prev) => (prev === title ? "" : title));
@@ -53,12 +42,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
               )}
             >
               <item.icon className={cn("h-5 w-5", item.color)} />
-              <span
-                className={cn(
-                  "absolute left-12 text-base duration-200",
-                  !isOpen && className
-                )}
-              >
+              <span className={cn("absolute left-12 text-base duration-200")}>
                 {item.title}
               </span>
               {/* {item.children && item.children.length > 0 && (
