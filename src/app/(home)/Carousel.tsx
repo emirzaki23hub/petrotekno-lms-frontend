@@ -30,7 +30,7 @@ const CarouselIndex = () => {
             height={0}
             width={0}
             sizes="100vw"
-            className="object-cover max-lg:h-svh h-screen w-full"
+            className="object-cover max-lg:h-screen h-screen w-full"
           />
         </CarouselItem>
         <CarouselItem>

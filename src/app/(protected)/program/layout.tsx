@@ -28,7 +28,7 @@ export default function DashboardLayout({
           placeholder="Looking for something?"
         />
       </div>
-      <div className="flex font-mono border-[#E4E6E8] border-b overflow-x-auto">
+      <div className="flex font-mono max-lg:pb-3 border-[#E4E6E8] border-b overflow-x-auto">
         {navItems.map((item) => (
           <Link
             key={item.name}

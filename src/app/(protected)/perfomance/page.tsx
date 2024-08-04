@@ -183,9 +183,9 @@ const page = () => {
           {tableData.map((item, index) => (
             <div
               key={index}
-              className=" border lg:min-h-[52px] border-[#E4E6E8] rounded-m flex items-center justify-between gap-2 p-4"
+              className=" border lg:min-h-[52px] border-[#E4E6E8] rounded-m flex max-lg:items-start items-center justify-between gap-2 p-4"
             >
-              <div className="text-base text-neutral-800 font-bold ">
+              <div className="text-base max-lg:text-sm max-lg:leading-none text-neutral-800 font-bold ">
                 {item.module}
               </div>
               <span className="text-sm  leading-4 pr-10 text-success-400 font-bold">

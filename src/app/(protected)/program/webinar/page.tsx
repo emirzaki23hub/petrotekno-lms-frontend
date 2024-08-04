@@ -25,7 +25,7 @@ const page = () => {
                 className="h-auto w-full rounded-l-m lg:w-[161px] lg:h-[104px]"
                 alt="prod"
               />
-              <div className="flex flex-col gap-4 justify-center">
+              <div className="flex flex-col gap-4 justify-center max-lg:px-4">
                 <div className="text-[20px] leading-6 text-neutral-800 font-bold font-sans">
                   Fundamental keselamatan dan kesehatan kerja internasional{" "}
                 </div>
@@ -34,7 +34,7 @@ const page = () => {
                 </div>
               </div>
             </div>
-            <div className="pr-4">
+            <div className="lg:pr-4 max-lg:p-4">
               <Button className="h-[56px] rounded-m bg-secondary-500 text-white text-base">
                 Start Training
               </Button>

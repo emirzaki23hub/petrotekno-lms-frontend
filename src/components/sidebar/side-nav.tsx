@@ -89,7 +89,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
       </nav>
       <Button
         onClick={() => signOut({ callbackUrl: "/" })}
-        className="text-base w-full transition-all duration-300 ease-in-out hover:bg-primary-100 hover:text-primary-500 flex justify-start gap-3 text-neutral-400 font-bold"
+        className="text-base w-full transition-all duration-300 max-lg:mt-2 ease-in-out hover:bg-primary-100 hover:text-primary-500 flex justify-start gap-3 text-neutral-400 font-bold"
       >
         <IconLogout />
         Log Out

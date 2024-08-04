@@ -24,7 +24,7 @@ const ChartTable = () => {
   return (
     <Card className="flex flex-col p-0 border-transparent shadow-none border-none">
       <CardContent className="flex max-lg:flex-col flex-row p-0 ">
-        <div className="flex-1 max-h-[250px] lg:max-w-[250px] flex items-center justify-center">
+        <div className="lg:flex-1  h-[250px] w-[250px] lg:flex max-lg:mx-auto lg:items-center justify-center">
           <OverallChart />
         </div>
         <div className="flex-1">
