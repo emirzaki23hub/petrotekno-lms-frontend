@@ -4,10 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { NavItem } from "@/types";
 import IconLogout from "../icons/IconLogout";
-import { signIn, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
 
 interface SideNavProps {
   items: NavItem[];
@@ -58,7 +58,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
               />
             )} */}
             </Link>
-            {item.children &&
+            {/* {item.children &&
               item.children.length > 0 &&
               openItem === item.title && (
                 <div className="ml-8 space-y-1">
@@ -83,7 +83,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
                     </Link>
                   ))}
                 </div>
-              )}
+              )} */}
           </div>
         ))}
       </nav>

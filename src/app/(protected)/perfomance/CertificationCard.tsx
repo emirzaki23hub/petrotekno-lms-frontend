@@ -4,16 +4,16 @@ import Image from "next/image";
 interface CertificationCardProps {
   title: string;
   imageSrc: string;
-  key: number;
+  index: number;
 }
 
 const CertificationCard: React.FC<CertificationCardProps> = ({
   title,
   imageSrc,
-  key,
+  index,
 }) => (
   <div
-    key={key}
+    key={index}
     className="flex border border-[#E4E6E8] p-6 rounded-m flex-col gap-4 justify-center items-center"
   >
     <div className="flex justify-center items-center">

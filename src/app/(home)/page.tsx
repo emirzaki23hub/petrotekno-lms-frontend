@@ -1,6 +1,5 @@
 import Image from "next/image";
 import FormInput from "./Form";
-import Link from "next/link";
 
 export default function Home() {
   return (

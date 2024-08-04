@@ -206,7 +206,7 @@ const page = () => {
         <div className="grid grid-cols-4 max-lg:grid-cols-1 gap-2">
           {certifications.map((cert) => (
             <CertificationCard
-              key={cert.id}
+              index={cert.id}
               title={cert.title}
               imageSrc={cert.imageSrc}
             />
