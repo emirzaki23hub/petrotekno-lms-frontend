@@ -65,7 +65,7 @@ const page = () => {
   return (
     <div className="flex flex-col h-full gap-6 overflow-hidden">
       {/* section1 */}
-      <div className="flex w-full justify-between items-center">
+      <div className="flex w-full max-lg:gap-2 max-lg:flex-col justify-between items-center">
         <h1 className="text-[34px] font-bold">Home</h1>
         <Input
           className="lg:w-[400px] "

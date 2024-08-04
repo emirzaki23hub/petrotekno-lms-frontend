@@ -3,22 +3,12 @@
 import * as React from "react";
 import { Label, Pie, PieChart } from "recharts";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 const chartData = [
   { category: "Training", sessions: 43, percentage: 55, fill: "#D62027" },
@@ -59,7 +49,7 @@ export function OverallChart() {
       <PieChart>
         <ChartTooltip
           cursor={false}
-          content={<ChartTooltipContent hideLabel />}
+          content={<ChartTooltipContent hideLabel className="bg-white" />}
         />
         <Pie
           data={chartData}

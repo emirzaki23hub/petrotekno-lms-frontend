@@ -48,6 +48,7 @@ const FormInput = () => {
         });
         if (res?.status === 401) {
           setShowError(true);
+          setLoading(false);
           setError("Invalid username or password");
         }
 
@@ -56,9 +57,8 @@ const FormInput = () => {
         }
       } catch (error) {
         setShowError(true);
-        setError("An unexpected error occurred. Please try again.");
-      } finally {
         setLoading(false);
+        setError("An unexpected error occurred. Please try again.");
       }
     }, 500);
   }

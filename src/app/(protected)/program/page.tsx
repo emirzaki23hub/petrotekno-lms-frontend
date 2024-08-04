@@ -8,8 +8,6 @@ import Image from "next/image";
 const page = () => {
   return (
     <div className="flex flex-col h-full gap-6 overflow-hidden">
-      {/* section1 */}
-
       <div className=" h-auto rounded-m  flex gap-4 flex-col ">
         <div className="text-[20px] leading-6 pb-4 font-bold flex items-start justify-start">
           On-going Training{" "}

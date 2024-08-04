@@ -18,8 +18,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     ref
   ) => {
     return (
-      <div>
-        <div className="relative flex">
+      <div className="max-lg:w-full">
+        <div className="relative flex max-lg:w-full">
           {sectionLeft && (
             <div
               className={cn(

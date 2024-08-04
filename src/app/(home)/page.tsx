@@ -13,12 +13,12 @@ export default function Home() {
           Here there! let’s get started
         </div>
         <FormInput />
-        <div className="w-full text-center text-base">
+        {/* <div className="w-full text-center text-base">
           Don’t have account?{" "}
           <Link className="text-primary-500 font-bold" href={"/register"}>
             Create Account
           </Link>
-        </div>
+        </div> */}
       </div>
       <div className="flex justify-center items-center lg:w-[553px] h-full">
         <h2 className="text-white text-[40px] max-lg:text-2xl  text-center max-lg:order-1 lg:text-justify lg:leading-[44px] font-bold">

@@ -29,7 +29,15 @@ export const MobileSidebar = () => {
           </div>
         </SheetTrigger>
         <SheetContent side="left" className="w-72 bg-white">
-          <div className="px-1 py-6 pt-16">
+          <div className="px-1 py-6 pt-10">
+            <div className="pb-5">
+              <Image
+                src={"/icons/icon-logo.svg"}
+                height={40}
+                width={182.24}
+                alt="Logo"
+              />
+            </div>
             <SideNav items={NavItems} setOpen={setOpen} />
           </div>
         </SheetContent>
