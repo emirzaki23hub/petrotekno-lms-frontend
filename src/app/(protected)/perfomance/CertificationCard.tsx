@@ -12,10 +12,7 @@ const CertificationCard: React.FC<CertificationCardProps> = ({
   imageSrc,
   index,
 }) => (
-  <div
-    key={index}
-    className="flex border border-[#E4E6E8] p-6 rounded-m flex-col gap-4 justify-center items-center"
-  >
+  <>
     <div className="flex justify-center items-center">
       <Image
         src={imageSrc}
@@ -30,7 +27,7 @@ const CertificationCard: React.FC<CertificationCardProps> = ({
     <Button className="h-[56px] rounded-m bg-secondary-500 text-white text-base">
       Download Certification
     </Button>
-  </div>
+  </>
 );
 
 export default CertificationCard;

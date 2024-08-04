@@ -204,12 +204,17 @@ const page = () => {
         </div>
 
         <div className="grid grid-cols-4 max-lg:grid-cols-1 gap-2">
-          {certifications.map((cert) => (
-            <CertificationCard
-              index={cert.id}
-              title={cert.title}
-              imageSrc={cert.imageSrc}
-            />
+          {certifications.map((cert, index) => (
+            <div
+              key={index}
+              className="flex border border-[#E4E6E8] p-6 rounded-m flex-col gap-4 justify-center items-center"
+            >
+              <CertificationCard
+                index={cert.id}
+                title={cert.title}
+                imageSrc={cert.imageSrc}
+              />
+            </div>
           ))}
         </div>
       </div>
