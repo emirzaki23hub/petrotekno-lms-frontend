@@ -1,14 +1,26 @@
+"use client";
+import { useEffect } from "react";
 import Sidebar from "@/components/sidebar";
 import { MobileSidebar } from "@/components/sidebar/mobile-sidebar";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import React, { ReactNode } from "react";
+import { useRouter } from "next/navigation";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 export default function ProtectedLayout({ children }: LayoutProps) {
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      router.push("/");
+    }
+  }, [router]);
+
   return (
     <>
       <div className="h-[64px] fixed top-0 z-[10] bg-white border max-lg:hidden border-b-[#E4E6E8] p-4 flex justify-between items-center w-full">

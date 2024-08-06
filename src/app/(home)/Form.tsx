@@ -13,7 +13,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { signIn } from "next-auth/react";
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
@@ -40,20 +39,19 @@ const FormInput = () => {
 
     setTimeout(async () => {
       try {
-        const res = await signIn("credentials", {
-          redirect: false,
-          email: values?.email,
-          password: values?.password,
-          callbackUrl: "/dashboard",
-        });
-        if (res?.status === 401) {
+        // Simulate the signIn logic here
+        const email = values?.email;
+        const password = values?.password;
+
+        if (email === "admin@admin.com" && password === "password") {
+          const token = "dummy_token_123456";
+          // Save token to localStorage
+          localStorage.setItem("authToken", token);
+          window.location.replace("/dashboard");
+        } else {
           setShowError(true);
           setLoading(false);
           setError("Invalid username or password");
-        }
-
-        if (res?.ok) {
-          window.location.replace("/dashboard");
         }
       } catch (error) {
         setShowError(true);

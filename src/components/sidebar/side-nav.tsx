@@ -7,7 +7,6 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { useState } from "react";
 import { NavItem } from "@/types";
 import IconLogout from "../icons/IconLogout";
-import { signOut } from "next-auth/react";
 
 interface SideNavProps {
   items: NavItem[];
@@ -88,7 +87,10 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
         ))}
       </nav>
       <Button
-        onClick={() => signOut({ callbackUrl: "/" })}
+        onClick={() => {
+          localStorage.removeItem("authToken"); // Remove the token from localStorage
+          window.location.replace("/");
+        }}
         className="text-base w-full transition-all duration-300 max-lg:mt-2 ease-in-out hover:bg-primary-100 hover:text-primary-500 flex justify-start gap-3 text-neutral-400 font-bold"
       >
         <IconLogout />

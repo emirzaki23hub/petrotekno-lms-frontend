@@ -8,6 +8,8 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import SectionAgenda from "./SectionAgenda";
+import Link from "next/link";
+import AbsenceAttendance from "./SectionAttendace";
 
 const page = () => {
   const trainingModules = [
@@ -73,6 +75,7 @@ const page = () => {
           placeholder="Looking for something?"
         />
       </div>
+      <AbsenceAttendance />
       {/* section2 */}
       <div className="flex gap-6 max-lg:flex-col ">
         <div className="lg:w-3/5 w-full bg-white rounded-m flex flex-col gap-6 p-4">

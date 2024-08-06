@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Titillium_Web as FontSans, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import { NextAuthProvider } from "./Provider";
 
 export const metadata: Metadata = {
   title: "Petrotekno - Technical School",
@@ -27,17 +26,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <NextAuthProvider>
-        <body
-          className={cn(
-            "min-h-screen  bg-background font-sans antialiased",
-            fontSans.variable,
-            fontMono.variable
-          )}
-        >
-          {children}
-        </body>
-      </NextAuthProvider>
+      <body
+        className={cn(
+          "min-h-screen  bg-background font-sans antialiased",
+          fontSans.variable,
+          fontMono.variable
+        )}
+      >
+        {children}
+      </body>
     </html>
   );
 }
