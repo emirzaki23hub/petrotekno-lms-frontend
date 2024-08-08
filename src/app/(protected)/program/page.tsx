@@ -39,7 +39,7 @@ const page = () => {
             </div>
             <Link
               href={"/program/training/production-operations-training"}
-              className="h-[56px] flex justify-center items-center px-5 rounded-m bg-success-500 text-white text-base"
+              className="h-[56px] flex justify-center items-center px-5 whitespace-nowrap rounded-m bg-success-500 text-white text-base"
             >
               Start Training
             </Link>

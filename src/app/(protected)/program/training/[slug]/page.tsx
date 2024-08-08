@@ -178,7 +178,7 @@ export default function Page({ params }: { params: { slug: string } }) {
                   </div>
 
                   <Link
-                    href={`/program/training/${module.slug}`}
+                    href={`/program/training/${params.slug}/${module.slug}`}
                     className="flex items-center h-full"
                   >
                     <IconArrowRight className="h-4 w-4" />
