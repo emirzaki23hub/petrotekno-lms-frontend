@@ -16,10 +16,11 @@ export default function DashboardLayout({
     { name: "Training", href: "/program" },
     { name: "E-Learning", href: "/program/elearning" },
     { name: "Webinar", href: "/program/webinar" },
-    { name: "Certification", href: "/program/certification" },
   ];
 
-  const shouldRenderNav = !pathname.startsWith("/program/elearning/");
+  const shouldRenderNav =
+    !pathname.startsWith("/program/elearning/") &&
+    !pathname.startsWith("/program/training/");
 
   return (
     <div className="flex flex-col h-full gap-6 overflow-hidden">

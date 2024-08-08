@@ -4,6 +4,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
+import Link from "next/link";
 
 const page = () => {
   return (
@@ -14,8 +15,8 @@ const page = () => {
         </div>
 
         <div className="flex bg-white flex-col border border-[#E4E6E8] drop-shadow-md rounded-m">
-          <div className="flex max-lg:flex-col lg:p-6 p-4 gap-2 justify-between font-mono lg;items-end">
-            <div className="flex max-lg:flex-col  gap-2">
+          <div className="flex max-lg:flex-col lg:p-6 p-4 gap-2 justify-between font-mono lg:items-end">
+            <div className="flex max-lg:flex-col w-full  gap-2">
               <Image
                 src={"/images/1.png"}
                 width={0}
@@ -36,9 +37,12 @@ const page = () => {
                 </div>
               </div>
             </div>
-            <Button className="h-[56px] rounded-m bg-secondary-500 text-white text-base">
+            <Link
+              href={"/program/training/production-operations-training"}
+              className="h-[56px] flex justify-center items-center px-5 rounded-m bg-success-500 text-white text-base"
+            >
               Start Training
-            </Button>
+            </Link>
           </div>
           <div className=" bg-[#E4E6E8] rounded-b-m">
             <div className="py-4 px-6 flex flex-col gap-4">
