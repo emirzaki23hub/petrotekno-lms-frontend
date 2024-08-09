@@ -51,8 +51,8 @@ const AbsenceAttendance = () => {
 
       <div className="flex gap-2 items-center max-lg:justify-between">
         <div className="flex flex-col py-4 font-mono text-[18px] leading-7 text-neutral-800 font-bold">
-          <div>Date: {currentDate}</div>
-          <div>Time: {currentTime}</div>
+          <div suppressHydrationWarning>Date: {currentDate}</div>
+          <div suppressHydrationWarning>Time: {currentTime}</div>
         </div>
         <Button
           className="bg-success-500 transition-all duration-300 hover:opacity-70 h-[56px] text-base rounded-m font-mono text-white"
