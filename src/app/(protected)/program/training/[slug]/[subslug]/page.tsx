@@ -20,7 +20,7 @@ import {
 import { Tabs } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import PdfViewer from "../../../elearning/[slug]/PdfViewer";
 import IconPlay from "@/components/icons/IconPlay";
@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { z, ZodSchema } from "zod";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -44,23 +44,31 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { DatePicker } from "@/components/ui/datepicker";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import SectionNavigation from "@/components/SectionNavigation";
+import { Loader2 } from "lucide-react";
 
 const dummyData = [
   {
     id: 1,
     question: "What is your favorite color?",
     options: ["Red", "Blue", "Green"],
+    correctAnswer: "Blue", // Define the correct answer
   },
   {
     id: 2,
     question: "What is your favorite animal?",
     options: ["Dog", "Cat", "Bird"],
+    correctAnswer: "Dog",
     image: "/images/bg-1.png",
   },
   {
     id: 3,
     question: "What is your preferred vacation destination?",
     options: ["Beach", "Mountain", "City"],
+    correctAnswer: "Mountain",
   },
 ];
 
@@ -73,6 +81,15 @@ const dynamicSchema = z.object(
     return schema;
   }, {} as Record<string, z.ZodTypeAny>)
 );
+
+const FormSchema = z.object({
+  items: z.array(z.string()).refine((value) => value.some((item) => item), {
+    message: "You have to select at least one item.",
+  }),
+  summary: z.string(),
+});
+
+type FormSchemaType = z.infer<typeof FormSchema>;
 
 export default function Page({
   params,
@@ -128,19 +145,117 @@ export default function Page({
     resolver: zodResolver(dynamicSchema),
   });
 
-  function onSubmit(data: z.infer<typeof dynamicSchema>) {
-    console.log(data);
+  const checkboxForm = useForm<FormSchemaType>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      items: [],
+      summary: "",
+    },
+  });
+
+  const onCheckboxSubmit: SubmitHandler<FormSchemaType> = (data) => {
+    console.log("Submitted data:", data);
+    // Your submit logic here
+  };
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [submittedData, setSubmittedData] = useState<z.infer<
+    typeof dynamicSchema
+  > | null>(null);
+
+  function handleOpenDialog() {
+    setIsDialogOpen(true);
   }
-  const [currentSection, setCurrentSection] = useState(1);
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  async function onSubmit(data: z.infer<typeof dynamicSchema>) {
+    setIsLoading(true);
+
+    const results = dummyData.map((item) => ({
+      id: item.id,
+      isCorrect: data[`question-${item.id}`] === item.correctAnswer,
+    }));
+
+    setTimeout(() => {
+      setSubmittedData(results);
+      setIsLoading(false);
+      setIsDialogOpen(false);
+    }, 2000); // Simulate an API call delay with setTimeout
+  }
+
+  const searchParams = useSearchParams();
+  const [currentSection, setCurrentSection] = useState(() => {
+    const sectionParam = searchParams.get("section");
+    return sectionParam ? parseInt(sectionParam, 10) : 1;
+  });
+
+  const totalSections = 5; // Adjust this based on your total number of sections
 
   const goToNextSection = () => {
-    setCurrentSection((prev) => prev + 1);
+    setCurrentSection((prev) => {
+      const nextSection = prev + 1;
+      updateUrl(nextSection);
+      return nextSection;
+    });
   };
 
   const goToPrevSection = () => {
-    setCurrentSection((prev) => prev - 1);
+    console.log("cliked");
+    setCurrentSection((prev) => {
+      if (prev > 1) {
+        const prevSection = prev - 1;
+        updateUrl(prevSection);
+        return prevSection;
+      }
+      return prev; // Return the current value if it's already 1
+    });
   };
 
+  const updateUrl = (section: string | number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("section", section.toString()); // Convert section to string
+    router.push(`?${params.toString()}`);
+  };
+
+  const items = [
+    { id: "ppe", label: "Correct PPE worn at all times" },
+    {
+      id: "spool",
+      label: "Spool removal/reassembly procedure carried out correctly",
+    },
+    { id: "tools", label: "Correct tools selected for the task" },
+    { id: "flanges", label: "Correct Blind Flanges selected" },
+    { id: "gaskets", label: "Gaskets removed/replaced from flanges correctly" },
+    { id: "safe", label: "Safe working and tool use observed throughout" },
+    { id: "alignment", label: "Blind Flanges correctly aligned" },
+    {
+      id: "tension",
+      label: "Blind Flanges correctly tensioned using tension gauge",
+    },
+    { id: "clean", label: "Work area kept clean and tidy" },
+    { id: "storage", label: "Tools stored in correct cabinets" },
+    {
+      id: "hazards",
+      label:
+        "Correctly identified all hazards and control measures related to the job",
+    },
+    {
+      id: "function",
+      label: "Described the function of the tools required satisfactorily",
+    },
+    {
+      id: "safety",
+      label: "Described the safe use of the tools required satisfactorily",
+    },
+    {
+      id: "mechanical",
+      label:
+        "Described mechanical processes involved in the task performed when removing/replacing spool",
+    },
+  ];
+
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   return (
     <div className="flex flex-col gap-6">
       <Breadcrumb>
@@ -193,47 +308,32 @@ export default function Page({
         <div className="w-full">
           <Carousel className="w-full h-full flex mx-auto justify-between">
             <CarouselPrevious />
-            <CarouselContent className="h-full px-6 flex  w-full justify-between">
-              <CarouselItem className="basis-1/4 pl-6 flex gap-4 items-center">
-                <div
+            <CarouselContent className="h-full max-lg:px-0 px-6 flex w-full justify-between">
+              {[1, 2, 3, 4, 5].map((section, index, array) => (
+                <CarouselItem
+                  key={section}
                   className={cn(
-                    "py-3 px-[15px] rounded-full bg-neutral-100 text-neutral-400"
+                    `basis-1/4 pl-0 max-lg:basis-1/2 lg:pl-6 font-bold flex max-lg:gap-2 gap-4 items-center`,
+                    currentSection > section && "text-success-500",
+                    currentSection === section && "text-primary-500"
                   )}
                 >
-                  <IconPdf />
-                </div>
-                Section 1
-              </CarouselItem>
-              <CarouselItem className="basis-1/4 pl-6 flex gap-4 items-center">
-                <div
-                  className={cn(
-                    "py-3 px-[15px] rounded-full bg-neutral-100 text-neutral-400"
-                  )}
-                >
-                  <IconPdf />
-                </div>
-                Section 2
-              </CarouselItem>
-              <CarouselItem className="basis-1/4 pl-6 flex gap-4 items-center">
-                <div
-                  className={cn(
-                    "py-3 px-[15px] rounded-full bg-neutral-100 text-neutral-400"
-                  )}
-                >
-                  <IconPdf />
-                </div>
-                Section 3
-              </CarouselItem>
-              <CarouselItem className="basis-1/4 pl-6 flex gap-4 items-center">
-                <div
-                  className={cn(
-                    "py-3 px-[15px] rounded-full bg-neutral-100 text-neutral-400"
-                  )}
-                >
-                  <IconPdf />
-                </div>
-                Section 4
-              </CarouselItem>
+                  <div
+                    className={cn(
+                      "py-3 px-[15px] rounded-full",
+                      currentSection > section && "bg-success-400 text-white",
+                      currentSection === section && "bg-primary-500 text-white",
+                      currentSection < section &&
+                        "bg-neutral-100 text-neutral-400"
+                    )}
+                  >
+                    <IconPdf />
+                  </div>
+                  <span className="whitespace-nowrap">
+                    {index === array.length - 1 ? "Test" : `Section ${section}`}
+                  </span>
+                </CarouselItem>
+              ))}
             </CarouselContent>
             <CarouselNext />
           </Carousel>
@@ -243,20 +343,12 @@ export default function Page({
       {currentSection === 1 && (
         <>
           <PdfViewer url={"/dummy.pdf"} />
-          <div className="p-6 font-mono bg-white rounded-m flex justify-end items-start">
-            <div className="flex items-end gap-6">
-              <div className="flex flex-col justify-end  gap-0.5">
-                <div className="text-sm text-right ">Next</div>
-                <div className="text-[20px] leading-6 font-bold">Section 2</div>
-              </div>
-              <div
-                onClick={goToNextSection}
-                className="h-10 w-10 flex justify-center items-center rounded-m border-[#E4E6E8] bg-[#E4E6E8]"
-              >
-                <IconChevron dir="right" />
-              </div>
-            </div>
-          </div>
+          <SectionNavigation
+            currentSection={currentSection}
+            totalSections={totalSections}
+            goToPrevSection={goToPrevSection}
+            goToNextSection={goToNextSection}
+          />
         </>
       )}
 
@@ -264,34 +356,12 @@ export default function Page({
       {currentSection === 2 && (
         <>
           <PdfViewer url={"/dummy.pdf"} />
-          <div className="p-6 font-mono bg-white rounded-m flex justify-between items-start">
-            <div className="flex items-end gap-6">
-              <div className="h-10 w-10 flex justify-center items-center rounded-m border-[#E4E6E8] bg-[#E4E6E8]">
-                <IconChevron dir="left" />
-              </div>
-              <div className="flex flex-col justify-end  gap-0.5">
-                <div className="text-sm text-right ">Previous</div>
-                <div
-                  onClick={goToPrevSection}
-                  className="text-[20px] leading-6 font-bold"
-                >
-                  Section 1
-                </div>
-              </div>
-            </div>
-            <div className="flex items-end gap-6">
-              <div className="flex flex-col justify-end  gap-0.5">
-                <div className="text-sm text-right ">Next</div>
-                <div className="text-[20px] leading-6 font-bold">Quiz</div>
-              </div>
-              <div
-                onClick={goToNextSection}
-                className="h-10 w-10 flex justify-center items-center rounded-m border-[#E4E6E8] bg-[#E4E6E8]"
-              >
-                <IconChevron dir="right" />
-              </div>
-            </div>
-          </div>
+          <SectionNavigation
+            currentSection={currentSection}
+            totalSections={totalSections}
+            goToPrevSection={goToPrevSection}
+            goToNextSection={goToNextSection}
+          />
           <div className="p-6 font-mono bg-white rounded-m flex  items-start">
             <div className="flex gap-6 w-full max-lg:flex-col ">
               <div className="w-full  bg-white rounded-m flex flex-col gap-4">
@@ -311,7 +381,7 @@ export default function Page({
                       >
                         <div
                           className={cn(
-                            "h-12 w-12 flex justify-center items-center rounded-full bg-neutral-100 text-neutral-400"
+                            "h-12 w-12 max-lg:w-full flex justify-center items-center rounded-full bg-neutral-100 text-neutral-400"
                           )}
                         >
                           <IconPlay />
@@ -365,12 +435,12 @@ export default function Page({
                     >
                       <div
                         className={cn(
-                          "flex gap-6 items-center text-neutral-100"
+                          "flex gap-6 max-lg:gap-3 items-center text-neutral-100"
                         )}
                       >
                         <div
                           className={cn(
-                            "h-12 w-12 flex justify-center items-center rounded-full bg-neutral-100 text-neutral-400",
+                            "h-12 w-12 max-lg:h-20  flex justify-center items-center rounded-full bg-neutral-100 text-neutral-400",
 
                             item.status === "Done" &&
                               "bg-success-500 text-white"
@@ -415,34 +485,12 @@ export default function Page({
 
       {currentSection === 3 && (
         <div className="flex gap-6 flex-col">
-          <div className="p-6 font-mono bg-white rounded-m flex justify-between items-start">
-            <div className="flex items-end gap-6">
-              <div className="h-10 w-10 flex justify-center items-center rounded-m border-[#E4E6E8] bg-[#E4E6E8]">
-                <IconChevron dir="left" />
-              </div>
-              <div className="flex flex-col justify-end  gap-0.5">
-                <div className="text-sm text-right ">Previous</div>
-                <div
-                  onClick={goToPrevSection}
-                  className="text-[20px] leading-6 font-bold"
-                >
-                  Section 2
-                </div>
-              </div>
-            </div>
-            <div className="flex items-end gap-6">
-              <div className="flex flex-col justify-end  gap-0.5">
-                <div className="text-sm text-right ">Next</div>
-                <div className="text-[20px] leading-6 font-bold">Section 3</div>
-              </div>
-              <div
-                onClick={goToNextSection}
-                className="h-10 w-10 flex justify-center items-center rounded-m border-[#E4E6E8] bg-[#E4E6E8]"
-              >
-                <IconChevron dir="right" />
-              </div>
-            </div>
-          </div>
+          <SectionNavigation
+            currentSection={currentSection}
+            totalSections={totalSections}
+            goToPrevSection={goToPrevSection}
+            goToNextSection={goToNextSection}
+          />
           <div className="p-6 font-mono bg-white rounded-m flex  items-start">
             <div className="flex gap-6 w-full max-lg:flex-col ">
               <div className="w-full  bg-white rounded-m flex flex-col gap-4">
@@ -456,68 +504,245 @@ export default function Page({
                       onSubmit={form.handleSubmit(onSubmit)}
                       className="w-full space-y-6"
                     >
-                      {dummyData.map((item, index) => (
-                        <FormField
-                          key={item.id}
-                          control={form.control}
-                          name={`question-${item.id}`}
-                          render={({ field }) => (
-                            <FormItem className="space-y-6 border p-6 rounded-m">
-                              {/* Display question index + 1 */}
-                              <div className="flex flex-col space-y-1">
-                                <FormLabel className="font-bold text-primary-500 mb-4">
-                                  Question {index + 1}
-                                </FormLabel>
-                                {/* Conditionally render image if it exists */}
-                                {item.image && (
-                                  <div className="pb-5">
-                                    <img
-                                      src={item.image}
-                                      alt={`Question ${index + 1} image`}
-                                      className=" w-full object-cover rounded-md"
-                                    />
-                                  </div>
-                                )}
-                                <FormLabel className="font-mono text-base font-bold">
-                                  {item.question}
-                                </FormLabel>
-                              </div>
-                              <FormControl>
-                                <RadioGroup
-                                  onValueChange={field.onChange}
-                                  defaultValue={field.value}
-                                  className="flex flex-col space-y-1"
-                                >
-                                  {item.options.map((option, optionIndex) => (
-                                    <FormItem
-                                      key={optionIndex}
-                                      className="flex items-center space-x-3 space-y-0"
-                                    >
-                                      <FormControl>
-                                        <RadioGroupItem value={option} />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        {option}
-                                      </FormLabel>
-                                    </FormItem>
-                                  ))}
-                                </RadioGroup>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      ))}
+                      {dummyData.map((item, index) => {
+                        const isCorrect = submittedData?.find(
+                          (result: { id: number }) => result.id === item.id
+                        )?.isCorrect;
+
+                        return (
+                          <FormField
+                            key={item.id}
+                            control={form.control}
+                            name={`question-${item.id}`}
+                            render={({ field }) => (
+                              <FormItem
+                                className={`space-y-6 border rounded-m `}
+                              >
+                                <div className="flex flex-col space-y-1 pt-6">
+                                  <FormLabel className="font-bold px-6 text-primary-500 mb-4">
+                                    Question {index + 1}
+                                  </FormLabel>
+                                  {item.image && (
+                                    <div className="pb-5">
+                                      <img
+                                        src={item.image}
+                                        alt={`Question ${index + 1} image`}
+                                        className=" w-full object-cover rounded-md"
+                                      />
+                                    </div>
+                                  )}
+                                  <FormLabel className="font-mono px-6 text-base font-bold">
+                                    {item.question}
+                                  </FormLabel>
+                                </div>
+                                <FormControl>
+                                  <RadioGroup
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                    className="flex flex-col space-y-1 px-6 pb-6"
+                                  >
+                                    {item.options.map((option, optionIndex) => (
+                                      <FormItem
+                                        key={optionIndex}
+                                        className="flex items-center space-x-3 space-y-0"
+                                      >
+                                        <FormControl>
+                                          <RadioGroupItem
+                                            className={`data-[state=checked]:bg-green-500 data-[state=checked]:text-white ${
+                                              isCorrect === false &&
+                                              field.value === option
+                                                ? " data-[state=checked]:bg-[#F69386] "
+                                                : ""
+                                            }`}
+                                            value={option}
+                                          />
+                                        </FormControl>
+                                        <FormLabel
+                                          className={cn(
+                                            "font-normal",
+                                            isCorrect === false &&
+                                              field.value === option
+                                              ? " text-[#F04B35]"
+                                              : ""
+                                          )}
+                                        >
+                                          {option}
+                                        </FormLabel>
+                                      </FormItem>
+                                    ))}
+                                  </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        );
+                      })}
 
                       <Button
                         className="h-[56px] px-5 bg-[#E4E6E8] rounded-m text-black"
+                        onClick={handleOpenDialog}
+                        type="button"
+                      >
+                        Submit
+                      </Button>
+                      <Dialog
+                        open={isDialogOpen}
+                        onOpenChange={setIsDialogOpen}
+                      >
+                        <DialogContent className="bg-white">
+                          <DialogHeader className="text-[28px] font-bold">
+                            Submit
+                          </DialogHeader>
+                          <DialogDescription className="text-base">
+                            Are you sure to submit the answer of the test?{" "}
+                          </DialogDescription>
+
+                          {isLoading && (
+                            <div className="flex justify-center items-center">
+                              <Loader2 className="mr-2 size-12 animate-spin" />
+                            </div>
+                          )}
+
+                          <div className="flex gap-4 w-full">
+                            <Button
+                              type="submit"
+                              disabled={isLoading}
+                              onClick={form.handleSubmit(onSubmit)}
+                              className="mt-4 h-[56px] bg-secondary-500 w-full text-white"
+                            >
+                              Yes
+                            </Button>
+                            <Button
+                              type="button"
+                              disabled={isLoading}
+                              onClick={() => setIsDialogOpen(false)}
+                              className="mt-4 h-[56px] bg-[#F04B35] w-full text-white"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </form>
+                  </Form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {currentSection === 4 && (
+        <div className="flex gap-6 flex-col">
+          <SectionNavigation
+            currentSection={currentSection}
+            totalSections={totalSections}
+            goToPrevSection={goToPrevSection}
+            goToNextSection={goToNextSection}
+          />
+          <div className="p-6 font-mono bg-white rounded-m flex  items-start">
+            <div className="flex gap-6 w-full max-lg:flex-col ">
+              <div className="w-full  bg-white rounded-m flex flex-col gap-6">
+                <div className="text-[20px] leading-6 font-bold  h-10 pb-4">
+                  Marking Scheme Task
+                </div>
+                <div className="flex gap-1 flex-col #474E53 font-mono pb-4 border-[#E4E6E8] border-b">
+                  <span className="text-[20px] leading-6 font-bold">
+                    Task 1
+                  </span>
+                  <span className="text-sm ">
+                    BREAKING CONTAINMENT SPOOL REMOVAL
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-1 ">
+                  <div className="text-base text-neutral-800 font-bold">
+                    Training Date
+                  </div>
+                  <DatePicker
+                    date={selectedDate}
+                    onDateChange={(date) => setSelectedDate(date)}
+                  />
+                </div>
+
+                <div className="flex gap-[66px] text-[20px] leading-6 text-neutral-700 font-bold">
+                  <div>No.</div>
+                  Task List
+                </div>
+
+                <Form {...checkboxForm}>
+                  <form onSubmit={checkboxForm.handleSubmit(onCheckboxSubmit)}>
+                    <div className="flex flex-col gap-6">
+                      {items.map((item, index) => (
+                        <div key={item.id} className="flex items-center gap-10">
+                          <div className="w-2">{index + 1}.</div>
+                          <FormField
+                            control={checkboxForm.control}
+                            name="items"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-center h-full">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={
+                                      Array.isArray(field.value) &&
+                                      field.value.includes(item.id)
+                                    }
+                                    onCheckedChange={(checked) => {
+                                      const updatedValue = Array.isArray(
+                                        field.value
+                                      )
+                                        ? field.value
+                                        : [];
+                                      return checked
+                                        ? field.onChange([
+                                            ...updatedValue,
+                                            item.id,
+                                          ])
+                                        : field.onChange(
+                                            updatedValue.filter(
+                                              (value) => value !== item.id
+                                            )
+                                          );
+                                    }}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                          <div>{item.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <FormField
+                      control={checkboxForm.control}
+                      name="summary"
+                      render={({ field }) => (
+                        <FormItem className="mt-10">
+                          <FormLabel className="text-base leading-6 font-bold font-mono">
+                            Summary
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Enter long text here"
+                              className="rounded-m"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="mt-10 flex justify-center w-full">
+                      <Button
+                        className="h-[56px] bg-secondary-500 text-white max-lg:w-full lg:min-w-[300px] rounded-m"
                         type="submit"
                       >
                         Submit
                       </Button>
-                    </form>
-                  </Form>
-                </div>
+                    </div>
+                  </form>
+                </Form>
               </div>
             </div>
           </div>

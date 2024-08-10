@@ -8,7 +8,6 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import SectionAgenda from "./SectionAgenda";
-import Link from "next/link";
 import AbsenceAttendance from "./SectionAttendace";
 
 const page = () => {
