@@ -1,5 +1,5 @@
 "use client";
-import IconChevron from "@/components/icons/IconChevron";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import IconPdf from "@/components/icons/IconPdf";
 import {
   Breadcrumb,
@@ -11,15 +11,22 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carouselHeader";
-import { Tabs } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import PdfViewer from "../../../elearning/[slug]/PdfViewer";
@@ -32,7 +39,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { z, ZodSchema } from "zod";
+import { z } from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -49,6 +56,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import SectionNavigation from "@/components/SectionNavigation";
 import { Loader2 } from "lucide-react";
+import IconSlider from "@/components/icons/IconSlider";
+import { startOfToday } from "date-fns";
+import Link from "next/link";
 
 const dummyData = [
   {
@@ -185,13 +195,15 @@ export default function Page({
   }
 
   const searchParams = useSearchParams();
-  const [currentSection, setCurrentSection] = useState(() => {
-    const sectionParam = searchParams.get("section");
-    return sectionParam ? parseInt(sectionParam, 10) : 1;
-  });
-
   const totalSections = 5; // Adjust this based on your total number of sections
 
+  const [currentSection, setCurrentSection] = useState<number>(() => {
+    const sectionParam = searchParams.get("section");
+    const section = sectionParam ? parseInt(sectionParam, 10) : 1;
+
+    // Ensure the section is within the valid range
+    return section >= 1 && section <= totalSections ? section : 1;
+  });
   const goToNextSection = () => {
     setCurrentSection((prev) => {
       const nextSection = prev + 1;
@@ -219,43 +231,86 @@ export default function Page({
   };
 
   const items = [
-    { id: "ppe", label: "Correct PPE worn at all times" },
+    {
+      id: "ppe",
+      label: "Correct PPE worn at all times",
+      score: Math.floor(Math.random() * 11),
+    },
     {
       id: "spool",
       label: "Spool removal/reassembly procedure carried out correctly",
+      score: Math.floor(Math.random() * 11),
     },
-    { id: "tools", label: "Correct tools selected for the task" },
-    { id: "flanges", label: "Correct Blind Flanges selected" },
-    { id: "gaskets", label: "Gaskets removed/replaced from flanges correctly" },
-    { id: "safe", label: "Safe working and tool use observed throughout" },
-    { id: "alignment", label: "Blind Flanges correctly aligned" },
+    {
+      id: "tools",
+      label: "Correct tools selected for the task",
+      score: Math.floor(Math.random() * 11),
+    },
+    {
+      id: "flanges",
+      label: "Correct Blind Flanges selected",
+      score: Math.floor(Math.random() * 11),
+    },
+    {
+      id: "gaskets",
+      label: "Gaskets removed/replaced from flanges correctly",
+      score: Math.floor(Math.random() * 11),
+    },
+    {
+      id: "safe",
+      label: "Safe working and tool use observed throughout",
+      score: Math.floor(Math.random() * 11),
+    },
+    {
+      id: "alignment",
+      label: "Blind Flanges correctly aligned",
+      score: Math.floor(Math.random() * 11),
+    },
     {
       id: "tension",
       label: "Blind Flanges correctly tensioned using tension gauge",
+      score: Math.floor(Math.random() * 11),
     },
-    { id: "clean", label: "Work area kept clean and tidy" },
-    { id: "storage", label: "Tools stored in correct cabinets" },
+    {
+      id: "clean",
+      label: "Work area kept clean and tidy",
+      score: Math.floor(Math.random() * 11),
+    },
+    {
+      id: "storage",
+      label: "Tools stored in correct cabinets",
+      score: Math.floor(Math.random() * 11),
+    },
     {
       id: "hazards",
       label:
         "Correctly identified all hazards and control measures related to the job",
+      score: Math.floor(Math.random() * 11),
     },
     {
       id: "function",
       label: "Described the function of the tools required satisfactorily",
+      score: Math.floor(Math.random() * 11),
     },
     {
       id: "safety",
       label: "Described the safe use of the tools required satisfactorily",
+      score: Math.floor(Math.random() * 11),
     },
     {
       id: "mechanical",
       label:
         "Described mechanical processes involved in the task performed when removing/replacing spool",
+      score: Math.floor(Math.random() * 11),
     },
   ];
 
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const initialDate = startOfToday();
+  const [selectedDate, setSelectedDate] = useState<Date>(initialDate);
+  const getStatus = (score: number) => {
+    return score > 5 ? "Pass" : "Fail";
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <Breadcrumb>
@@ -281,9 +336,9 @@ export default function Page({
         </BreadcrumbList>
       </Breadcrumb>
       <div className="flex gap-4 items-center">
-        <Button
-          onClick={() => router.back()}
-          className="h-10 w-10 bg-[#E4E6E] border-black border"
+        <Link
+          href={`/program/training/${params.slug}`}
+          className="h-10 w-10 flex items-center justify-center rounded-m bg-[#E4E6E] border-black border"
         >
           <svg
             width="8"
@@ -299,7 +354,7 @@ export default function Page({
               fill="#474E53"
             />
           </svg>
-        </Button>
+        </Link>
         <h1 className="text-[34px] leading-9 font-bold">
           Module 24: Level Measurement{" "}
         </h1>
@@ -309,31 +364,35 @@ export default function Page({
           <Carousel className="w-full h-full flex mx-auto justify-between">
             <CarouselPrevious />
             <CarouselContent className="h-full max-lg:px-0 px-6 flex w-full justify-between">
-              {[1, 2, 3, 4, 5].map((section, index, array) => (
-                <CarouselItem
-                  key={section}
-                  className={cn(
-                    `basis-1/4 pl-0 max-lg:basis-1/2 lg:pl-6 font-bold flex max-lg:gap-2 gap-4 items-center`,
-                    currentSection > section && "text-success-500",
-                    currentSection === section && "text-primary-500"
-                  )}
-                >
-                  <div
+              {["Section 1", "Section 2", "Quiz", "Job Card", "Test"].map(
+                (section, index) => (
+                  <CarouselItem
+                    key={section}
                     className={cn(
-                      "py-3 px-[15px] rounded-full",
-                      currentSection > section && "bg-success-400 text-white",
-                      currentSection === section && "bg-primary-500 text-white",
-                      currentSection < section &&
-                        "bg-neutral-100 text-neutral-400"
+                      `basis-1/5 pl-0 max-lg:basis-1/2 lg:pl-6 font-bold flex max-lg:gap-2 gap-4 items-center`,
+                      currentSection > index + 1 && "text-success-500",
+                      currentSection === index + 1 && "text-primary-500"
                     )}
                   >
-                    <IconPdf />
-                  </div>
-                  <span className="whitespace-nowrap">
-                    {index === array.length - 1 ? "Test" : `Section ${section}`}
-                  </span>
-                </CarouselItem>
-              ))}
+                    <div
+                      className={cn(
+                        "w-9 h-9 flex justify-center items-center rounded-full",
+                        currentSection > index + 1 &&
+                          "bg-success-400 text-white",
+                        currentSection === index + 1 &&
+                          "bg-primary-500 text-white",
+                        currentSection < index + 1 &&
+                          "bg-neutral-100 text-neutral-400"
+                      )}
+                    >
+                      <div className="m-5">
+                        <IconSlider />
+                      </div>
+                    </div>
+                    <span className="whitespace-nowrap">{section}</span>
+                  </CarouselItem>
+                )
+              )}
             </CarouselContent>
             <CarouselNext />
           </Carousel>
@@ -644,7 +703,7 @@ export default function Page({
           <div className="p-6 font-mono bg-white rounded-m flex  items-start">
             <div className="flex gap-6 w-full max-lg:flex-col ">
               <div className="w-full  bg-white rounded-m flex flex-col gap-6">
-                <div className="text-[20px] leading-6 font-bold  h-10 pb-4">
+                <div className="text-[20px] leading-6 font-bold  h-10 pb-4 font-sans">
                   Marking Scheme Task
                 </div>
                 <div className="flex gap-1 flex-col #474E53 font-mono pb-4 border-[#E4E6E8] border-b">
@@ -662,11 +721,15 @@ export default function Page({
                   </div>
                   <DatePicker
                     date={selectedDate}
-                    onDateChange={(date) => setSelectedDate(date)}
+                    onDateChange={(date) => {
+                      if (date) {
+                        setSelectedDate(date);
+                      }
+                    }}
                   />
                 </div>
 
-                <div className="flex gap-[66px] text-[20px] leading-6 text-neutral-700 font-bold">
+                <div className="flex gap-[66px] text-[20px] leading-6 font-sans text-neutral-700 font-bold">
                   <div>No.</div>
                   Task List
                 </div>
@@ -746,7 +809,150 @@ export default function Page({
               </div>
             </div>
           </div>
+
+          <div className="p-6 font-mono bg-white rounded-m flex  items-start">
+            <div className="flex gap-6 w-full max-lg:flex-col ">
+              <div className="w-full  bg-white rounded-m flex flex-col gap-6">
+                <div className="text-[20px] leading-6 font-bold  h-10 pb-4 font-sans">
+                  Marking Scheme Task
+                </div>
+                <div className="flex gap-1 flex-col #474E53 font-mono pb-4 border-[#E4E6E8] border-b">
+                  <span className="text-[20px] leading-6 font-bold">
+                    Task 1
+                  </span>
+                  <span className="text-sm ">
+                    BREAKING CONTAINMENT SPOOL REMOVAL
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-1 ">
+                  <div className="text-base text-neutral-800 font-bold">
+                    Training Date
+                  </div>
+                  <DatePicker
+                    date={selectedDate}
+                    onDateChange={(date) => {
+                      if (date) {
+                        setSelectedDate(date);
+                      }
+                    }}
+                  />
+                </div>
+
+                <Tabs defaultValue="task" className="w-full">
+                  <TabsList className="grid  w-full grid-cols-2 lg:w-[600px]">
+                    <TabsTrigger
+                      className="border-neutral-800 font-sans text-base font-bold border-r-0 border rounded-l-m rounded-r-0"
+                      value="task"
+                    >
+                      Task List
+                    </TabsTrigger>
+                    <TabsTrigger
+                      className="border-neutral-800 border font-sans text-base font-bold rounded-l-0 rounded-r-m"
+                      value="feedback"
+                    >
+                      Feedback
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="task">
+                    <Table className="w-full  mt-5">
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[60px]">No.</TableHead>
+                          <TableHead className="w-[60px]"></TableHead>
+                          <TableHead>Task List</TableHead>
+                          <TableHead className="w-[100px]">Score</TableHead>
+                          <TableHead className="w-[100px]">Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {items.map((item, index) => {
+                          // Assuming we have a score for each item. Replace this with actual scores.
+                          const score = item.score; // Random score 0-10 for demonstration
+                          const status = getStatus(score);
+
+                          return (
+                            <TableRow key={item.id}>
+                              <TableCell>{index + 1}.</TableCell>
+                              <TableCell>
+                                <Checkbox checked={score > 5} />
+                              </TableCell>
+                              <TableCell>{item.label}</TableCell>
+                              <TableCell>{score}</TableCell>
+                              <TableCell
+                                className={
+                                  status === "Pass"
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                }
+                              >
+                                {status}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </TabsContent>
+                  <TabsContent value="feedback">
+                    <div className="flex flex-col gap-4 mt-5">
+                      <div className="font-mone text-base font-bold">
+                        Instructors justification for the above scores
+                      </div>
+                      <Textarea
+                        disabled
+                        className="p-4 min-h-[300px] font-mono"
+                      >
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                        sed do eiusmod tempor incididunt ut labore et dolore
+                        magna aliqua. Ut enim ad minim veniam, quis nostrud
+                        exercitation ullamco laboris nisi ut aliquip ex ea
+                        commodo consequat. Duis aute irure dolor in
+                        reprehenderit in voluptate velit esse cillum dolore.
+                        Lorem ipsum dolor sit amet, consectetur ad Lorem ipsum
+                        dolor sit amet, consectetur ad Lorem ipsum dolor sit
+                        amet, consectetur ad Lorem ipsum dolor sit amet,
+                        consectetur ad Lorem ipsum dolor sit amet, consectetur
+                        ad
+                      </Textarea>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </div>
+          </div>
         </div>
+      )}
+
+      {currentSection === 5 && (
+        <>
+          <div className="p-6 flex max-lg:flex-col max-lg:gap-4 max-lg:items-center justify-between  rounded-m bg-white items-end ">
+            <div className="flex flex-col text-neutral-700 font-mono gap-4">
+              <div className="flex gap-2 text-sm text-primary-500 font-bold">
+                20 Questions
+              </div>
+              <div className="text-2xl font-sans leading-7 font-bold">
+                Level Measurement Test
+              </div>
+              <div className="text-base text-neutral-400">
+                Start Date: 25 Jun 2024 • 09.00 WIB
+              </div>
+            </div>
+
+            <Link
+              className="h-[56px] font-sans text-base bg-secondary-500 rounded-m flex justify-center items-center min-w-[155px] text-white"
+              href={"/"}
+            >
+              Start Test
+            </Link>
+          </div>
+          <SectionNavigation
+            currentSection={currentSection}
+            totalSections={totalSections}
+            goToPrevSection={goToPrevSection}
+            goToNextSection={goToNextSection}
+          />
+        </>
       )}
     </div>
   );

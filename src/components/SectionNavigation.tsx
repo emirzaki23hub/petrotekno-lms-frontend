@@ -9,6 +9,8 @@ interface SectionNavigationProps {
   goToNextSection: () => void;
 }
 
+const sectionNames = ["Section 1", "Section 2", "Quiz", "Job Card", "Test"];
+
 export default function SectionNavigation({
   currentSection,
   totalSections,
@@ -16,9 +18,9 @@ export default function SectionNavigation({
   goToNextSection,
 }: SectionNavigationProps) {
   const prevSection =
-    currentSection > 1 ? `Section ${currentSection - 1}` : "Introduction";
+    currentSection > 1 ? sectionNames[currentSection - 2] : null;
   const nextSection =
-    currentSection < totalSections ? `Section ${currentSection + 1}` : "Quiz";
+    currentSection < totalSections ? sectionNames[currentSection] : null;
 
   return (
     <div
@@ -27,7 +29,7 @@ export default function SectionNavigation({
         currentSection === 1 && "justify-end"
       )}
     >
-      {currentSection > 1 && (
+      {prevSection && (
         <div className="flex items-end gap-6">
           <button
             onClick={goToPrevSection}
@@ -41,18 +43,20 @@ export default function SectionNavigation({
           </div>
         </div>
       )}
-      <div className="flex items-end gap-6">
-        <div className="flex flex-col justify-end gap-0.5">
-          <div className="text-sm text-right">Next</div>
-          <div className="text-[20px] leading-6 font-bold">{nextSection}</div>
+      {nextSection && (
+        <div className="flex items-end gap-6">
+          <div className="flex flex-col justify-end gap-0.5">
+            <div className="text-sm text-right">Next</div>
+            <div className="text-[20px] leading-6 font-bold">{nextSection}</div>
+          </div>
+          <button
+            onClick={goToNextSection}
+            className="h-10 w-10 hover:opacity-70 transition-all duration-300 cursor-pointer flex justify-center items-center rounded-m border-[#E4E6E8] bg-[#E4E6E8]"
+          >
+            <IconChevron dir="right" />
+          </button>
         </div>
-        <button
-          onClick={goToNextSection}
-          className="h-10 w-10 hover:opacity-70 transition-all duration-300 cursor-pointer flex justify-center items-center rounded-m border-[#E4E6E8] bg-[#E4E6E8]"
-        >
-          <IconChevron dir="right" />
-        </button>
-      </div>
+      )}
     </div>
   );
 }
