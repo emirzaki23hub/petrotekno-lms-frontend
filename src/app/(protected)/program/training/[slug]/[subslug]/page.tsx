@@ -99,6 +99,125 @@ const FormSchema = z.object({
   summary: z.string(),
 });
 
+const trainingData = [
+  {
+    title: "Session - 1",
+    fileName: "LHP-APP-GEN-DQ-PPR24-02 Rev0 Lesson Plan - Level.pdf",
+    date: "25 June 2025",
+    status: "Done", // Status for Session 1
+  },
+  {
+    title: "Session - 2",
+    fileName: "LHP-APP-GEN-DQ-PPR24-03 Rev0 Instructors Guide - Level.pdf",
+    date: "25 June 2025",
+    status: "Upcoming", // Status for Session 2
+  },
+  {
+    title: "Session - 3",
+    fileName: "LHP-APP-GEN-DK-PPR24-01 Rev0 JC 1.pdf",
+    date: "25 June 2025",
+    status: "Upcoming", // Status for Session 3
+  },
+  {
+    title: "Session - 4",
+    fileName: "LHP-APP-GEN-DK-PPR24-01 Rev0 JC 1.pdf",
+    date: "25 June 2025",
+    status: "Upcoming", // Status for Session 4
+  },
+  {
+    title: "Session - 5",
+    fileName: "LHP-APP-GEN-DK-PPR24-01 Rev0 JC 1.pdf",
+    date: "25 June 2025",
+    status: "Upcoming", // Status for Session 5
+  },
+];
+
+const materiData = [
+  {
+    title: "Video 1",
+    src: "https://www.youtube.com/embed/K4TOrB7at0Y?si=PbKol3mB7JIbPtW8",
+  },
+  {
+    title: "Session - 2",
+    src: "https://www.youtube.com/embed/K4TOrB7at0Y?si=PbKol3mB7JIbPtW8",
+  },
+];
+
+const items = [
+  {
+    id: "ppe",
+    label: "Correct PPE worn at all times",
+    score: Math.floor(Math.random() * 11),
+  },
+  {
+    id: "spool",
+    label: "Spool removal/reassembly procedure carried out correctly",
+    score: Math.floor(Math.random() * 11),
+  },
+  {
+    id: "tools",
+    label: "Correct tools selected for the task",
+    score: Math.floor(Math.random() * 11),
+  },
+  {
+    id: "flanges",
+    label: "Correct Blind Flanges selected",
+    score: Math.floor(Math.random() * 11),
+  },
+  {
+    id: "gaskets",
+    label: "Gaskets removed/replaced from flanges correctly",
+    score: Math.floor(Math.random() * 11),
+  },
+  {
+    id: "safe",
+    label: "Safe working and tool use observed throughout",
+    score: Math.floor(Math.random() * 11),
+  },
+  {
+    id: "alignment",
+    label: "Blind Flanges correctly aligned",
+    score: Math.floor(Math.random() * 11),
+  },
+  {
+    id: "tension",
+    label: "Blind Flanges correctly tensioned using tension gauge",
+    score: Math.floor(Math.random() * 11),
+  },
+  {
+    id: "clean",
+    label: "Work area kept clean and tidy",
+    score: Math.floor(Math.random() * 11),
+  },
+  {
+    id: "storage",
+    label: "Tools stored in correct cabinets",
+    score: Math.floor(Math.random() * 11),
+  },
+  {
+    id: "hazards",
+    label:
+      "Correctly identified all hazards and control measures related to the job",
+    score: Math.floor(Math.random() * 11),
+  },
+  {
+    id: "function",
+    label: "Described the function of the tools required satisfactorily",
+    score: Math.floor(Math.random() * 11),
+  },
+  {
+    id: "safety",
+    label: "Described the safe use of the tools required satisfactorily",
+    score: Math.floor(Math.random() * 11),
+  },
+  {
+    id: "mechanical",
+    label:
+      "Described mechanical processes involved in the task performed when removing/replacing spool",
+    score: Math.floor(Math.random() * 11),
+  },
+];
+
 type FormSchemaType = z.infer<typeof FormSchema>;
 
 export default function Page({
@@ -107,49 +226,6 @@ export default function Page({
   params: { slug: string; subslug: string };
 }) {
   const router = useRouter();
-  const trainingData = [
-    {
-      title: "Session - 1",
-      fileName: "LHP-APP-GEN-DQ-PPR24-02 Rev0 Lesson Plan - Level.pdf",
-      date: "25 June 2025",
-      status: "Done", // Status for Session 1
-    },
-    {
-      title: "Session - 2",
-      fileName: "LHP-APP-GEN-DQ-PPR24-03 Rev0 Instructors Guide - Level.pdf",
-      date: "25 June 2025",
-      status: "Upcoming", // Status for Session 2
-    },
-    {
-      title: "Session - 3",
-      fileName: "LHP-APP-GEN-DK-PPR24-01 Rev0 JC 1.pdf",
-      date: "25 June 2025",
-      status: "Upcoming", // Status for Session 3
-    },
-    {
-      title: "Session - 4",
-      fileName: "LHP-APP-GEN-DK-PPR24-01 Rev0 JC 1.pdf",
-      date: "25 June 2025",
-      status: "Upcoming", // Status for Session 4
-    },
-    {
-      title: "Session - 5",
-      fileName: "LHP-APP-GEN-DK-PPR24-01 Rev0 JC 1.pdf",
-      date: "25 June 2025",
-      status: "Upcoming", // Status for Session 5
-    },
-  ];
-
-  const materiData = [
-    {
-      title: "Video 1",
-      src: "https://www.youtube.com/embed/K4TOrB7at0Y?si=PbKol3mB7JIbPtW8",
-    },
-    {
-      title: "Session - 2",
-      src: "https://www.youtube.com/embed/K4TOrB7at0Y?si=PbKol3mB7JIbPtW8",
-    },
-  ];
 
   const form = useForm<z.infer<typeof dynamicSchema>>({
     resolver: zodResolver(dynamicSchema),
@@ -229,81 +305,6 @@ export default function Page({
     params.set("section", section.toString()); // Convert section to string
     router.push(`?${params.toString()}`);
   };
-
-  const items = [
-    {
-      id: "ppe",
-      label: "Correct PPE worn at all times",
-      score: Math.floor(Math.random() * 11),
-    },
-    {
-      id: "spool",
-      label: "Spool removal/reassembly procedure carried out correctly",
-      score: Math.floor(Math.random() * 11),
-    },
-    {
-      id: "tools",
-      label: "Correct tools selected for the task",
-      score: Math.floor(Math.random() * 11),
-    },
-    {
-      id: "flanges",
-      label: "Correct Blind Flanges selected",
-      score: Math.floor(Math.random() * 11),
-    },
-    {
-      id: "gaskets",
-      label: "Gaskets removed/replaced from flanges correctly",
-      score: Math.floor(Math.random() * 11),
-    },
-    {
-      id: "safe",
-      label: "Safe working and tool use observed throughout",
-      score: Math.floor(Math.random() * 11),
-    },
-    {
-      id: "alignment",
-      label: "Blind Flanges correctly aligned",
-      score: Math.floor(Math.random() * 11),
-    },
-    {
-      id: "tension",
-      label: "Blind Flanges correctly tensioned using tension gauge",
-      score: Math.floor(Math.random() * 11),
-    },
-    {
-      id: "clean",
-      label: "Work area kept clean and tidy",
-      score: Math.floor(Math.random() * 11),
-    },
-    {
-      id: "storage",
-      label: "Tools stored in correct cabinets",
-      score: Math.floor(Math.random() * 11),
-    },
-    {
-      id: "hazards",
-      label:
-        "Correctly identified all hazards and control measures related to the job",
-      score: Math.floor(Math.random() * 11),
-    },
-    {
-      id: "function",
-      label: "Described the function of the tools required satisfactorily",
-      score: Math.floor(Math.random() * 11),
-    },
-    {
-      id: "safety",
-      label: "Described the safe use of the tools required satisfactorily",
-      score: Math.floor(Math.random() * 11),
-    },
-    {
-      id: "mechanical",
-      label:
-        "Described mechanical processes involved in the task performed when removing/replacing spool",
-      score: Math.floor(Math.random() * 11),
-    },
-  ];
 
   const initialDate = startOfToday();
   const [selectedDate, setSelectedDate] = useState<Date>(initialDate);
@@ -872,7 +873,7 @@ export default function Page({
                           const status = getStatus(score);
 
                           return (
-                            <TableRow key={item.id}>
+                            <TableRow className="border-0" key={item.id}>
                               <TableCell>{index + 1}.</TableCell>
                               <TableCell>
                                 <Checkbox checked={score > 5} />
@@ -941,7 +942,7 @@ export default function Page({
 
             <Link
               className="h-[56px] font-sans text-base bg-secondary-500 rounded-m flex justify-center items-center min-w-[155px] text-white"
-              href={"/"}
+              href={`/program/training/${params.slug}/${params.subslug}/test`}
             >
               Start Test
             </Link>

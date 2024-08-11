@@ -22,8 +22,14 @@ export default function DashboardLayout({
     !pathname.startsWith("/program/elearning/") &&
     !pathname.startsWith("/program/training/");
 
+  const matchPattern = /^\/program\/training\/[^\/]+\/[^\/]+\/test$/;
+
   return (
-    <div className="flex flex-col h-full gap-6 overflow-hidden">
+    <div
+      className={`flex flex-col h-full overflow-hidden ${
+        matchPattern.test(pathname) ? "gap-0" : "gap-6"
+      }`}
+    >
       {shouldRenderNav && (
         <>
           <div className="flex w-full max-lg:flex-col gap-2 justify-between items-center">

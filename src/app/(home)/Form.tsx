@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -60,6 +60,13 @@ const FormInput = () => {
       }
     }, 500);
   }
+
+  useEffect(() => {
+    const authToken = localStorage.getItem("authToken");
+    if (authToken) {
+      window.location.replace("/dashboard"); // Redirect to the dashboard if authToken exists
+    }
+  }, []);
 
   return (
     <div>
