@@ -68,11 +68,11 @@ const page = () => {
       {/* section1 */}
       <div className="flex w-full max-lg:gap-2 max-lg:flex-col justify-between items-center">
         <h1 className="text-[34px] font-bold">Home</h1>
-        <Input
+        {/* <Input
           className="lg:w-[400px] "
           sectionLeft={<IconSearch className="text-neutral-400" />}
           placeholder="Looking for something?"
-        />
+        /> */}
       </div>
       <AbsenceAttendance />
       {/* section2 */}

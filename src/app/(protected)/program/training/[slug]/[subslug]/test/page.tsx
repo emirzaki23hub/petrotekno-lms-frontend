@@ -28,6 +28,12 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 
+interface QuestionResult {
+  id: number;
+  isCorrect: boolean;
+  options?: string[]; // Optional if it's not always present
+}
+
 const dummyData = [
   {
     id: 1,
@@ -178,6 +184,10 @@ export default function Test() {
       setIsLoading(false);
       setCurrentPage(1); // Reset to the first page after submission
       setIsDialogOpen(false);
+
+      // Save to localStorage
+      localStorage.setItem("quizResults", JSON.stringify(results));
+      localStorage.setItem("isSubmitted", JSON.stringify(true));
     }, 2000); // Simulate an API call delay with setTimeout
   };
 
@@ -235,14 +245,15 @@ export default function Test() {
             {currentPage === 1 ? (
               <Button
                 onClick={() => setCurrentPage(2)} // Navigate to essay page
-                className="h-10 rounded-m flex justify-center text-sm font-bold text-neutral-400 items-center bg-neutral-300"
+                className="h-10 rounded-m px-10 flex justify-center text-sm font-bold text-neutral-400 items-center bg-neutral-700"
               >
                 Next
               </Button>
             ) : (
               <Button
-                onClick={handleOpenDialog} // Submit answers
-                className="h-10 rounded-m flex justify-center text-sm font-bold text-neutral-400 items-center bg-neutral-300"
+                onClick={handleOpenDialog}
+                disabled={answeredCount < dummyData.length}
+                className="h-10 rounded-m px-10 flex justify-center text-sm font-bold text-neutral-400 b items-center bg-neutral-700"
               >
                 Submit
               </Button>
@@ -261,19 +272,22 @@ export default function Test() {
                 <>
                   {dummyData
                     .filter((item) => item.options)
-                    .map((item, index) => {
-                      const isCorrect = submittedData?.find(
-                        (result: { id: number }) => result.id === item.id
-                      )?.isCorrect;
+                    .map((item, index) => (
+                      <FormField
+                        key={item.id}
+                        control={form.control}
+                        name={`question-${item.id}`}
+                        render={({ field }) => {
+                          const isSubmittedAnswer = submittedData?.find(
+                            (result: { id: number }) => result.id === item.id
+                          );
 
-                      return (
-                        <FormField
-                          key={item.id}
-                          control={form.control}
-                          name={`question-${item.id}`}
-                          render={({ field }) => (
+                          const isCorrect = isSubmittedAnswer?.isCorrect;
+                          const selectedAnswer = field.value;
+
+                          return (
                             <FormItem
-                              className={`space-y-6 bg-white border rounded-m `}
+                              className={`space-y-6 bg-white border rounded-m`}
                             >
                               <div className="flex flex-col space-y-1 pt-6">
                                 <FormLabel className="font-bold px-6 text-primary-500 mb-4">
@@ -284,7 +298,7 @@ export default function Test() {
                                     <img
                                       src={item.image}
                                       alt={`Question ${index + 1} image`}
-                                      className=" w-full object-cover rounded-md"
+                                      className="w-full object-cover rounded-md"
                                     />
                                   </div>
                                 )}
@@ -297,52 +311,65 @@ export default function Test() {
                                   onValueChange={field.onChange}
                                   defaultValue={field.value}
                                   className="flex flex-col space-y-1 px-6 pb-6"
+                                  disabled={isSubmitted}
                                 >
-                                  {item?.options?.map((option, optionIndex) => (
-                                    <FormItem
-                                      key={optionIndex}
-                                      className="flex items-center space-x-3 space-y-0"
-                                    >
-                                      <FormControl>
-                                        <RadioGroupItem
-                                          className={`data-[state=checked]:bg-green-500 data-[state=checked]:text-white ${
-                                            isCorrect === false &&
-                                            field.value === option
-                                              ? " data-[state=checked]:bg-[#F69386] "
-                                              : ""
-                                          }`}
-                                          value={option}
-                                        />
-                                      </FormControl>
-                                      <FormLabel
-                                        className={cn(
-                                          "font-normal",
-                                          isCorrect === false &&
-                                            field.value === option
-                                            ? " text-[#F04B35]"
-                                            : ""
-                                        )}
+                                  {item?.options?.map((option, optionIndex) => {
+                                    const isOptionSelected =
+                                      field.value === option;
+                                    const isOptionCorrect =
+                                      item.correctAnswer === option;
+                                    const isOptionWrong =
+                                      isSubmitted &&
+                                      !isOptionCorrect &&
+                                      isOptionSelected;
+
+                                    return (
+                                      <FormItem
+                                        key={optionIndex}
+                                        className="flex items-center space-x-3 space-y-0"
                                       >
-                                        {option}
-                                      </FormLabel>
-                                    </FormItem>
-                                  ))}
+                                        <FormControl>
+                                          <RadioGroupItem
+                                            className={cn(
+                                              "data-[state=checked]:bg-green-500 data-[state=checked]:text-white",
+                                              isSubmitted &&
+                                                isOptionCorrect &&
+                                                !isOptionSelected
+                                                ? "bg-green-300"
+                                                : isSubmitted && isOptionWrong
+                                                ? "data-[state=checked]:bg-primary-500"
+                                                : ""
+                                            )}
+                                            value={option}
+                                            disabled={isSubmitted}
+                                          />
+                                        </FormControl>
+                                        <FormLabel
+                                          className={cn(
+                                            "font-normal",
+                                            isSubmitted &&
+                                              isOptionCorrect &&
+                                              !isOptionSelected
+                                              ? "text-green-500"
+                                              : "",
+                                            isSubmitted && isOptionWrong
+                                              ? "text-[#F04B35]"
+                                              : ""
+                                          )}
+                                        >
+                                          {option}
+                                        </FormLabel>
+                                      </FormItem>
+                                    );
+                                  })}
                                 </RadioGroup>
                               </FormControl>
                               <FormMessage />
                             </FormItem>
-                          )}
-                        />
-                      );
-                    })}
-                  <div className="flex justify-end space-x-4">
-                    {/* <Button
-                      onClick={handleNextPage}
-                      className="h-10 rounded-m bg-primary-500 text-white"
-                    >
-                      Next
-                    </Button> */}
-                  </div>
+                          );
+                        }}
+                      />
+                    ))}
                 </>
               )}
 
@@ -378,6 +405,7 @@ export default function Test() {
                                 <div className="p-5 pt-0">
                                   <Textarea
                                     {...field}
+                                    disabled={isSubmitted}
                                     placeholder="Enter long text here"
                                     className={cn(
                                       "w-full p-2 border rounded-md",
@@ -397,6 +425,14 @@ export default function Test() {
                         />
                       );
                     })}
+                  <div className="flex justify-start space-x-4">
+                    <Button
+                      onClick={() => setCurrentPage(1)}
+                      className="h-10 rounded-m bg-neutral-700 text-sm font-bold text-white"
+                    >
+                      Previous
+                    </Button>
+                  </div>
                 </>
               )}
             </form>

@@ -34,11 +34,11 @@ export default function DashboardLayout({
         <>
           <div className="flex w-full max-lg:flex-col gap-2 justify-between items-center">
             <h1 className="text-[34px] font-bold">Program</h1>
-            <Input
+            {/* <Input
               className="lg:w-[400px] w-full"
               sectionLeft={<IconSearch className="text-neutral-400" />}
               placeholder="Looking for something?"
-            />
+            /> */}
           </div>
           <div className="flex font-mono max-lg:pb-3 border-[#E4E6E8] border-b overflow-x-auto">
             {navItems.map((item) => (

@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/carouselHeader";
 import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PdfViewer from "../../../elearning/[slug]/PdfViewer";
 import IconPlay from "@/components/icons/IconPlay";
 import {
@@ -254,6 +254,7 @@ export default function Page({
   }
 
   const [isLoading, setIsLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   async function onSubmit(data: z.infer<typeof dynamicSchema>) {
     setIsLoading(true);
@@ -266,6 +267,8 @@ export default function Page({
     setTimeout(() => {
       setSubmittedData(results);
       setIsLoading(false);
+      setSubmitted(true); // Set submitted state to true
+
       setIsDialogOpen(false);
     }, 2000); // Simulate an API call delay with setTimeout
   }
@@ -311,6 +314,18 @@ export default function Page({
   const getStatus = (score: number) => {
     return score > 5 ? "Pass" : "Fail";
   };
+
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+
+  useEffect(() => {
+    // Access localStorage only on the client side
+    const savedResults = localStorage.getItem("quizResults");
+    const isSubmitted = localStorage.getItem("isSubmitted");
+
+    setHasSubmitted(isSubmitted === "true");
+  }, []);
+
+  console.log(hasSubmitted);
 
   return (
     <div className="flex flex-col gap-6">
@@ -564,80 +579,110 @@ export default function Page({
                       onSubmit={form.handleSubmit(onSubmit)}
                       className="w-full space-y-6"
                     >
-                      {dummyData.map((item, index) => {
-                        const isCorrect = submittedData?.find(
-                          (result: { id: number }) => result.id === item.id
-                        )?.isCorrect;
-
-                        return (
+                      {dummyData
+                        .filter((item) => item.options)
+                        .map((item, index) => (
                           <FormField
                             key={item.id}
                             control={form.control}
                             name={`question-${item.id}`}
-                            render={({ field }) => (
-                              <FormItem
-                                className={`space-y-6 border rounded-m `}
-                              >
-                                <div className="flex flex-col space-y-1 pt-6">
-                                  <FormLabel className="font-bold px-6 text-primary-500 mb-4">
-                                    Question {index + 1}
-                                  </FormLabel>
-                                  {item.image && (
-                                    <div className="pb-5">
-                                      <img
-                                        src={item.image}
-                                        alt={`Question ${index + 1} image`}
-                                        className=" w-full object-cover rounded-md"
-                                      />
-                                    </div>
-                                  )}
-                                  <FormLabel className="font-mono px-6 text-base font-bold">
-                                    {item.question}
-                                  </FormLabel>
-                                </div>
-                                <FormControl>
-                                  <RadioGroup
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                    className="flex flex-col space-y-1 px-6 pb-6"
-                                  >
-                                    {item.options.map((option, optionIndex) => (
-                                      <FormItem
-                                        key={optionIndex}
-                                        className="flex items-center space-x-3 space-y-0"
-                                      >
-                                        <FormControl>
-                                          <RadioGroupItem
-                                            className={`data-[state=checked]:bg-green-500 data-[state=checked]:text-white ${
-                                              isCorrect === false &&
-                                              field.value === option
-                                                ? " data-[state=checked]:bg-[#F69386] "
-                                                : ""
-                                            }`}
-                                            value={option}
-                                          />
-                                        </FormControl>
-                                        <FormLabel
-                                          className={cn(
-                                            "font-normal",
-                                            isCorrect === false &&
-                                              field.value === option
-                                              ? " text-[#F04B35]"
-                                              : ""
-                                          )}
-                                        >
-                                          {option}
-                                        </FormLabel>
-                                      </FormItem>
-                                    ))}
-                                  </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
+                            render={({ field }) => {
+                              const isSubmittedAnswer = submittedData?.find(
+                                (result: { id: number }) =>
+                                  result.id === item.id
+                              );
+
+                              const isCorrect = isSubmittedAnswer?.isCorrect;
+                              const selectedAnswer = field.value;
+
+                              return (
+                                <FormItem
+                                  className={`space-y-6 bg-white border rounded-m`}
+                                >
+                                  <div className="flex flex-col space-y-1 pt-6">
+                                    <FormLabel className="font-bold px-6 text-primary-500 mb-4">
+                                      Question {index + 1}
+                                    </FormLabel>
+                                    {item.image && (
+                                      <div className="pb-5">
+                                        <img
+                                          src={item.image}
+                                          alt={`Question ${index + 1} image`}
+                                          className="w-full object-cover rounded-md"
+                                        />
+                                      </div>
+                                    )}
+                                    <FormLabel className="font-mono px-6 text-base font-bold">
+                                      {item.question}
+                                    </FormLabel>
+                                  </div>
+                                  <FormControl>
+                                    <RadioGroup
+                                      onValueChange={field.onChange}
+                                      defaultValue={field.value}
+                                      className="flex flex-col space-y-1 px-6 pb-6"
+                                      disabled={submitted}
+                                    >
+                                      {item?.options?.map(
+                                        (option, optionIndex) => {
+                                          const isOptionSelected =
+                                            field.value === option;
+                                          const isOptionCorrect =
+                                            item.correctAnswer === option;
+                                          const isOptionWrong =
+                                            submitted &&
+                                            !isOptionCorrect &&
+                                            isOptionSelected;
+
+                                          return (
+                                            <FormItem
+                                              key={optionIndex}
+                                              className="flex items-center space-x-3 space-y-0"
+                                            >
+                                              <FormControl>
+                                                <RadioGroupItem
+                                                  className={cn(
+                                                    "data-[state=checked]:bg-green-500 data-[state=checked]:text-white",
+                                                    submitted &&
+                                                      isOptionCorrect &&
+                                                      !isOptionSelected
+                                                      ? "bg-green-300"
+                                                      : submitted &&
+                                                        isOptionWrong
+                                                      ? "data-[state=checked]:bg-primary-500"
+                                                      : ""
+                                                  )}
+                                                  value={option}
+                                                  disabled={submitted}
+                                                />
+                                              </FormControl>
+                                              <FormLabel
+                                                className={cn(
+                                                  "font-normal",
+                                                  submitted &&
+                                                    isOptionCorrect &&
+                                                    !isOptionSelected
+                                                    ? "text-green-500"
+                                                    : "",
+                                                  submitted && isOptionWrong
+                                                    ? "text-[#F04B35]"
+                                                    : ""
+                                                )}
+                                              >
+                                                {option}
+                                              </FormLabel>
+                                            </FormItem>
+                                          );
+                                        }
+                                      )}
+                                    </RadioGroup>
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              );
+                            }}
                           />
-                        );
-                      })}
+                        ))}
 
                       <Button
                         className="h-[56px] px-5 bg-[#E4E6E8] rounded-m text-black"
@@ -928,24 +973,63 @@ export default function Page({
       {currentSection === 5 && (
         <>
           <div className="p-6 flex max-lg:flex-col max-lg:gap-4 max-lg:items-center justify-between  rounded-m bg-white items-end ">
-            <div className="flex flex-col text-neutral-700 font-mono gap-4">
-              <div className="flex gap-2 text-sm text-primary-500 font-bold">
-                20 Questions
-              </div>
-              <div className="text-2xl font-sans leading-7 font-bold">
-                Level Measurement Test
-              </div>
-              <div className="text-base text-neutral-400">
-                Start Date: 25 Jun 2024 • 09.00 WIB
-              </div>
-            </div>
+            {hasSubmitted ? (
+              <div className="flex max-w-[536px] w-full mx-auto justify-center items-start flex-col gap-4">
+                <div className="flex gap-2 text-sm text-primary-500 font-bold">
+                  20 Questions
+                </div>
+                <div className="text-2xl font-sans leading-7 font-bold">
+                  Level Measurement Test
+                </div>
+                <div className="text-base text-neutral-400">
+                  Start Date: 25 Jun 2024 • 09.00 WIB
+                </div>
+                <div className="bg-neutral-100 rounded-m flex gap-[102px] font-mono p-4 lg:min-w-[536px] justify-center">
+                  <div className="flex flex-col gap-1.5">
+                    <div className="text-base text-neutral-400">Score Test</div>
+                    <div className="text-[34px] font-bold text-center">100</div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <div className="text-base text-neutral-400">
+                      Correct Answer
+                    </div>
+                    <div className="text-[34px] font-bold text-center">
+                      10/10
+                    </div>
+                  </div>
+                </div>
 
-            <Link
-              className="h-[56px] font-sans text-base bg-secondary-500 rounded-m flex justify-center items-center min-w-[155px] text-white"
-              href={`/program/training/${params.slug}/${params.subslug}/test`}
-            >
-              Start Test
-            </Link>
+                <div className="flex w-full justify-center">
+                  <Link
+                    className="h-[56px] font-sans text-base border border-secondary-500 text-secondary-500 font-bold rounded-m flex justify-center items-center min-w-[155px] "
+                    href={`/program/training/${params.slug}/${params.subslug}/test`}
+                  >
+                    View Result
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="flex flex-col text-neutral-700 font-mono gap-4">
+                  <div className="flex gap-2 text-sm text-primary-500 font-bold">
+                    20 Questions
+                  </div>
+                  <div className="text-2xl font-sans leading-7 font-bold">
+                    Level Measurement Test
+                  </div>
+                  <div className="text-base text-neutral-400">
+                    Start Date: 25 Jun 2024 • 09.00 WIB
+                  </div>
+                </div>
+
+                <Link
+                  className="h-[56px] font-sans text-base bg-secondary-500 rounded-m flex justify-center items-center min-w-[155px] text-white"
+                  href={`/program/training/${params.slug}/${params.subslug}/test`}
+                >
+                  Start Test
+                </Link>
+              </>
+            )}
           </div>
           <SectionNavigation
             currentSection={currentSection}

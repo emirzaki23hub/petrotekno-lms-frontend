@@ -97,11 +97,11 @@ const page = () => {
     <div className="flex flex-col gap-6 h-auto w-full ">
       <div className="flex w-full max-lg:flex-col max-lg:gap-2  justify-between items-center">
         <h1 className="text-[34px] font-bold">Performance</h1>
-        <Input
+        {/* <Input
           className="lg:w-[400px] w-full "
           sectionLeft={<IconSearch className="text-neutral-400" />}
           placeholder="Looking for something?"
-        />
+        /> */}
       </div>
       <div className="grid gap-4 grid-cols-1 lg:grid-cols-5 w-full">
         {cardData.map((card, index) => (
