@@ -465,14 +465,8 @@ export default function Page({
                         {item.title}
                       </div>
                       <Dialog>
-                        <DialogTrigger>
-                          <Button
-                            variant="outline"
-                            className="rounded-m border-neutral-500 border-2 text-sm font-bold px-6 py-2.5 min-w-20"
-                            size="icon"
-                          >
-                            Play
-                          </Button>
+                        <DialogTrigger className="rounded-m border-neutral-500 border-2 text-sm font-bold px-6 py-2.5 min-w-20">
+                          Play
                         </DialogTrigger>
                         <DialogContent className="bg-white p-0">
                           <DialogHeader className="pt-5 px-5">

@@ -22,7 +22,7 @@ const Header = () => {
       </div>
       <div
         className={cn(
-          "px-5 md:!hidden h-[64px] bg-white w-full z-10 flex items-center justify-between fixed top-0"
+          "px-5 md:!hidden h-[64px] bg-white w-full z-20 flex items-center justify-between fixed top-0"
         )}
       >
         <MobileSidebar />

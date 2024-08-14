@@ -210,7 +210,7 @@ export default function Test() {
 
   return (
     <>
-      <div className="overflow-hidden px-4 lg:h-16 fixed  top-0 z-[10] bg-white border  border-b-[#E4E6E8]  flex justify-between max-lg:flex-col items-center w-full">
+      <div className="overflow-hidden px-4 lg:h-16 fixed  hidden  top-0 z-[10] bg-white border  border-b-[#E4E6E8]  lg:flex justify-between max-lg:flex-col items-center w-full">
         <div className="flex items-center gap-8">
           <Button
             onClick={() => router.back()}
@@ -262,8 +262,61 @@ export default function Test() {
           </div>
         </div>
       </div>
+      <div className="h-16 w-full px-4 fixed flex justify-between items-center top-0 bg-white border  border-b-[#E4E6E8]">
+        <div className="w-1/2 flex gap-7">
+          <Button
+            onClick={() => router.back()}
+            className="h-10 w-10 rounded-m flex items-center justify-center bg-[#E4E6E8]"
+          >
+            <IconClose />
+          </Button>
+
+          <Image
+            src={Logo.src}
+            height={27}
+            width={149}
+            className="object-contain"
+            alt="Logo"
+          />
+        </div>
+        <div className="border-[#E4E6E8] border-l flex items-center h-16 pl-4">
+          {currentPage === 1 ? (
+            <Button
+              onClick={() => setCurrentPage(2)} // Navigate to essay page
+              className="h-10 rounded-m px-10 flex justify-center text-sm font-bold text-white items-center bg-secondary-500"
+            >
+              Next
+            </Button>
+          ) : (
+            <Button
+              onClick={handleOpenDialog}
+              disabled={answeredCount < dummyData.length}
+              className="h-10 rounded-m px-10 flex justify-center text-sm font-bold text-white b items-center bg-secondary-500"
+            >
+              Submit
+            </Button>
+          )}
+        </div>
+      </div>
+      <div className="h-16 lg:hidden fixed top-16 bg-white flex text-neutral-800 font-bold justify-center items-center font-mono w-full">
+        Test Module 24: Level Measurement
+      </div>
+      <div className="h-16 px-5 lg:hidden fixed bottom-0 bg-white flex text-neutral-800 font-bold justify-center items-center font-mono w-full">
+        <div className="flex flex-col w-full  h-16 px-4 justify-center lg:min-w-[182px] ">
+          <div className="flex justify-between max-lg:w-full">
+            <div>Progress</div>
+            <div>
+              {answeredCount}/{dummyData.length}
+            </div>
+          </div>
+          <Progress
+            className="bg-success-50 h-1 w-full"
+            value={(answeredCount / dummyData.length) * 100}
+          />
+        </div>
+      </div>
       <div className="bg-neutral-100 overflow-hidden pt-16 min-h-[calc(100vh-64px)]  w-full p-10 max-lg:p-5">
-        <div className="flex p-6 flex-col  max-w-[880px] mx-auto rounded-m">
+        <div className="flex p-6 max-lg:px-0 max-lg:py-32 flex-col  max-w-[880px] mx-auto rounded-m">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
