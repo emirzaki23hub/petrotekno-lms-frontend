@@ -5,6 +5,9 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NavItems } from "../constant/side-nav";
 import { SideNav } from "./side-nav";
 import Image from "next/image";
+import Logo from "../../../public/icons/icon-logo.svg";
+// import IconBell from "../../public/icons/icon-bell.svg";
+// import IconUser from "../../public/icons/icon-user.svg";
 
 export const MobileSidebar = () => {
   const [open, setOpen] = useState(false);
@@ -31,12 +34,7 @@ export const MobileSidebar = () => {
         <SheetContent side="left" className="w-72 bg-white">
           <div className="px-1 py-6 pt-10">
             <div className="pb-5">
-              <Image
-                src={"/icons/icon-logo.svg"}
-                height={40}
-                width={182.24}
-                alt="Logo"
-              />
+              <Image src={Logo.src} height={40} width={182.24} alt="Logo" />
             </div>
             <SideNav items={NavItems} setOpen={setOpen} />
           </div>
