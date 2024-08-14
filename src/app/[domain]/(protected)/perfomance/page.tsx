@@ -1,20 +1,29 @@
 import { Button } from "@/components/ui/button";
 import React from "react";
-import { Input } from "@/components/ui/input";
-import IconSearch from "@/components/icons/IconSearch";
 import IconArrowRight from "@/components/icons/IconArrowRight";
 
 import Image from "next/image";
 import dynamic from "next/dynamic";
 // import { TrainingModuleChart } from "./TrainingModuleChart";
 import CertificationCard from "./CertificationCard";
+import IconClock from "../../../../../public/icons/icon-clock.svg";
+import IconComplete from "../../../../../public/icons/icon-complete.svg";
+import IconMonitor from "../../../../../public/icons/icon-monitor.svg";
+import IconLearning from "../../../../../public/icons/icon-elearning.svg";
+import IconCertification from "../../../../../public/icons/icon-certification.svg";
+import BadgeBg from "../../../../../public/images/badge-bg.png";
+import BadgeEffect from "../../../../../public/images/badge-effect.png";
+import BadgeOutline from "../../../../../public/images/bg-outline.png";
+import BadgeEcitb from "../../../../../public/images/badge-ecitb.png";
 
 const ChartTable = dynamic(() => import("./ChartTable"), {
   loading: () => <p>Loading...</p>,
+  ssr: false,
 });
 
 const TrainingModuleChart = dynamic(() => import("./TrainingModuleChart"), {
   loading: () => <p>Loading...</p>,
+  ssr: false,
 });
 
 const page = () => {
@@ -35,28 +44,28 @@ const page = () => {
 
   const cardData = [
     {
-      icon: "/icons/icon-clock.svg",
+      icon: IconClock,
       value: "25",
       unit: "H",
       description: "Total Learning Hours",
     },
     {
-      icon: "/icons/icon-complete.svg",
+      icon: IconComplete,
       value: "5",
       description: "Module Complete",
     },
     {
-      icon: "/icons/icon-monitor.svg",
+      icon: IconMonitor,
       value: "4",
       description: "Webinar Complete",
     },
     {
-      icon: "/icons/icon-elearning.svg",
+      icon: IconLearning,
       value: "12",
       description: "E-Learning Complete",
     },
     {
-      icon: "/icons/icon-certification.svg",
+      icon: IconCertification,
       value: "3",
       description: "Certification Complete",
     },
@@ -74,22 +83,22 @@ const page = () => {
     {
       id: 1,
       title: "OPITO Certification",
-      imageSrc: "/images/badge-bg.png",
+      imageSrc: BadgeBg,
     },
     {
       id: 2,
       title: "City & Guilds Certification",
-      imageSrc: "/images/badge-effect.png",
+      imageSrc: BadgeEffect,
     },
     {
       id: 3,
       title: "CompEx Certification",
-      imageSrc: "/images/bg-outline.png",
+      imageSrc: BadgeOutline,
     },
     {
       id: 4,
       title: "ECITB Certification",
-      imageSrc: "/images/badge-ecitb.png",
+      imageSrc: BadgeEcitb,
     },
   ];
 
@@ -109,7 +118,12 @@ const page = () => {
             <div className="flex h-full p-4 px-6 gap-4">
               <div>
                 <div className="p-2 h-auto bg-[#E4E6E8] rounded-full">
-                  <Image src={card.icon} height={19} width={19} alt="icon" />
+                  <Image
+                    src={card.icon.src}
+                    height={19}
+                    width={19}
+                    alt="icon"
+                  />
                 </div>
               </div>
               <div className="text-neutral-700 font-mono">
@@ -212,7 +226,7 @@ const page = () => {
               <CertificationCard
                 index={cert.id}
                 title={cert.title}
-                imageSrc={cert.imageSrc}
+                imageSrc={cert.imageSrc.src}
               />
             </div>
           ))}

@@ -9,6 +9,9 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import Slider1 from "../../../../public/images/slider/1.png";
+import Slider2 from "../../../../public/images/slider/2.png";
+import Slider3 from "../../../../public/images/slider/3.png";
 
 import Image from "next/image";
 
@@ -25,7 +28,7 @@ const CarouselIndex = () => {
       <CarouselContent>
         <CarouselItem>
           <Image
-            src={"/images/slider/1.png"}
+            src={Slider1.src}
             alt=""
             height={0}
             width={0}
@@ -35,7 +38,7 @@ const CarouselIndex = () => {
         </CarouselItem>
         <CarouselItem>
           <Image
-            src={"/images/slider/2.png"}
+            src={Slider2.src}
             alt=""
             height={0}
             width={0}
@@ -46,7 +49,7 @@ const CarouselIndex = () => {
         <CarouselItem>
           {" "}
           <Image
-            src={"/images/slider/3.png"}
+            src={Slider3.src}
             alt=""
             height={0}
             width={0}

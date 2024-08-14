@@ -22,11 +22,12 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import Bg1 from "../../../../../../../../../public/images/bg-1.png";
+import Logo from "../../../../../../../../../public/images/logo.png";
 
 interface QuestionResult {
   id: number;
@@ -46,7 +47,7 @@ const dummyData = [
     question: "What is your favorite animal?",
     options: ["Dog", "Cat", "Bird"],
     correctAnswer: "Dog",
-    image: "/images/bg-1.png",
+    image: Bg1,
   },
   {
     id: 3,
@@ -218,7 +219,7 @@ export default function Test() {
             <IconClose />
           </Button>
           <Image
-            src="/images/logo.png"
+            src={Logo.src}
             height={27}
             width={149}
             alt="Logo"
@@ -296,7 +297,7 @@ export default function Test() {
                                 {item.image && (
                                   <div className="pb-5">
                                     <img
-                                      src={item.image}
+                                      src={item.image.src}
                                       alt={`Question ${index + 1} image`}
                                       className="w-full object-cover rounded-md"
                                     />

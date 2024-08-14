@@ -6,23 +6,21 @@ import Image from "next/image";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
-  PaginationPrevious,
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
-
-const statuses = ["Upcoming", "In Progress", "Completed"];
+import { useRouter } from "next/navigation";
+import Image2 from "../../../../../../public/images/2.png";
 
 const dummyData = Array.from({ length: 30 }, (_, index) => ({
   id: index + 1,
+  slug: "training-1",
   title: `Training ${index + 1}`,
   startDate: `28 Jun 2024 • 18.00 WIB`,
-  imageUrl: "/images/3.png",
-  status: statuses[index % statuses.length], // Assign status based on index
+  imageUrl: Image2,
+  status: index % 2 === 0 ? "completed" : "upcoming", // Dynamic status
 }));
 
 const ITEMS_PER_PAGE = 5;
@@ -43,29 +41,27 @@ const Page = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
+  const router = useRouter();
+
   const renderPagination = () => {
     return (
       <Pagination>
         <PaginationContent>
-          {totalPages > 1 && (
-            <>
-              {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-                (page) => (
-                  <PaginationItem key={page}>
-                    <PaginationLink
-                      onClick={() => handlePageChange(page)}
-                      className={cn(
-                        page === currentPage ? "bg-white" : "",
-                        "cursor-pointer"
-                      )}
-                      isActive={page === currentPage}
-                    >
-                      {page}
-                    </PaginationLink>
-                  </PaginationItem>
-                )
-              )}
-            </>
+          {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+            (page) => (
+              <PaginationItem key={page}>
+                <PaginationLink
+                  onClick={() => handlePageChange(page)}
+                  className={cn(
+                    page === currentPage ? "bg-white" : "",
+                    "cursor-pointer"
+                  )}
+                  isActive={page === currentPage}
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            )
           )}
 
           <PaginationItem>
@@ -88,7 +84,7 @@ const Page = () => {
             <div className="flex max-lg:flex-col rounded-m gap-2 justify-between font-mono lg:items-center">
               <div className="flex max-lg:flex-col gap-2">
                 <Image
-                  src={item.imageUrl}
+                  src={item.imageUrl.src}
                   width={0}
                   height={0}
                   sizes="40vw"
@@ -96,6 +92,9 @@ const Page = () => {
                   alt="Training Image"
                 />
                 <div className="flex flex-col gap-4 justify-center max-lg:px-4">
+                  <div className="text-sm text-primary-500 font-bold">
+                    5 Session
+                  </div>
                   <div className="text-[20px] leading-6 text-neutral-800 font-bold font-sans">
                     {item.title}
                   </div>
@@ -105,19 +104,17 @@ const Page = () => {
                 </div>
               </div>
               <div className="lg:pr-4 max-lg:p-4">
-                <Link
-                  href={"meet.google.com/byx-njtr-vyv"}
-                  target="_blank"
-                  className={cn(
-                    "!h-[56px] flex justify-center items-center w-[133px] rounded-m bg-secondary-500 text-white text-base",
-                    item.status === "Upcoming" ||
-                      (item.status === "Completed" &&
-                        "bg-[#ADB4B9] pointer-events-none"),
-                    item.status === "In Progress" && "bg-success-500"
-                  )}
+                <Button
+                  onClick={() => router.push(`/program/elearning/${item.slug}`)}
+                  className={`h-[56px] rounded-m ${
+                    item.status === "completed"
+                      ? "bg-gray-400"
+                      : "bg-secondary-500"
+                  } text-white text-base`}
+                  disabled={item.status === "completed"}
                 >
-                  Start Webinar
-                </Link>
+                  {item.status === "completed" ? "Completed" : "Start Training"}
+                </Button>
               </div>
             </div>
           </div>

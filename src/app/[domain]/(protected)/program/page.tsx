@@ -1,11 +1,10 @@
 "use client";
 
 import React from "react";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
 import Link from "next/link";
-
+import Image1 from "../../../../../public/images/1.png";
 const page = () => {
   return (
     <div className="flex flex-col h-full gap-6 overflow-hidden">
@@ -18,7 +17,7 @@ const page = () => {
           <div className="flex max-lg:flex-col lg:p-6 p-4 gap-2 justify-between font-mono lg:items-end">
             <div className="flex max-lg:flex-col w-full  gap-2">
               <Image
-                src={"/images/1.png"}
+                src={Image1}
                 width={0}
                 height={0}
                 sizes="40vw"

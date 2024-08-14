@@ -59,6 +59,7 @@ import { Loader2 } from "lucide-react";
 import IconSlider from "@/components/icons/IconSlider";
 import { startOfToday } from "date-fns";
 import Link from "next/link";
+import Bg1 from "../../../../../../../../public/images/bg-1.png";
 
 const dummyData = [
   {
@@ -72,7 +73,7 @@ const dummyData = [
     question: "What is your favorite animal?",
     options: ["Dog", "Cat", "Bird"],
     correctAnswer: "Dog",
-    image: "/images/bg-1.png",
+    image: Bg1,
   },
   {
     id: 3,
@@ -606,7 +607,7 @@ export default function Page({
                                     {item.image && (
                                       <div className="pb-5">
                                         <img
-                                          src={item.image}
+                                          src={item.image.src}
                                           alt={`Question ${index + 1} image`}
                                           className="w-full object-cover rounded-md"
                                         />

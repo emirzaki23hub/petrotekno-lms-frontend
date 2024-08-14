@@ -23,6 +23,7 @@ import {
   PaginationNext,
 } from "@/components/ui/pagination"; // Assuming you have these components
 import Link from "next/link";
+import Bg1 from "../../../../../../../public/images/bg-1.png";
 
 export default function Page({ params }: { params: { slug: string } }) {
   const trainingModules = Array.from({ length: 26 }, (_, index) => ({
@@ -126,7 +127,7 @@ export default function Page({ params }: { params: { slug: string } }) {
       <div className="flex flex-col rounded-m">
         <Image
           alt="hi"
-          src={"/images/bg-1.png"}
+          src={Bg1.src}
           width={0}
           height={0}
           className="h-auto w-full rounded-t-m object-cover"
