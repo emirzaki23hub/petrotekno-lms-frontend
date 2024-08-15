@@ -185,7 +185,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url }) => {
         />
       </AnimatePresence>
 
-      <div className="absolute drop-shadow-2xl bg-[#333639] w-full justify-between items-center border-white top-0 right-0 p-5 flex">
+      <div className="absolute drop-shadow-2xl bg-[#333639] z-10 w-full justify-between items-center border-white top-0 right-0 p-5 flex">
         <div className="text-white max-lg:text-xs text-lg font-semibold">
           YourFileName.pdf
         </div>
