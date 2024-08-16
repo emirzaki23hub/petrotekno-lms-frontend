@@ -14,6 +14,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
+import { restAuth } from "@/rest/auth";
+import { useParams } from "next/navigation";
+import { BaseResponse } from "@/types/auth";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -24,6 +27,9 @@ const FormInput = () => {
   const [loading, setLoading] = useState(false);
   const [showError, setShowError] = useState(false);
   const [error, setError] = useState("");
+
+  const params = useParams();
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -32,33 +38,41 @@ const FormInput = () => {
       password: "",
     },
   });
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
     setShowError(false);
 
-    setTimeout(async () => {
-      try {
-        // Simulate the signIn logic here
-        const email = values?.email;
-        const password = values?.password;
+    try {
+      const email = values?.email;
+      const password = values?.password;
 
-        if (email === "admin@admin.com" && password === "password") {
-          const token = "dummy_token_123456";
+      // Call the postLogin function
+      const response = await restAuth.postLogin({ email, password });
+
+      if (response?.data?.success) {
+        // assuming 0 is a success status code
+        const token = response.data?.data?.token;
+
+        if (token) {
           // Save token to localStorage
           localStorage.setItem("authToken", token);
+
+          // Redirect to dashboard
           window.location.replace("/dashboard");
         } else {
           setShowError(true);
-          setLoading(false);
-          setError("Invalid username or password");
+          setError("Token not found. Please try again.");
         }
-      } catch (error) {
+      } else {
         setShowError(true);
-        setLoading(false);
-        setError("An unexpected error occurred. Please try again.");
+        setError("Login failed. Please try again.");
       }
-    }, 500);
+    } catch (error) {
+      setShowError(true);
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {

@@ -7,6 +7,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { useState } from "react";
 import { NavItem } from "@/types";
 import IconLogout from "../icons/IconLogout";
+import { restAuth } from "@/rest/auth";
 
 interface SideNavProps {
   items: NavItem[];
@@ -87,9 +88,28 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
         ))}
       </nav>
       <Button
-        onClick={() => {
-          localStorage.removeItem("authToken"); // Remove the token from localStorage
-          window.location.replace("/");
+        onClick={async () => {
+          // Retrieve the token from localStorage
+          const token = localStorage.getItem("authToken");
+
+          if (token) {
+            try {
+              // Call the postLogout function with the token
+              await restAuth.postLogout(token);
+
+              // Remove the token from localStorage
+              localStorage.removeItem("authToken");
+
+              // Redirect to the home page
+              window.location.replace("/");
+            } catch (error) {
+              // Handle any errors that may occur during the logout process
+              console.error("Logout failed:", error);
+            }
+          } else {
+            // If no token is found, just redirect to the home page
+            window.location.replace("/");
+          }
         }}
         className="text-base w-full transition-all duration-300 max-lg:mt-2 ease-in-out hover:bg-primary-100 hover:text-primary-500 flex justify-start gap-3 text-neutral-400 font-bold"
       >

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   Pagination,
@@ -12,6 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import Images3 from "../../../../../../public/images/3.png";
+import { restWebinar } from "@/rest/webinar";
 
 const statuses = ["Upcoming", "In Progress", "Completed"];
 
@@ -27,7 +28,9 @@ const ITEMS_PER_PAGE = 5;
 
 const Page = () => {
   const [currentPage, setCurrentPage] = useState(1);
-
+  const [webinars, setWebinars] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const totalPages = Math.ceil(dummyData.length / ITEMS_PER_PAGE);
 
   const handlePageChange = (newPage: number) => {
@@ -73,6 +76,27 @@ const Page = () => {
       </Pagination>
     );
   };
+
+  useEffect(() => {
+    const fetchWebinars = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+
+        if (!token) {
+          throw new Error("No authentication token found. Please log in.");
+        }
+
+        const response = await restWebinar.getWebinarList(token);
+        console.log(response?.data);
+      } catch (error) {
+        setError("An unexpected error occurred. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWebinars();
+  }, []);
 
   return (
     <div className="flex flex-col h-full gap-6 overflow-hidden">
