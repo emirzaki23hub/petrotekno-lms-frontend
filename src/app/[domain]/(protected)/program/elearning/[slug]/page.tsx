@@ -1,7 +1,6 @@
 "use client";
 import {
   Breadcrumb,
-  BreadcrumbEllipsis,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
@@ -10,9 +9,14 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import PdfViewer from "./PdfViewer";
 import IconPdf from "@/components/icons/IconPdf";
 import { cn } from "@/lib/utils";
+import dynamic from "next/dynamic";
+
+const PdfViewer = dynamic(() => import("@/components/PdfViewer"), {
+  ssr: false,
+  loading: () => <p>Loading...</p>,
+});
 
 export default function Page({ params }: { params: { slug: string } }) {
   const trainingData = [

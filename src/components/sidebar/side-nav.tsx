@@ -25,6 +25,29 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
   const decodedDomain = decodeURIComponent(domain);
 
   const partBeforeDot = decodedDomain.split(".")[0];
+
+  const [loading, setLoading] = useState(false);
+
+  const handleLogout = async () => {
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem("authToken");
+
+      if (token) {
+        await restAuth.postLogout(token, partBeforeDot);
+
+        localStorage.removeItem("authToken");
+
+        window.location.replace("/");
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <nav className="space-y-2">
@@ -89,29 +112,8 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
         ))}
       </nav>
       <Button
-        onClick={async () => {
-          // Retrieve the token from localStorage
-          const token = localStorage.getItem("authToken");
-
-          if (token) {
-            try {
-              // Call the postLogout function with the token
-              await restAuth.postLogout(token, partBeforeDot);
-
-              // Remove the token from localStorage
-              localStorage.removeItem("authToken");
-
-              // Redirect to the home page
-              window.location.replace("/");
-            } catch (error) {
-              // Handle any errors that may occur during the logout process
-              console.error("Logout failed:", error);
-            }
-          } else {
-            // If no token is found, just redirect to the home page
-            window.location.replace("/");
-          }
-        }}
+        onClick={handleLogout}
+        disabled={loading}
         className="text-base w-full transition-all duration-300 max-lg:mt-2 ease-in-out hover:bg-primary-100 hover:text-primary-500 flex justify-start gap-3 text-neutral-400 font-bold"
       >
         <IconLogout />

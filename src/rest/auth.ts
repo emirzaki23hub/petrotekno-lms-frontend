@@ -40,8 +40,23 @@ const getCompany = (domain: string) => {
     },
   });
 };
+
+const getUserInfo = (token: string, domain: string) => {
+  if (!token) {
+    throw new Error("No authentication token provided. Please log in.");
+  }
+
+  return getData<BaseResponse>("/company/userInfo", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "X-Company": domain,
+    },
+  });
+};
+
 export const restAuth = {
   postLogin,
   getCompany,
   postLogout,
+  getUserInfo,
 };

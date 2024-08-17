@@ -29,7 +29,6 @@ import {
 import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import PdfViewer from "../../../elearning/[slug]/PdfViewer";
 import IconPlay from "@/components/icons/IconPlay";
 import {
   Dialog,
@@ -60,6 +59,14 @@ import IconSlider from "@/components/icons/IconSlider";
 import { startOfToday } from "date-fns";
 import Link from "next/link";
 import Bg1 from "../../../../../../../../public/images/bg-1.png";
+
+import dynamic from "next/dynamic";
+
+const PdfViewer = dynamic(() => import("@/components/PdfViewer"), {
+  loading: () => <p>Loading...</p>,
+
+  ssr: false,
+});
 
 const dummyData = [
   {

@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { restAuth } from "@/rest/auth";
-import { useParams } from "next/navigation";
+import { useDomainHelper } from "@/hooks/useDomainHelper";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -27,14 +27,8 @@ const FormInput = () => {
   const [showError, setShowError] = useState(false);
   const [error, setError] = useState("");
 
-  const params = useParams();
-  const domain = Array.isArray(params.domain)
-    ? params.domain[0]
-    : params.domain || ""; // Ensure domain is a string and handle the case where it might be undefined or null
-
-  const decodedDomain = decodeURIComponent(domain);
-
-  const partBeforeDot = decodedDomain.split(".")[0];
+  const { getPartBeforeDot } = useDomainHelper();
+  const partBeforeDot = getPartBeforeDot();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -82,13 +76,6 @@ const FormInput = () => {
       setLoading(false);
     }
   }
-
-  useEffect(() => {
-    const authToken = localStorage.getItem("authToken");
-    if (authToken) {
-      window.location.replace("/dashboard"); // Redirect to the dashboard if authToken exists
-    }
-  }, []);
 
   return (
     <div>

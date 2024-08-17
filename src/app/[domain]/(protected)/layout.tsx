@@ -1,12 +1,12 @@
 "use client";
 import { useEffect } from "react";
 import Sidebar from "@/components/sidebar";
-import { MobileSidebar } from "@/components/sidebar/mobile-sidebar";
-import { cn } from "@/lib/utils";
-import Image from "next/image";
+
 import React, { ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Header from "@/components/Header";
+import { useDomainHelper } from "@/hooks/useDomainHelper";
+import { restAuth } from "@/rest/auth";
 
 interface LayoutProps {
   children: ReactNode;
@@ -20,11 +20,32 @@ export default function ProtectedLayout({ children }: LayoutProps) {
   // Define the pattern you want to match against
   const matchPattern = /^\/program\/training\/[^\/]+\/[^\/]+\/test$/;
 
+  const { getPartBeforeDot } = useDomainHelper();
+  const partBeforeDot = getPartBeforeDot();
+
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      router.push("/");
-    }
+    const fetchUserInfo = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+
+        if (!token) {
+          throw new Error("No authentication token found. Please log in.");
+        }
+
+        const response = await restAuth.getUserInfo(token, partBeforeDot);
+
+        console.log(response?.data?.success === false);
+
+        if (response?.data?.success === false) {
+          router.push("/");
+        }
+      } catch (error) {
+        console.log(error);
+        router.push("/");
+      }
+    };
+
+    fetchUserInfo();
   }, [router]);
 
   return (
