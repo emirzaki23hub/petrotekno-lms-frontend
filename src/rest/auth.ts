@@ -1,18 +1,33 @@
 import { deleteData, getData, postData } from "@/lib/fetch";
 import { BaseResponse } from "@/types/auth";
 
-const postLogin = (body: { email: string; password: string }) =>
-  postData<BaseResponse>("/company/login", {
-    ...body,
-  });
+const postLogin = (body: {
+  email: string;
+  password: string;
+  domain: string;
+}) => {
+  return postData<BaseResponse>(
+    "/company/login",
+    {
+      email: body.email,
+      password: body.password,
+    },
+    {
+      headers: {
+        "X-Company": body.domain,
+      },
+    }
+  );
+};
 
-const postLogout = async (token: string) => {
+const postLogout = async (token: string, domain: string) => {
   return deleteData<BaseResponse>(
     "/company/logout",
     {},
     {
       headers: {
         Authorization: `Bearer ${token}`,
+        "X-Company": domain,
       },
     }
   );

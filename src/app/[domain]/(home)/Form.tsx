@@ -16,7 +16,6 @@ import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { restAuth } from "@/rest/auth";
 import { useParams } from "next/navigation";
-import { BaseResponse } from "@/types/auth";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -29,8 +28,14 @@ const FormInput = () => {
   const [error, setError] = useState("");
 
   const params = useParams();
+  const domain = Array.isArray(params.domain)
+    ? params.domain[0]
+    : params.domain || ""; // Ensure domain is a string and handle the case where it might be undefined or null
 
-  // 1. Define your form.
+  const decodedDomain = decodeURIComponent(domain);
+
+  const partBeforeDot = decodedDomain.split(".")[0];
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,11 +51,13 @@ const FormInput = () => {
       const email = values?.email;
       const password = values?.password;
 
-      // Call the postLogin function
-      const response = await restAuth.postLogin({ email, password });
+      const response = await restAuth.postLogin({
+        email,
+        password,
+        domain: partBeforeDot,
+      });
 
       if (response?.data?.success) {
-        // assuming 0 is a success status code
         const token = response.data?.data?.token;
 
         if (token) {
@@ -62,15 +69,16 @@ const FormInput = () => {
         } else {
           setShowError(true);
           setError("Token not found. Please try again.");
+          setLoading(false);
         }
       } else {
         setShowError(true);
         setError("Login failed. Please try again.");
+        setLoading(false);
       }
     } catch (error) {
       setShowError(true);
       setError("An unexpected error occurred. Please try again.");
-    } finally {
       setLoading(false);
     }
   }

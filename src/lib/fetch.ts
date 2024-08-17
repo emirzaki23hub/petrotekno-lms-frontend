@@ -4,7 +4,6 @@ export const baseFetch = async <ResDataType>(
 ) => {
   const headers: any = {
     "Content-Type": "application/json",
-    "X-Company": options?.domain || "company1",
     ...options?.headers,
   };
 

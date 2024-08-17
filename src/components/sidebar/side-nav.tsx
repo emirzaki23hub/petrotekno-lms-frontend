@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useState } from "react";
@@ -17,13 +17,14 @@ interface SideNavProps {
 
 export function SideNav({ items, setOpen, className }: SideNavProps) {
   const path = usePathname();
-  const [openItem, setOpenItem] = useState("");
-  const [lastOpenItem, setLastOpenItem] = useState("");
+  const params = useParams();
+  const domain = Array.isArray(params.domain)
+    ? params.domain[0]
+    : params.domain || ""; // Ensure domain is a string and handle the case where it might be undefined or null
 
-  const toggleItem = (title: string) => {
-    setOpenItem((prev) => (prev === title ? "" : title));
-  };
+  const decodedDomain = decodeURIComponent(domain);
 
+  const partBeforeDot = decodedDomain.split(".")[0];
   return (
     <>
       <nav className="space-y-2">
@@ -95,7 +96,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
           if (token) {
             try {
               // Call the postLogout function with the token
-              await restAuth.postLogout(token);
+              await restAuth.postLogout(token, partBeforeDot);
 
               // Remove the token from localStorage
               localStorage.removeItem("authToken");
