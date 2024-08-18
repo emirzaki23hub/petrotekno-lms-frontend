@@ -300,7 +300,6 @@ export default function Page({
   };
 
   const goToPrevSection = () => {
-    console.log("cliked");
     setCurrentSection((prev) => {
       if (prev > 1) {
         const prevSection = prev - 1;
@@ -332,8 +331,6 @@ export default function Page({
 
     setHasSubmitted(isSubmitted === "true");
   }, []);
-
-  console.log(hasSubmitted);
 
   return (
     <div className="flex flex-col gap-6">

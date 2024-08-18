@@ -19,7 +19,7 @@ import { format, isAfter, isBefore, parseISO } from "date-fns";
 
 const Page = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [webinars, setWebinars] = useState<any[]>([]);
+  const [webinars, setWebinars] = useState<Webinar[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

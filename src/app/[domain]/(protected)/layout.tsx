@@ -34,8 +34,6 @@ export default function ProtectedLayout({ children }: LayoutProps) {
 
         const response = await restAuth.getUserInfo(token, partBeforeDot);
 
-        console.log(response?.data?.success === false);
-
         if (response?.data?.success === false) {
           router.push("/");
         }
