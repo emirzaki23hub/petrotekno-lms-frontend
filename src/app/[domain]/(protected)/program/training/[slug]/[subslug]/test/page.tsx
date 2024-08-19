@@ -200,7 +200,6 @@ export default function Test() {
   }, [form.watch()]);
 
   const handleOpenDialog = () => {
-    console.log("clicked", answeredCount, dummyData.length);
     if (answeredCount === dummyData.length) {
       setIsDialogOpen(true);
     }

@@ -33,6 +33,17 @@ export default function Page({ params }: { params: { slug: string } }) {
 
   const router = useRouter();
 
+  const [currentLoading, setCurrentLoading] = useState(true);
+
+  useEffect(() => {
+    setCurrentLoading(true); // Set loading to true when currentSession changes
+    const timer = setTimeout(() => {
+      setCurrentLoading(false); // Simulate loading completion
+    }, 500); // Adjust the timeout duration as needed
+
+    return () => clearTimeout(timer); // Clean up the timer when the component unmounts
+  }, [currentSession]);
+
   useEffect(() => {
     const fetchWebinar = async () => {
       setLoading(true);
@@ -78,6 +89,51 @@ export default function Page({ params }: { params: { slug: string } }) {
       }
     }
   }, [params.slug, webinar]);
+
+  useEffect(() => {
+    if (webinar) {
+      const sessionSlug = params.slug.split("/").pop();
+      const sessionIndex = webinar.sessions.data.findIndex(
+        (session) =>
+          session.title.toLowerCase().replace(/\s+/g, "-") === sessionSlug
+      );
+
+      if (sessionIndex !== -1) {
+        setCurrentSession(sessionIndex + 1);
+      }
+
+      // Avoid re-running the effect after marking as read
+      if (currentSession === 1 && webinar.sessions.data[0].read_at === null) {
+        const firstSession = webinar.sessions.data[0]; // Check the first session
+        const sessionId = firstSession.id;
+        const token = localStorage.getItem("authToken");
+
+        if (token) {
+          const markSessionAsRead = async () => {
+            try {
+              await restElearning.putParticipantRead(
+                params.slug,
+                sessionId,
+                token,
+                partBeforeDot
+              );
+
+              const updatedWebinar = { ...webinar };
+              updatedWebinar.sessions.data[0].read_at =
+                new Date().toISOString();
+              setWebinar(updatedWebinar);
+            } catch (error) {
+              console.error("Failed to mark session as read:", error);
+            }
+          };
+
+          markSessionAsRead();
+        } else {
+          console.error("No auth token found");
+        }
+      }
+    }
+  }, [webinar, currentSession, params.slug, partBeforeDot]);
 
   const handleReadButtonClick = async (sessionIndex: number) => {
     setCurrentSession(sessionIndex + 1);
@@ -186,22 +242,26 @@ export default function Page({ params }: { params: { slug: string } }) {
           Session - {currentSession}
         </h1>
       </div>
-      {webinar?.sessions.data[currentSession - 1]?.type === "VIDEO" ? (
-        <iframe
-          width="100%"
-          height="500"
-          src={`https://www.youtube.com/embed/${
-            webinar.sessions.data[currentSession - 1].video_url
-          }`}
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        ></iframe>
-      ) : (
-        <PdfViewer
-          url={webinar?.sessions.data[currentSession - 1]?.file_url || ""}
-        />
-      )}
+      <>
+        {currentLoading ? (
+          <div className="h-[610px] bg-gray-500 animate-pulse"></div> // Replace with your actual loader component or element
+        ) : webinar?.sessions.data[currentSession - 1]?.type === "VIDEO" ? (
+          <iframe
+            width="100%"
+            height="500"
+            src={`https://www.youtube.com/embed/${
+              webinar.sessions.data[currentSession - 1].video_url
+            }`}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        ) : (
+          <PdfViewer
+            url={webinar?.sessions.data[currentSession - 1]?.file_url || ""}
+          />
+        )}
+      </>
       <div className="flex gap-6 max-lg:flex-col">
         <div className="w-full p-6 bg-white rounded-m flex flex-col gap-4">
           <div className="text-[20px] leading-6 font-bold border-[#E4E6E8] border-b h-10">
