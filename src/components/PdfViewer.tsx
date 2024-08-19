@@ -24,7 +24,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url }) => {
       try {
         const loadingTask = pdfjsLib.getDocument({
           url,
-          withCredentials: true, // Add this line to include credentials
         });
         const pdf = await loadingTask.promise;
         setPdfDoc(pdf);
