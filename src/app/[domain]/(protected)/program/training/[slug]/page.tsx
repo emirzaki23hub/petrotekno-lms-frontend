@@ -65,11 +65,19 @@ export default function Page({ params }: { params: { slug: string } }) {
   const totalPages = Math.ceil(trainingModules.length / ITEMS_PER_PAGE);
 
   const [modules, setModules] = useState<Module[]>([]);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     const loadModules = async () => {
-      const data = await fetchData();
-      setModules(data);
+      try {
+        setLoading(true); // Set loading to true before fetching data
+        const data = await fetchData();
+        setModules(data);
+      } catch (error) {
+        console.error("Fetch error:", error);
+      } finally {
+        setLoading(false); // Set loading to false after data is fetched
+      }
     };
     loadModules();
   }, []);
@@ -180,50 +188,56 @@ export default function Page({ params }: { params: { slug: string } }) {
             Program Progress
           </div>
           <div className="flex flex-col divide-y divide-[#E4E6E8] font-mono">
-            {modules.map((module, index) => {
-              // Format the date
-              const date = parseISO(module.date);
-              const formattedDate = format(date, "d MMMM yyyy");
-              return (
-                <div
-                  key={module.id} // Use `module.id` as the key
-                  className={cn(
-                    "h-full flex flex-col items-end justify-end",
-                    index !== 0 && "lg:mt-4 pt-4"
-                  )}
-                >
-                  <div className="flex gap-2 w-full items-center max-xl:gap-5 justify-between">
-                    <div className="flex flex-col gap-2 w-full">
-                      <div className="text-sm text-primary-500 font-bold">
-                        M{module.id}
-                      </div>
-                      <div className="text-[20px] leading-6 text-neutral-800 font-bold">
-                        {module.subtitle}
-                      </div>
-                      {module.progress > 0 && (
-                        <div className="text-success-400 text-[20px] leading-6 font-bold">
-                          Progress {module.progress}%
+            {loading ? (
+              <div className="flex justify-center items-center h-20">
+                <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : (
+              modules.map((module, index) => {
+                // Format the date
+                const date = parseISO(module.date);
+                const formattedDate = format(date, "d MMMM yyyy");
+                return (
+                  <div
+                    key={module.id} // Use `module.id` as the key
+                    className={cn(
+                      "h-full flex flex-col items-end justify-end",
+                      index !== 0 && "lg:mt-4 pt-4"
+                    )}
+                  >
+                    <div className="flex gap-2 w-full items-center max-xl:gap-5 justify-between">
+                      <div className="flex flex-col gap-2 w-full">
+                        <div className="text-sm text-primary-500 font-bold">
+                          M{module.id}
                         </div>
-                      )}
-                      <div className="text-sm text-neutral-400">
-                        {formattedDate}
+                        <div className="text-[20px] leading-6 text-neutral-800 font-bold">
+                          {module.subtitle}
+                        </div>
+                        {module.progress > 0 && (
+                          <div className="text-success-400 text-[20px] leading-6 font-bold">
+                            Progress {module.progress}%
+                          </div>
+                        )}
+                        <div className="text-sm text-neutral-400">
+                          {formattedDate}
+                        </div>
+                        <Progress
+                          className="bg-success-50 h-1 w-full"
+                          value={module.progress}
+                        />
                       </div>
-                      <Progress
-                        className="bg-success-50 h-1 w-full"
-                        value={module.progress}
-                      />
-                    </div>
 
-                    <Link
-                      href={`/program/training/${params.slug}/${module.id}`}
-                      className="flex bg-secondary-500 rounded-m h-[56px] items-center text-white px-5"
-                    >
-                      Learn
-                    </Link>
+                      <Link
+                        href={`/program/training/${params.slug}/${module.id}`}
+                        className="flex bg-secondary-500 rounded-m h-[56px] items-center text-white px-5"
+                      >
+                        Learn
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </div>
       </div>

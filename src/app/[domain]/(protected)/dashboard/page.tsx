@@ -8,38 +8,30 @@ import Image from "next/image";
 import SectionAgenda from "./SectionAgenda";
 import AbsenceAttendance from "./SectionAttendace";
 import Image1 from "../../../../../public/images/1.png";
+import Link from "next/link";
 
 const page = () => {
   const trainingModules = [
     {
-      title: "Production Operations: Module 24",
-      sessions: "4 Sessions",
-      completedSessions: "1/4 Sessions",
-      progress: 30,
-    },
-    {
-      title: "Safety Procedures: Module 12",
-      sessions: "5 Sessions",
-      completedSessions: "2/5 Sessions",
-      progress: 40,
-    },
-    {
-      title: "Equipment Handling: Module 7",
-      sessions: "3 Sessions",
-      completedSessions: "1/3 Sessions",
-      progress: 33,
-    },
-    {
-      title: "Quality Control: Module 18",
+      id: 1,
+      title: "Marine Transport of Oil and Gas",
       sessions: "6 Sessions",
-      completedSessions: "4/6 Sessions",
-      progress: 66,
+      completedSessions: "3/6 Sessions",
+      progress: 50,
     },
     {
-      title: "Inventory Management: Module 10",
-      sessions: "2 Sessions",
-      completedSessions: "1/2 Sessions",
-      progress: 50,
+      id: 2,
+      title: "Crude Oil Characteristic and Types",
+      sessions: "13 Sessions",
+      completedSessions: "1/13 Sessions",
+      progress: 0,
+    },
+    {
+      id: 3,
+      title: "Thermal Equipment",
+      sessions: "5 Sessions",
+      completedSessions: "0/5 Sessions",
+      progress: 0,
     },
   ];
 
@@ -122,13 +114,12 @@ const page = () => {
                   </div>
 
                   <div className="flex items-center h-full">
-                    <Button
-                      variant="outline"
-                      className="rounded-m bg-[#E4E6E8]"
-                      size="icon"
+                    <Link
+                      href={`/program/training/east-africa-crude-oil-pipeline-project-training-programme/${module.id}`}
+                      className="rounded-m h-10 w-10 justify-center items-center flex bg-[#E4E6E8]"
                     >
                       <IconArrowRight className="h-4 w-4" />
-                    </Button>
+                    </Link>
                   </div>
                 </div>
               </div>
