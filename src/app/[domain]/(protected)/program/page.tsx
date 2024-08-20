@@ -26,18 +26,20 @@ const page = () => {
               />
               <div className="flex flex-col gap-4">
                 <div className="text-sm text-primary-500  font-bold">
-                  25 Module • 30 Days
+                  3 Module • 30 Days
                 </div>
                 <div className="text-[20px] leading-6 text-neutral-800 font-bold font-sans">
-                  Production Operations Training
+                  East Africa Crude Oil Pipeline Project Training Programme{" "}
                 </div>
                 <div className="text-sm leading-6 text-neutral-400 ">
-                  Start Date: 25 Jun 2024 • 09.00 WIB
+                  Start Date: 01 Sep 2024 • 09.00 WIB
                 </div>
               </div>
             </div>
             <Link
-              href={"/program/training/production-operations-training"}
+              href={
+                "/program/training/east-africa-crude-oil-pipeline-project-training-programme"
+              }
               className="h-[56px] flex justify-center items-center px-5 whitespace-nowrap rounded-m bg-success-500 text-white text-base"
             >
               Start Training

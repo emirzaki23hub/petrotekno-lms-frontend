@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import IconHome from "@/components/icons/IconHome";
-import IconArrowRight from "@/components/icons/IconArrowRight";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import {
@@ -24,6 +23,29 @@ import {
 } from "@/components/ui/pagination"; // Assuming you have these components
 import Link from "next/link";
 import Bg1 from "../../../../../../../public/images/bg-1.png";
+import { format, parseISO } from "date-fns";
+
+const fetchData = async () => {
+  try {
+    const response = await fetch(
+      "https://private-013718-petro8.apiary-mock.com/module"
+    );
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Fetch error:", error);
+    return [];
+  }
+};
+
+interface Module {
+  id: number;
+  subtitle: string;
+  progress: number;
+  date: string;
+}
 
 export default function Page({ params }: { params: { slug: string } }) {
   const trainingModules = Array.from({ length: 26 }, (_, index) => ({
@@ -41,6 +63,16 @@ export default function Page({ params }: { params: { slug: string } }) {
   const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = Math.ceil(trainingModules.length / ITEMS_PER_PAGE);
+
+  const [modules, setModules] = useState<Module[]>([]);
+
+  useEffect(() => {
+    const loadModules = async () => {
+      const data = await fetchData();
+      setModules(data);
+    };
+    loadModules();
+  }, []);
 
   const handlePageChange = (page: React.SetStateAction<number>) => {
     setCurrentPage(page);
@@ -121,7 +153,7 @@ export default function Page({ params }: { params: { slug: string } }) {
           </svg>
         </Button>
         <h1 className="text-[34px] leading-9 font-bold">
-          Production Operations Training
+          East Africa Crude Oil Pipeline Project Training Programme{" "}
         </h1>
       </div>
       <div className="flex flex-col rounded-m">
@@ -135,10 +167,10 @@ export default function Page({ params }: { params: { slug: string } }) {
         />
         <div className="p-6 flex flex-col text-neutral-700 rounded-b-m bg-white gap-4">
           <div className="flex gap-2">
-            <IconHome /> 26 Module
+            <IconHome /> 3 Module
           </div>
           <div className="text-base text-neutral-400">
-            Start Date: 25 Jun 2024 • 09.00 WIB
+            Start Date: 01 Jun 2024 • 09.00 WIB
           </div>
         </div>
       </div>
@@ -148,49 +180,54 @@ export default function Page({ params }: { params: { slug: string } }) {
             Program Progress
           </div>
           <div className="flex flex-col divide-y divide-[#E4E6E8] font-mono">
-            {paginatedModules.map((module, index) => (
-              <div
-                key={index}
-                className={cn(
-                  "h-full flex flex-col items-end justify-end",
-                  index !== 0 && "lg:mt-4 pt-4"
-                )}
-              >
-                <div className="flex gap-2 w-full items-center max-xl:gap-5 justify-between">
-                  <div className="flex flex-col gap-2 w-full">
-                    <div className="text-sm text-primary-500 font-bold">
-                      M{module.module + index}
-                    </div>
-                    <div className="text-[20px] leading-6 text-neutral-800 font-bold">
-                      {module.title}
-                    </div>
-                    {module.score > 0 && (
-                      <div className="text-success-400 text-[20px] leading-6 font-bold">
-                        Progress {module.score}%
+            {modules.map((module, index) => {
+              // Format the date
+              const date = parseISO(module.date);
+              const formattedDate = format(date, "d MMMM yyyy");
+              return (
+                <div
+                  key={module.id} // Use `module.id` as the key
+                  className={cn(
+                    "h-full flex flex-col items-end justify-end",
+                    index !== 0 && "lg:mt-4 pt-4"
+                  )}
+                >
+                  <div className="flex gap-2 w-full items-center max-xl:gap-5 justify-between">
+                    <div className="flex flex-col gap-2 w-full">
+                      <div className="text-sm text-primary-500 font-bold">
+                        M{module.id}
                       </div>
-                    )}
-                    <div className="text-sm text-neutral-400">
-                      {module.startDate}
+                      <div className="text-[20px] leading-6 text-neutral-800 font-bold">
+                        {module.subtitle}
+                      </div>
+                      {module.progress > 0 && (
+                        <div className="text-success-400 text-[20px] leading-6 font-bold">
+                          Progress {module.progress}%
+                        </div>
+                      )}
+                      <div className="text-sm text-neutral-400">
+                        {formattedDate}
+                      </div>
+                      <Progress
+                        className="bg-success-50 h-1 w-full"
+                        value={module.progress}
+                      />
                     </div>
-                    <Progress
-                      className="bg-success-50 h-1 w-full"
-                      value={module.progress}
-                    />
-                  </div>
 
-                  <Link
-                    href={`/program/training/${params.slug}/${module.slug}`}
-                    className="flex bg-secondary-500 rounded-m h-[56px] items-center  text-white px-5"
-                  >
-                    Learn
-                  </Link>
+                    <Link
+                      href={`/program/training/${params.slug}/${module.id}`}
+                      className="flex bg-secondary-500 rounded-m h-[56px] items-center text-white px-5"
+                    >
+                      Learn
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
-      {renderPagination()}
+      {/* {renderPagination()} */}
     </div>
   );
 }
