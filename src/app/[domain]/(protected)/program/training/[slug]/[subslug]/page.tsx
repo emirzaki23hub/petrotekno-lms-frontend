@@ -384,7 +384,7 @@ export default function Page({
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/east-africa-crude-oil-pipeline-project-training-programme">
+            <BreadcrumbLink href="/program/training/east-africa-crude-oil-pipeline-project-training-programme">
               East Africa Crude Oil Pipeline Project Training Programme /
             </BreadcrumbLink>
           </BreadcrumbItem>
