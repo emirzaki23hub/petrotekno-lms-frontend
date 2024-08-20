@@ -156,17 +156,17 @@ export default function Page({ params }: { params: { slug: string } }) {
                   index !== 0 && "lg:mt-4 pt-4"
                 )}
               >
-                <div className="flex gap-2 w-full max-xl:gap-5 justify-between">
+                <div className="flex gap-2 w-full items-center max-xl:gap-5 justify-between">
                   <div className="flex flex-col gap-2 w-full">
                     <div className="text-sm text-primary-500 font-bold">
-                      Module 0{module.module}
+                      M{module.module + index}
                     </div>
                     <div className="text-[20px] leading-6 text-neutral-800 font-bold">
                       {module.title}
                     </div>
                     {module.score > 0 && (
                       <div className="text-success-400 text-[20px] leading-6 font-bold">
-                        Score {module.score}
+                        Progress {module.score}%
                       </div>
                     )}
                     <div className="text-sm text-neutral-400">
@@ -180,9 +180,9 @@ export default function Page({ params }: { params: { slug: string } }) {
 
                   <Link
                     href={`/program/training/${params.slug}/${module.slug}`}
-                    className="flex items-center h-full"
+                    className="flex bg-secondary-500 rounded-m h-[56px] items-center  text-white px-5"
                   >
-                    <IconArrowRight className="h-4 w-4" />
+                    Learn
                   </Link>
                 </div>
               </div>

@@ -1,6 +1,5 @@
 "use client";
-import IconSearch from "@/components/icons/IconSearch";
-import { Input } from "@/components/ui/input";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

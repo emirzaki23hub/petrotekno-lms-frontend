@@ -259,6 +259,7 @@ export default function Page({ params }: { params: { slug: string } }) {
         ) : (
           <PdfViewer
             url={webinar?.sessions.data[currentSession - 1]?.file_url || ""}
+            title={webinar?.sessions.data[currentSession - 1]?.title || ""}
           />
         )}
       </>

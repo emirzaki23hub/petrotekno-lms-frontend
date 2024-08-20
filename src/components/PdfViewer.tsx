@@ -7,9 +7,10 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.j
 
 interface PdfViewerProps {
   url: string;
+  title: string;
 }
 
-const PdfViewer: React.FC<PdfViewerProps> = ({ url }) => {
+const PdfViewer: React.FC<PdfViewerProps> = ({ url, title }) => {
   const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
   const [pageNum, setPageNum] = useState(1);
   const [pageCount, setPageCount] = useState(0);
@@ -187,9 +188,9 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url }) => {
         />
       </AnimatePresence>
 
-      <div className="absolute drop-shadow-2xl bg-[#333639] w-full justify-between items-center border-white top-0 right-0 p-5 flex">
+      <div className="absolute drop-shadow-2xl z-[5] bg-[#333639] w-full justify-between items-center border-white top-0 right-0 p-5 flex">
         <div className="text-white max-lg:text-xs text-lg font-semibold">
-          YourFileName.pdf
+          {title}
         </div>
 
         <div className="text-white text-lg font-semibold">

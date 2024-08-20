@@ -23,7 +23,7 @@ export default function Sidebar({ className }: SidebarProps) {
     <SidebarControl>
       <nav
         className={cn(
-          ` hidden h-[calc(100vh-64px)] sticky top-[64px] md:flex flex-col justify-between border-r p-4 `,
+          ` hidden h-[calc(100vh-64px)] overflow-hidden sticky top-[64px] md:flex flex-col justify-between border-r p-4 `,
           "min-w-[233px]",
           className
         )}

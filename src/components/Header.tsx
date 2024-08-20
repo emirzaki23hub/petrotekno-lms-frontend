@@ -5,6 +5,7 @@ import HeaderControl from "./HeaderControl";
 import Logo from "../../public/images/logo.png";
 import IconBell from "../../public/icons/icon-bell.svg";
 import IconUser from "../../public/icons/icon-user.svg";
+import { UserNav } from "./UserNav";
 
 const Header = () => {
   return (
@@ -15,9 +16,7 @@ const Header = () => {
           <div className="h-10 w-10 flex justify-center rounded-m items-center bg-[#E4E6E8]">
             <Image src={IconBell} height={24} width={24} alt="Notification" />
           </div>
-          <div className="h-10 w-10 flex justify-center rounded-m items-center bg-secondary-200">
-            <Image src={IconUser} height={24} width={24} alt="User" />
-          </div>
+          <UserNav />
         </div>
       </div>
       <div
@@ -33,9 +32,10 @@ const Header = () => {
           <div className="h-full w-full p-2 flex justify-center rounded-m items-center bg-[#E4E6E8]">
             <Image src={IconBell} height={16} width={16} alt="Notification" />
           </div>
-          <div className="h-full w-full p-2 flex justify-center rounded-m items-center bg-secondary-200">
+          {/* <div className="h-full w-full p-2 flex justify-center rounded-m items-center bg-secondary-200">
             <Image src={IconUser} height={16} width={16} alt="User" />
-          </div>
+          </div> */}
+          <UserNav />
         </div>
       </div>
     </HeaderControl>

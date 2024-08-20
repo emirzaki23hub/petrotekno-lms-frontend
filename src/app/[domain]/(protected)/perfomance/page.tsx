@@ -85,21 +85,21 @@ const page = () => {
       title: "OPITO Certification",
       imageSrc: BadgeBg,
     },
-    {
-      id: 2,
-      title: "City & Guilds Certification",
-      imageSrc: BadgeEffect,
-    },
-    {
-      id: 3,
-      title: "CompEx Certification",
-      imageSrc: BadgeOutline,
-    },
-    {
-      id: 4,
-      title: "ECITB Certification",
-      imageSrc: BadgeEcitb,
-    },
+    // {
+    //   id: 2,
+    //   title: "City & Guilds Certification",
+    //   imageSrc: BadgeEffect,
+    // },
+    // {
+    //   id: 3,
+    //   title: "CompEx Certification",
+    //   imageSrc: BadgeOutline,
+    // },
+    // {
+    //   id: 4,
+    //   title: "ECITB Certification",
+    //   imageSrc: BadgeEcitb,
+    // },
   ];
 
   return (

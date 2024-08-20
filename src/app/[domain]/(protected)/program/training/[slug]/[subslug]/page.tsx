@@ -422,7 +422,10 @@ export default function Page({
 
       {currentSection === 1 && (
         <>
-          <PdfViewer url={"/dummy.pdf"} />
+          <PdfViewer
+            title="Marine Transport of Oil and Gas"
+            url={"/dummy.pdf"}
+          />
           <SectionNavigation
             currentSection={currentSection}
             totalSections={totalSections}
@@ -435,7 +438,10 @@ export default function Page({
       {/* section 2 */}
       {currentSection === 2 && (
         <>
-          <PdfViewer url={"/dummy.pdf"} />
+          <PdfViewer
+            title="Marine Transport of Oil and Gas"
+            url={"/dummy.pdf"}
+          />
           <SectionNavigation
             currentSection={currentSection}
             totalSections={totalSections}
