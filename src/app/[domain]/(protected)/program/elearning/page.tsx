@@ -82,8 +82,7 @@ const Page = () => {
                         page === currentPage ? "bg-white" : "",
                         "cursor-pointer"
                       )}
-                      isActive={page === currentPage}
-                    >
+                      isActive={page === currentPage}>
                       {page}
                     </PaginationLink>
                   </PaginationItem>
@@ -130,7 +129,7 @@ const Page = () => {
                     width={0}
                     height={0}
                     sizes="40vw"
-                    className="h-auto w-full rounded-l-m lg:w-[161px] lg:h-[104px]"
+                    className="h-auto object-contain w-full rounded-l-m lg:w-[161px] lg:h-[104px]"
                     alt="Training Image"
                   />
                   <div className="flex flex-col gap-4 justify-center max-lg:px-4">
@@ -146,8 +145,7 @@ const Page = () => {
                 <div className="lg:pr-4 max-lg:p-4">
                   <Link
                     href={`/program/elearning/${item.slug}`}
-                    className="!h-[56px] flex px-4 justify-center items-center rounded-m bg-secondary-500 text-white text-base"
-                  >
+                    className="!h-[56px] flex px-4 justify-center items-center rounded-m bg-secondary-500 text-white text-base">
                     Start Training
                   </Link>
                 </div>
