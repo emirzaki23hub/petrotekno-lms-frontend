@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/carouselHeader";
 import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import IconPlay from "@/components/icons/IconPlay";
 import {
   Dialog,
@@ -68,10 +68,22 @@ const PdfViewer = dynamic(() => import("@/components/PdfViewer"), {
   ssr: false,
 });
 
+interface Option {
+  choice: string;
+  answer: boolean;
+}
+
+interface QuestionItem {
+  question: string;
+  choices: Option[];
+  type: string;
+}
+
 interface Section {
   title: string;
   type: string;
   link: string;
+  data: QuestionItem[]; // Assuming all data is of type QuestionItem[]
 }
 
 const dummyData = [
@@ -282,8 +294,11 @@ export default function Page({
     },
   });
 
+  const [jobCardSubmitted, setJobCarSubmitted] = useState(false); // State to track form submission
+
   const onCheckboxSubmit: SubmitHandler<FormSchemaType> = (data) => {
     console.log("Submitted data:", data);
+    setJobCarSubmitted(true);
     // Your submit logic here
   };
 
@@ -300,32 +315,66 @@ export default function Page({
   const [submitted, setSubmitted] = useState(false);
 
   async function onSubmit(data: z.infer<typeof dynamicSchema>) {
-    setIsLoading(true);
+    console.log("Form submit initiated");
+    try {
+      setIsLoading(true);
 
-    const results = dummyData.map((item) => ({
-      id: item.id,
-      isCorrect: data[`question-${item.id}`] === item.correctAnswer,
-    }));
+      console.log("Current section data:", currentSectionData);
 
-    setTimeout(() => {
-      setSubmittedData(results);
+      // Map through the current section's questions and check answers
+      const results = currentSectionData.data.map((item, index) => {
+        const selectedAnswer = data[`question-${index}`];
+        const correctAnswer = item.choices.find(
+          (choice) => choice.answer
+        )?.choice;
+
+        console.log(
+          `Question ${
+            index + 1
+          } - Selected: ${selectedAnswer}, Correct: ${correctAnswer}`
+        );
+
+        return {
+          id: index, // Or use item.id if available
+          isCorrect: selectedAnswer === correctAnswer,
+        };
+      });
+
+      console.log("Results:", results);
+
+      // Simulate an API call delay with setTimeout
+      setTimeout(() => {
+        setSubmittedData(results);
+        setIsLoading(false);
+        setSubmitted(true); // Set submitted state to true
+        setIsDialogOpen(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Error during form submission:", error);
       setIsLoading(false);
-      setSubmitted(true); // Set submitted state to true
-
-      setIsDialogOpen(false);
-    }, 2000); // Simulate an API call delay with setTimeout
+    }
   }
 
   const searchParams = useSearchParams();
-  const totalSections = 5; // Adjust this based on your total number of sections
+  const totalSections = sections.length; // Adjust this based on your total number of sections
+
+  const sectionParam = searchParams.get("section");
 
   const [currentSection, setCurrentSection] = useState<number>(() => {
-    const sectionParam = searchParams.get("section");
     const section = sectionParam ? parseInt(sectionParam, 10) : 1;
 
     // Ensure the section is within the valid range
     return section >= 1 && section <= totalSections ? section : 1;
   });
+
+  useEffect(() => {
+    // Update currentSection if sectionParam changes and is within the valid range
+    const section = sectionParam ? parseInt(sectionParam, 10) : 1;
+    if (section >= 1 && section <= totalSections) {
+      setCurrentSection(section);
+    }
+  }, [sectionParam, totalSections]); // Dependency array
+
   const goToNextSection = () => {
     setCurrentSection((prev) => {
       const nextSection = prev + 1;
@@ -353,9 +402,9 @@ export default function Page({
 
   const initialDate = startOfToday();
   const [selectedDate, setSelectedDate] = useState<Date>(initialDate);
-  const getStatus = (score: number) => {
-    return score > 5 ? "Pass" : "Fail";
-  };
+  // const getStatus = (score: number) => {
+  //   return score > 5 ? "Pass" : "Fail";
+  // };
 
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
@@ -369,7 +418,15 @@ export default function Page({
 
   const currentSectionData = sections[currentSection - 1];
 
-  console.log(currentSectionData);
+  const getScoreAndStatus = () => {
+    const score = Math.floor(Math.random() * 11); // Random score between 0-10
+    const status = score > 5 ? "Pass" : "Fail"; // Pass if score > 5, otherwise Fail
+    return { score, status };
+  };
+
+  const scoreData = useMemo(() => {
+    return items.map(() => getScoreAndStatus());
+  }, [items]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -458,16 +515,459 @@ export default function Page({
 
       {currentSectionData ? (
         <>
-          <PdfViewer
-            title={currentSectionData.title}
-            url={currentSectionData.link}
-          />
+          {currentSectionData.type === "PDF" && (
+            <PdfViewer
+              title={currentSectionData.title}
+              url={currentSectionData.link}
+            />
+          )}
+
+          {currentSectionData.type === "TEST" && (
+            <>
+              <div className="p-6 flex max-lg:flex-col max-lg:gap-4 max-lg:items-center justify-between rounded-m bg-white items-end">
+                {hasSubmitted ? (
+                  <div className="flex max-w-[536px] w-full mx-auto justify-center items-start flex-col gap-4">
+                    <div className="flex gap-2 text-sm text-primary-500 font-bold">
+                      20 Questions
+                    </div>
+                    <div className="text-2xl font-sans leading-7 font-bold">
+                      Level Measurement Test
+                    </div>
+                    <div className="text-base text-neutral-400">
+                      Start Date: 25 Jun 2024 • 09.00 WIB
+                    </div>
+                    <div className="bg-neutral-100 rounded-m flex gap-[102px] font-mono p-4 lg:min-w-[536px] justify-center">
+                      <div className="flex flex-col gap-1.5">
+                        <div className="text-base text-neutral-400">
+                          Score Test
+                        </div>
+                        <div className="text-[34px] font-bold text-center">
+                          100
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <div className="text-base text-neutral-400">
+                          Correct Answer
+                        </div>
+                        <div className="text-[34px] font-bold text-center">
+                          10/10
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex w-full justify-center">
+                      <Link
+                        className="h-[56px] font-sans text-base border border-secondary-500 text-secondary-500 font-bold rounded-m flex justify-center items-center min-w-[155px]"
+                        href={`/program/training/${params.slug}/${params.subslug}/test`}
+                      >
+                        View Result
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex flex-col text-neutral-700 font-mono gap-4">
+                      <div className="flex gap-2 text-sm text-primary-500 font-bold">
+                        20 Questions
+                      </div>
+                      <div className="text-2xl font-sans leading-7 font-bold">
+                        Level Measurement Test
+                      </div>
+                      <div className="text-base text-neutral-400">
+                        Start Date: 25 Jun 2024 • 09.00 WIB
+                      </div>
+                    </div>
+
+                    <Link
+                      className="h-[56px] font-sans text-base bg-secondary-500 rounded-m flex justify-center items-center min-w-[155px] text-white"
+                      href={`/program/training/${params.slug}/${params.subslug}/test`}
+                    >
+                      Start Test
+                    </Link>
+                  </>
+                )}
+              </div>
+            </>
+          )}
+
           <SectionNavigation
             currentSection={currentSection}
             sections={sections}
             goToPrevSection={goToPrevSection}
             goToNextSection={goToNextSection}
           />
+
+          {currentSectionData.type === "QUIZ" && (
+            <div className="p-6 font-mono bg-white rounded-m flex items-start">
+              <div className="flex gap-6 w-full max-lg:flex-col">
+                <div className="w-full bg-white rounded-m flex flex-col gap-4">
+                  <div className="text-[20px] leading-6 font-bold border-[#E4E6E8] border-b h-10">
+                    Question
+                  </div>
+                  <div className="flex p-6 flex-col border border-[#E4E6E8] rounded-m">
+                    <Form {...form}>
+                      <form
+                        onSubmit={form.handleSubmit(onSubmit)}
+                        className="w-full space-y-6"
+                      >
+                        {currentSectionData.data.map((questionItem, index) => (
+                          <FormField
+                            key={index}
+                            control={form.control}
+                            name={`question-${index}`}
+                            render={({ field }) => {
+                              const selectedAnswer = field.value;
+
+                              return (
+                                <FormItem className="space-y-6 bg-white border rounded-m">
+                                  <div className="flex flex-col space-y-1 pt-6">
+                                    <FormLabel className="font-bold px-6 text-primary-500 mb-4">
+                                      Question {index + 1}
+                                    </FormLabel>
+                                    <FormLabel className="font-mono px-6 text-base font-bold">
+                                      {questionItem.question}
+                                    </FormLabel>
+                                  </div>
+                                  <FormControl>
+                                    <RadioGroup
+                                      onValueChange={field.onChange}
+                                      defaultValue={field.value}
+                                      className="flex flex-col space-y-1 px-6 pb-6"
+                                      disabled={submitted}
+                                    >
+                                      {questionItem.choices.map(
+                                        (option, optionIndex) => {
+                                          const isOptionSelected =
+                                            field.value === option.choice;
+                                          const isOptionCorrect =
+                                            option.answer === true;
+                                          const isOptionWrong =
+                                            submitted &&
+                                            !isOptionCorrect &&
+                                            isOptionSelected;
+
+                                          return (
+                                            <FormItem
+                                              key={optionIndex}
+                                              className="flex items-center space-x-3 space-y-0"
+                                            >
+                                              <FormControl>
+                                                <RadioGroupItem
+                                                  className={cn(
+                                                    "data-[state=checked]:bg-green-500 data-[state=checked]:text-white",
+                                                    submitted && isOptionCorrect
+                                                      ? "bg-green-300"
+                                                      : submitted &&
+                                                        isOptionWrong
+                                                      ? "data-[state=checked]:bg-primary-500"
+                                                      : ""
+                                                  )}
+                                                  value={option.choice}
+                                                  disabled={submitted}
+                                                />
+                                              </FormControl>
+                                              <FormLabel
+                                                className={cn(
+                                                  "font-normal",
+                                                  submitted && isOptionCorrect
+                                                    ? "text-green-500"
+                                                    : "",
+                                                  submitted && isOptionWrong
+                                                    ? "text-[#F04B35]"
+                                                    : ""
+                                                )}
+                                              >
+                                                {option.choice}
+                                              </FormLabel>
+                                            </FormItem>
+                                          );
+                                        }
+                                      )}
+                                    </RadioGroup>
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              );
+                            }}
+                          />
+                        ))}
+
+                        <Button
+                          className="h-[56px] px-5 bg-[#E4E6E8] rounded-m text-black"
+                          onClick={handleOpenDialog}
+                          disabled={submitted}
+                          type="button"
+                        >
+                          Submit
+                        </Button>
+                        <Dialog
+                          open={isDialogOpen}
+                          onOpenChange={setIsDialogOpen}
+                        >
+                          <DialogContent className="bg-white">
+                            <DialogHeader className="text-[28px] font-bold">
+                              Submit
+                            </DialogHeader>
+                            <DialogDescription className="text-base">
+                              Are you sure to submit the answer of the test?
+                            </DialogDescription>
+
+                            {isLoading && (
+                              <div className="flex justify-center items-center">
+                                <Loader2 className="mr-2 size-12 animate-spin" />
+                              </div>
+                            )}
+
+                            <div className="flex gap-4 w-full">
+                              <Button
+                                disabled={isLoading}
+                                onClick={onSubmit}
+                                className="mt-4 h-[56px] bg-secondary-500 w-full text-white"
+                              >
+                                Yes
+                              </Button>
+                              <Button
+                                type="button"
+                                disabled={isLoading}
+                                onClick={() => setIsDialogOpen(false)}
+                                className="mt-4 h-[56px] bg-[#F04B35] w-full text-white"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </form>
+                    </Form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {currentSectionData.type === "JOB_CARD" && (
+            <>
+              {!jobCardSubmitted ? (
+                <div className="p-6 font-mono bg-white rounded-m flex items-start">
+                  <div className="flex gap-6 w-full max-lg:flex-col">
+                    <div className="w-full bg-white rounded-m flex flex-col gap-6">
+                      <div className="text-[20px] leading-6 font-bold h-10 pb-4 font-sans">
+                        Marking Scheme Task
+                      </div>
+                      <div className="flex gap-1 flex-col #474E53 font-mono pb-4 border-[#E4E6E8] border-b">
+                        <span className="text-[20px] leading-6 font-bold">
+                          Task 1
+                        </span>
+                        <span className="text-sm">
+                          BREAKING CONTAINMENT SPOOL REMOVAL
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col gap-1">
+                        <div className="text-base text-neutral-800 font-bold">
+                          Training Date
+                        </div>
+                        <DatePicker
+                          date={selectedDate}
+                          onDateChange={(date) => {
+                            if (date) {
+                              setSelectedDate(date);
+                            }
+                          }}
+                        />
+                      </div>
+
+                      <Form {...checkboxForm}>
+                        <form
+                          onSubmit={checkboxForm.handleSubmit(onCheckboxSubmit)}
+                        >
+                          <div className="flex flex-col gap-6">
+                            {items.map((item, index) => (
+                              <div
+                                key={item.id}
+                                className="flex items-center gap-10"
+                              >
+                                <div className="w-2">{index + 1}.</div>
+                                <FormField
+                                  control={checkboxForm.control}
+                                  name="items"
+                                  render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center h-full">
+                                      <FormControl>
+                                        <Checkbox
+                                          checked={
+                                            Array.isArray(field.value) &&
+                                            field.value.includes(item.id)
+                                          }
+                                          onCheckedChange={(checked) => {
+                                            const updatedValue = Array.isArray(
+                                              field.value
+                                            )
+                                              ? field.value
+                                              : [];
+                                            return checked
+                                              ? field.onChange([
+                                                  ...updatedValue,
+                                                  item.id,
+                                                ])
+                                              : field.onChange(
+                                                  updatedValue.filter(
+                                                    (value) => value !== item.id
+                                                  )
+                                                );
+                                          }}
+                                        />
+                                      </FormControl>
+                                    </FormItem>
+                                  )}
+                                />
+                                <div>{item.label}</div>
+                              </div>
+                            ))}
+                          </div>
+                          <FormField
+                            control={checkboxForm.control}
+                            name="summary"
+                            render={({ field }) => (
+                              <FormItem className="mt-10">
+                                <FormLabel className="text-base leading-6 font-bold font-mono">
+                                  Summary
+                                </FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    placeholder="Enter long text here"
+                                    className="rounded-m"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <div className="mt-10 flex justify-center w-full">
+                            <Button
+                              className="h-[56px] bg-secondary-500 text-white max-lg:w-full lg:min-w-[300px] rounded-m"
+                              type="submit"
+                            >
+                              Submit
+                            </Button>
+                          </div>
+                        </form>
+                      </Form>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-6 font-mono bg-white rounded-m flex items-start">
+                  <div className="flex gap-6 w-full max-lg:flex-col">
+                    <div className="w-full bg-white rounded-m flex flex-col gap-6">
+                      <div className="text-[20px] leading-6 font-bold h-10 pb-4 font-sans">
+                        Marking Scheme Task
+                      </div>
+                      <div className="flex gap-1 flex-col #474E53 font-mono pb-4 border-[#E4E6E8] border-b">
+                        <span className="text-[20px] leading-6 font-bold">
+                          Task 1
+                        </span>
+                        <span className="text-sm">
+                          BREAKING CONTAINMENT SPOOL REMOVAL
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col gap-1">
+                        <div className="text-base text-neutral-800 font-bold">
+                          Training Date
+                        </div>
+                        <DatePicker
+                          date={selectedDate}
+                          onDateChange={(date) => {
+                            if (date) {
+                              setSelectedDate(date);
+                            }
+                          }}
+                        />
+                      </div>
+
+                      <Tabs defaultValue="task" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 lg:w-[600px]">
+                          <TabsTrigger
+                            className="border-neutral-800 font-sans text-base font-bold border-r-0 border rounded-l-m rounded-r-0"
+                            value="task"
+                          >
+                            Task List
+                          </TabsTrigger>
+                          <TabsTrigger
+                            className="border-neutral-800 border font-sans text-base font-bold rounded-l-0 rounded-r-m"
+                            value="feedback"
+                          >
+                            Feedback
+                          </TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="task">
+                          <Table className="w-full mt-5">
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="w-[60px]">No.</TableHead>
+                                <TableHead className="w-[60px]"></TableHead>
+                                <TableHead>Task List</TableHead>
+                                <TableHead className="w-[100px]">
+                                  Score
+                                </TableHead>
+                                <TableHead className="w-[100px]">
+                                  Status
+                                </TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {items.map((item, index) => {
+                                const { score, status } = scoreData[index]; // Retrieve the score and status for the current item
+                                return (
+                                  <TableRow className="border-0" key={item.id}>
+                                    <TableCell>{index + 1}.</TableCell>
+                                    <TableCell>
+                                      <Checkbox
+                                        checked={checkboxForm
+                                          .getValues("items")
+                                          .includes(item.id)}
+                                        disabled
+                                      />
+                                    </TableCell>
+                                    <TableCell>{item.label}</TableCell>
+                                    <TableCell>{score}</TableCell>
+                                    <TableCell
+                                      className={
+                                        status === "Pass"
+                                          ? "text-green-600"
+                                          : "text-red-600"
+                                      }
+                                    >
+                                      {status}
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })}
+                            </TableBody>
+                          </Table>
+                        </TabsContent>
+                        <TabsContent value="feedback">
+                          <div className="flex flex-col gap-4 mt-5">
+                            <div className="font-mono text-base font-bold">
+                              Instructors justification for the above scores
+                            </div>
+                            <Textarea
+                              disabled
+                              className="p-4 min-h-[300px] font-mono"
+                            >
+                              {checkboxForm.getValues("summary")}
+                            </Textarea>
+                          </div>
+                        </TabsContent>
+                      </Tabs>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </>
       ) : (
         <div>Loading...</div>

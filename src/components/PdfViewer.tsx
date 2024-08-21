@@ -225,7 +225,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, title }) => {
             </svg>
           </button>
 
-          {/* Download PDF Button */}
           <button
             onClick={downloadPdf}
             className="text-white rounded-full shadow-lg transition-colors"

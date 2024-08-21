@@ -138,7 +138,7 @@ const dynamicSchema = z.object(
       // Essay question
       schema[`question-${item.id}`] = z
         .string()
-        .min(10, "Please provide a detailed answer.");
+        .min(1, "Please provide a detailed answer.");
     }
     return schema;
   }, {} as Record<string, z.ZodTypeAny>)
@@ -225,7 +225,7 @@ export default function Test() {
             className="lg:block hidden"
           />
           <div className=" h-16 border-[#E4E6E8] border-l flex px-4 justify-center items-center text-base font-mono font-bold ">
-            Test Module 24: Level Measurement
+            Test Marine Transport of Oil and Gas{" "}
           </div>
         </div>
         <div className="flex gap-6 max-lg:w-full  h-16 justify-center items-center px-4">
@@ -298,7 +298,7 @@ export default function Test() {
         </div>
       </div>
       <div className="h-16 lg:hidden fixed top-16 bg-white flex text-neutral-800 font-bold justify-center items-center font-mono w-full">
-        Test Module 24: Level Measurement
+        Test Marine Transport of Oil and Gas{" "}
       </div>
       <div className="h-16 px-5 lg:hidden fixed bottom-0 bg-white flex text-neutral-800 font-bold justify-center items-center font-mono w-full">
         <div className="flex flex-col w-full  h-16 px-4 justify-center lg:min-w-[182px] ">
