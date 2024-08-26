@@ -3,15 +3,24 @@ import { cn } from "@/lib/utils";
 import { MobileSidebar } from "./sidebar/mobile-sidebar";
 import HeaderControl from "./HeaderControl";
 import Logo from "../../public/images/logo.png";
+import LogoEacop from "../../public/images/logo-eacop.png";
+
 import IconBell from "../../public/icons/icon-bell.svg";
-import IconUser from "../../public/icons/icon-user.svg";
 import { UserNav } from "./UserNav";
 
 const Header = () => {
   return (
     <HeaderControl>
-      <div className="h-[64px] fixed top-0 z-[10] bg-white border max-lg:hidden border-b-[#E4E6E8] p-4 flex justify-between items-center w-full">
+      <div className="h-[64px] fixed top-0 z-[20] bg-white border max-lg:hidden border-b-[#E4E6E8] p-4 flex justify-between items-center w-full">
         <Image src={Logo} height={27} width={149} alt="Logo" />
+        <Image
+          src={LogoEacop}
+          className="p-5"
+          height={27}
+          width={149}
+          alt="Logo"
+        />
+
         <div className="flex gap-6">
           <div className="h-10 w-10 flex justify-center rounded-m items-center bg-[#E4E6E8]">
             <Image src={IconBell} height={24} width={24} alt="Notification" />

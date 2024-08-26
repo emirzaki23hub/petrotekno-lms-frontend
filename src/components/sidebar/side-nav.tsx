@@ -1,13 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { useState } from "react";
+import { buttonVariants } from "@/components/ui/button";
 import { NavItem } from "@/types";
-import IconLogout from "../icons/IconLogout";
-import { restAuth } from "@/rest/auth";
 
 interface SideNavProps {
   items: NavItem[];
@@ -17,36 +14,6 @@ interface SideNavProps {
 
 export function SideNav({ items, setOpen, className }: SideNavProps) {
   const path = usePathname();
-  const params = useParams();
-  const domain = Array.isArray(params.domain)
-    ? params.domain[0]
-    : params.domain || ""; // Ensure domain is a string and handle the case where it might be undefined or null
-
-  const decodedDomain = decodeURIComponent(domain);
-
-  const partBeforeDot = decodedDomain.split(".")[0];
-
-  const [loading, setLoading] = useState(false);
-
-  const handleLogout = async () => {
-    setLoading(true);
-
-    try {
-      const token = localStorage.getItem("authToken");
-
-      if (token) {
-        await restAuth.postLogout(token, partBeforeDot);
-
-        localStorage.removeItem("authToken");
-
-        window.location.replace("/");
-      }
-    } catch (error) {
-      console.error("Logout failed:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <>
@@ -111,8 +78,8 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
           </div>
         ))}
       </nav>
-      <div className="text-base w-full max-lg:hidden max-lg:mt-2 flex justify-start gap-3 text-neutral-400 font-bold">
-        <span>Copyright Petrotekno</span>
+      <div className="text-base w-full max-lg:hidden max-lg:mt-2 flex justify-center -ml-4 gap-3 text-neutral-400 font-bold">
+        <span>© Eduteg 2024</span>
       </div>
     </>
   );

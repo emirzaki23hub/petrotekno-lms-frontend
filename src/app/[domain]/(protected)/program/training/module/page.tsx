@@ -228,7 +228,7 @@ export default function Page({ params }: { params: { slug: string } }) {
                       </div>
 
                       <Link
-                        href={`/program/training/${params.slug}/${module.id}`}
+                        href={`/program/training/module/${module.id}`}
                         className="flex bg-secondary-500 rounded-m h-[56px] items-center text-white px-5"
                       >
                         Learn

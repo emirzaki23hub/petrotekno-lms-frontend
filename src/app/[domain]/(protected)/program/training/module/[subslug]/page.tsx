@@ -441,7 +441,7 @@ export default function Page({
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/program/training/east-africa-crude-oil-pipeline-project-training-programme">
+            <BreadcrumbLink href="/program/training/module">
               East Africa Crude Oil Pipeline Project Training Programme /
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -454,7 +454,7 @@ export default function Page({
       </Breadcrumb>
       <div className="flex gap-4 items-center">
         <Link
-          href={`/program/training/${params.slug}`}
+          href={`/program/training/module`}
           className="h-10 w-10 flex items-center justify-center rounded-m bg-[#E4E6E] border-black border"
         >
           <svg
@@ -754,6 +754,7 @@ export default function Page({
                       <div className="text-[20px] leading-6 font-bold h-10 pb-4 font-sans">
                         Marking Scheme Task
                       </div>
+
                       <div className="flex gap-1 flex-col #474E53 font-mono pb-4 border-[#E4E6E8] border-b">
                         <span className="text-[20px] leading-6 font-bold">
                           Task 1
@@ -761,6 +762,14 @@ export default function Page({
                         <span className="text-sm">
                           BREAKING CONTAINMENT SPOOL REMOVAL
                         </span>
+                        <p className="text-sm leading-5 text-neutral-600 pb-4 w-2/3 font-semibold">
+                          This task involves evaluating the steps and procedures
+                          followed during the containment spool removal process.
+                          The goal is to ensure all safety protocols are adhered
+                          to, and the correct tools and techniques are applied.
+                          Please carefully complete each task, and provide
+                          feedback where necessary.
+                        </p>
                       </div>
 
                       <div className="flex flex-col gap-1">
@@ -871,6 +880,14 @@ export default function Page({
                         <span className="text-sm">
                           BREAKING CONTAINMENT SPOOL REMOVAL
                         </span>
+                        <p className="text-sm leading-5 text-neutral-600 pb-4 w-2/3 font-semibold">
+                          This task involves evaluating the steps and procedures
+                          followed during the containment spool removal process.
+                          The goal is to ensure all safety protocols are adhered
+                          to, and the correct tools and techniques are applied.
+                          Please carefully complete each task, and provide
+                          feedback where necessary.
+                        </p>
                       </div>
 
                       <div className="flex flex-col gap-1">

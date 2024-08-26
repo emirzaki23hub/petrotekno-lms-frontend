@@ -77,11 +77,11 @@ const page = () => {
               <div
                 key={index}
                 className={cn(
-                  "xl:h-[56px] h-full flex flex-col items-end justify-end",
+                  " h-full flex flex-col items-end justify-end",
                   index !== 0 && "lg:mt-4 pt-4"
                 )}
               >
-                <div className="flex gap-2 w-full max-xl:gap-5 justify-between">
+                <div className="flex gap-5 w-full max-xl:gap-5 justify-between">
                   <div className="flex gap-2 max-xl:flex-col justify-between w-full">
                     <div className="flex flex-col gap-1 xl:min-w-[295px]">
                       <div className="text-neutral-400 text-xs leading-4">
@@ -115,10 +115,10 @@ const page = () => {
 
                   <div className="flex items-center h-full">
                     <Link
-                      href={`/program/training/east-africa-crude-oil-pipeline-project-training-programme/${module.id}`}
-                      className="rounded-m h-10 w-10 justify-center items-center flex bg-[#E4E6E8]"
+                      href={`/program/training/module/${module.id}`}
+                      className="flex bg-secondary-500 rounded-m h-[56px] items-center text-white px-5"
                     >
-                      <IconArrowRight className="h-4 w-4" />
+                      Learn
                     </Link>
                   </div>
                 </div>

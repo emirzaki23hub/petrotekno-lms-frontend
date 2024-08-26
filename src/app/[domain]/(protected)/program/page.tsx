@@ -37,9 +37,7 @@ const page = () => {
               </div>
             </div>
             <Link
-              href={
-                "/program/training/east-africa-crude-oil-pipeline-project-training-programme"
-              }
+              href={"/program/training/module"}
               className="h-[56px] flex justify-center items-center px-5 whitespace-nowrap rounded-m bg-success-500 text-white text-base"
             >
               Start Training
