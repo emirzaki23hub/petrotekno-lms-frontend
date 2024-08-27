@@ -79,11 +79,10 @@ const page = () => {
                 className={cn(
                   " h-full flex flex-col items-end justify-end",
                   index !== 0 && "lg:mt-4 pt-4"
-                )}
-              >
+                )}>
                 <div className="flex gap-5 w-full max-xl:gap-5 justify-between">
                   <div className="flex gap-2 max-xl:flex-col justify-between w-full">
-                    <div className="flex flex-col gap-1 xl:min-w-[295px]">
+                    <div className="flex flex-col gap-1 lg:min-w-[205px] 2xl:min-w-[295px]">
                       <div className="text-neutral-400 text-xs leading-4">
                         Training
                       </div>
@@ -116,8 +115,7 @@ const page = () => {
                   <div className="flex items-center h-full">
                     <Link
                       href={`/program/training/module/${module.id}`}
-                      className="flex bg-secondary-500 rounded-m h-[56px] items-center text-white px-5"
-                    >
+                      className="flex bg-secondary-500 rounded-m h-[56px] items-center text-white px-5">
                       Learn
                     </Link>
                   </div>
@@ -134,8 +132,7 @@ const page = () => {
             {trainingData.map((item, index) => (
               <div
                 key={index}
-                className="min-h-[72px] border border-[#E4E6E8] rounded-m flex justify-between gap-2 p-4"
-              >
+                className="min-h-[72px] border border-[#E4E6E8] rounded-m flex justify-between gap-2 p-4">
                 <div className="flex flex-col gap-1">
                   <div className="text-base text-neutral-800 font-bold ">
                     {item.title}
@@ -147,8 +144,7 @@ const page = () => {
                 <Button
                   variant="outline"
                   className="rounded-m bg-[#E4E6E8]"
-                  size="icon"
-                >
+                  size="icon">
                   <IconArrowRight className="h-4 w-4" />
                 </Button>
               </div>
