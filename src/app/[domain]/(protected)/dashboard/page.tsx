@@ -90,7 +90,7 @@ const page = () => {
                         {module.title}
                       </div>
                     </div>
-                    <div className="flex flex-col gap-1 w-full lg:w-[165px] xl:min-w-[165px]">
+                    <div className="flex flex-col gap-1 w-full lg:max-w-[145px] 2xl:min-w-[165px]">
                       <div className="text-neutral-400 text-xs leading-4">
                         Sessions
                       </div>
