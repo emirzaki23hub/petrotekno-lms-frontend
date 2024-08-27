@@ -1,6 +1,8 @@
 "use client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import IconPdf from "@/components/icons/IconPdf";
+// import IconPdf from "@/components/icons/IconPdf";
+import Slider from "react-slick";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -19,17 +21,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carouselHeader";
 import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useEffect, useMemo, useState } from "react";
-import IconPlay from "@/components/icons/IconPlay";
+import React, {
+  MouseEventHandler,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+// import IconPlay from "@/components/icons/IconPlay";
 import {
   Dialog,
   DialogContent,
@@ -37,7 +38,7 @@ import {
   DialogHeader,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
+// import { DialogTitle } from "@radix-ui/react-dialog";
 import { z } from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -59,8 +60,15 @@ import IconSlider from "@/components/icons/IconSlider";
 import { startOfToday } from "date-fns";
 import Link from "next/link";
 import Bg1 from "../../../../../../../../public/images/bg-1.png";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
+interface ArrowProps {
+  onClick: MouseEventHandler<HTMLButtonElement>;
+}
 
 import dynamic from "next/dynamic";
+import IconChevron from "@/components/icons/IconChevron";
 
 const PdfViewer = dynamic(() => import("@/components/PdfViewer"), {
   loading: () => <p>Loading...</p>,
@@ -269,6 +277,25 @@ export default function Page({
   const router = useRouter();
   const [sections, setSections] = useState<Section[]>([]);
 
+  const searchParams = useSearchParams();
+  const totalSections = sections.length; // Adjust this based on your total number of sections
+
+  const sectionParam = searchParams.get("section");
+
+  const [currentSection, setCurrentSection] = useState<number>(() => {
+    const section = sectionParam ? parseInt(sectionParam, 10) : 1;
+
+    return section >= 1 && section <= totalSections ? section : 1;
+  });
+
+  useEffect(() => {
+    const section = sectionParam ? parseInt(sectionParam, 10) : 1;
+    if (section >= 1 && section <= totalSections) {
+      setCurrentSection(section);
+    }
+  }, [sectionParam, totalSections]);
+
+  const sliderRef = useRef<Slider>(null);
   useEffect(() => {
     const loadModules = async () => {
       const id = parseInt(params.subslug, 10);
@@ -282,6 +309,16 @@ export default function Page({
     loadModules();
   }, [params.subslug]);
 
+  useEffect(() => {
+    if (
+      sliderRef.current &&
+      currentSection > 0 &&
+      currentSection <= sections.length
+    ) {
+      sliderRef.current.slickGoTo(currentSection - 1);
+    }
+  }, [sections, currentSection]);
+
   const form = useForm<z.infer<typeof dynamicSchema>>({
     resolver: zodResolver(dynamicSchema),
   });
@@ -293,6 +330,69 @@ export default function Page({
       summary: "",
     },
   });
+
+  const PrevArrow: React.FC<ArrowProps> = ({ onClick }) => (
+    <button
+      onClick={onClick}
+      className={cn(
+        "border-[#E4E6E8] min-w-[56px] border-r  left-0 top-0 absolute flex justify-center items-center border-l rounded-none h-full bg-white z-10 rounded-l-m   "
+      )}
+    >
+      <IconChevron dir="left" />
+    </button>
+  );
+
+  const NextArrow: React.FC<ArrowProps> = ({ onClick }) => (
+    <button
+      onClick={onClick}
+      className={cn(
+        "border-[#E4E6E8] min-w-[56px] right-0 top-0 absolute flex justify-center items-center border-l rounded-none h-full bg-white z-10 rounded-r-m "
+      )}
+    >
+      <IconChevron dir="right" />
+    </button>
+  );
+  const settings = {
+    dots: false,
+    infinite: false,
+    speed: 500,
+    slidesToShow: 5, // Show 4 slides on desktop
+    slidesToScroll: 5, // Scroll 4 slides at a time
+    prevArrow: (
+      <PrevArrow
+        onClick={function (
+          event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+        ): void {
+          throw new Error("Function not implemented.");
+        }}
+      />
+    ),
+    nextArrow: (
+      <NextArrow
+        onClick={function (
+          event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+        ): void {
+          throw new Error("Function not implemented.");
+        }}
+      />
+    ),
+    responsive: [
+      {
+        breakpoint: 1024, // For screens smaller than 1024px
+        settings: {
+          slidesToShow: 2, // Show 2 slides on smaller screens
+          slidesToScroll: 2, // Scroll 2 slides at a time
+        },
+      },
+      {
+        breakpoint: 600, // For screens smaller than 600px
+        settings: {
+          slidesToShow: 1, // Show 1 slide on very small screens
+          slidesToScroll: 1, // Scroll 1 slide at a time
+        },
+      },
+    ],
+  };
 
   const [jobCardSubmitted, setJobCarSubmitted] = useState(false); // State to track form submission
 
@@ -354,26 +454,6 @@ export default function Page({
       setIsLoading(false);
     }
   }
-
-  const searchParams = useSearchParams();
-  const totalSections = sections.length; // Adjust this based on your total number of sections
-
-  const sectionParam = searchParams.get("section");
-
-  const [currentSection, setCurrentSection] = useState<number>(() => {
-    const section = sectionParam ? parseInt(sectionParam, 10) : 1;
-
-    // Ensure the section is within the valid range
-    return section >= 1 && section <= totalSections ? section : 1;
-  });
-
-  useEffect(() => {
-    // Update currentSection if sectionParam changes and is within the valid range
-    const section = sectionParam ? parseInt(sectionParam, 10) : 1;
-    if (section >= 1 && section <= totalSections) {
-      setCurrentSection(section);
-    }
-  }, [sectionParam, totalSections]); // Dependency array
 
   const goToNextSection = () => {
     setCurrentSection((prev) => {
@@ -478,38 +558,37 @@ export default function Page({
       </div>
       <div className=" bg-white flex min-h-[60px] rounded-m justify-between">
         <div className="w-full">
-          <Carousel className="w-full h-full flex mx-auto justify-between">
-            <CarouselPrevious />
-            <CarouselContent className="h-full max-lg:px-0 px-6 flex w-full justify-between">
-              {sections.map((section, index) => (
-                <CarouselItem
-                  key={section.title}
+          <Slider
+            ref={sliderRef}
+            {...settings}
+            className="w-full [&>div]:h-full px-5 lg:pr-14 lg:pl-20 [&>div>div]:h-full [&>div>div>div]:h-full [&>div>div>div>div]:h-full   h-full flex mx-auto justify-between"
+          >
+            {sections.map((section, index) => (
+              <div
+                key={section.title}
+                className={cn(
+                  `font-bold px-3 lg:px-4 !flex h-full max-lg:justify-center  max-lg:gap-2 gap-4 items-center`,
+                  currentSection > index + 1 && "text-success-500",
+                  currentSection === index + 1 && "text-primary-500"
+                )}
+              >
+                <div
                   className={cn(
-                    `basis-1/5 pl-0 max-lg:basis-1/2 lg:pl-6 font-bold flex max-lg:gap-2 gap-4 items-center`,
-                    currentSection > index + 1 && "text-success-500",
-                    currentSection === index + 1 && "text-primary-500"
+                    "w-9 h-9 flex justify-center items-center rounded-full",
+                    currentSection > index + 1 && "bg-success-400 text-white",
+                    currentSection === index + 1 && "bg-primary-500 text-white",
+                    currentSection < index + 1 &&
+                      "bg-neutral-100 text-neutral-400"
                   )}
                 >
-                  <div
-                    className={cn(
-                      "w-9 h-9 flex justify-center items-center rounded-full",
-                      currentSection > index + 1 && "bg-success-400 text-white",
-                      currentSection === index + 1 &&
-                        "bg-primary-500 text-white",
-                      currentSection < index + 1 &&
-                        "bg-neutral-100 text-neutral-400"
-                    )}
-                  >
-                    <div className="m-5">
-                      <IconSlider />
-                    </div>
+                  <div className="m-5">
+                    <IconSlider />
                   </div>
-                  <span className="whitespace-nowrap">{section.title}</span>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselNext />
-          </Carousel>
+                </div>
+                <span className="line-clamp-1">{section.title}</span>
+              </div>
+            ))}
+          </Slider>
         </div>
       </div>
 
