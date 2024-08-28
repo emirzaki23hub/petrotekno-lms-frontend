@@ -84,7 +84,7 @@ const page = () => {
                   <div className="flex gap-2 max-xl:flex-col justify-between w-full">
                     <div className="flex flex-col gap-1 lg:min-w-[205px] 2xl:min-w-[295px]">
                       <div className="text-neutral-400 text-xs leading-4">
-                        Training
+                        M{index + 1}
                       </div>
                       <div className="text-neutral-800 max-lg:text-xs text-sm leadin-5 font-bold">
                         {module.title}
