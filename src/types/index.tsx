@@ -33,3 +33,14 @@ export type Session = {
   read_at: string | null; // Date when the session was read, or null if not yet read
   video_url: string | null;
 };
+
+interface AgendaItem {
+  time: string;
+  activity: string;
+}
+
+export interface Agenda {
+  [x: string]: any;
+  date: string;
+  agenda: AgendaItem[];
+}
