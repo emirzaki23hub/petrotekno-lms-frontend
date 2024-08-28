@@ -336,8 +336,7 @@ export default function Page({
       onClick={onClick}
       className={cn(
         "border-[#E4E6E8] min-w-[56px] border-r  left-0 top-0 absolute flex justify-center items-center border-l rounded-none h-full bg-white z-10 rounded-l-m   "
-      )}
-    >
+      )}>
       <IconChevron dir="left" />
     </button>
   );
@@ -347,8 +346,7 @@ export default function Page({
       onClick={onClick}
       className={cn(
         "border-[#E4E6E8] min-w-[56px] right-0 top-0 absolute flex justify-center items-center border-l rounded-none h-full bg-white z-10 rounded-r-m "
-      )}
-    >
+      )}>
       <IconChevron dir="right" />
     </button>
   );
@@ -535,15 +533,13 @@ export default function Page({
       <div className="flex gap-4 items-center">
         <Link
           href={`/program/training/module`}
-          className="h-10 w-10 flex items-center justify-center rounded-m bg-[#E4E6E] border-black border"
-        >
+          className="h-10 w-10 flex items-center justify-center rounded-m bg-[#E4E6E] border-black border">
           <svg
             width="8"
             height="12"
             viewBox="0 0 8 12"
             fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+            xmlns="http://www.w3.org/2000/svg">
             <path
               fillRule="evenodd"
               clipRule="evenodd"
@@ -561,8 +557,7 @@ export default function Page({
           <Slider
             ref={sliderRef}
             {...settings}
-            className="w-full [&>div]:h-full px-5 lg:pr-14 lg:pl-20 [&>div>div]:h-full [&>div>div>div]:h-full [&>div>div>div>div]:h-full   h-full flex mx-auto justify-between"
-          >
+            className="w-full [&>div]:h-full px-5 lg:pr-14 lg:pl-20 [&>div>div]:h-full [&>div>div>div]:h-full [&>div>div>div>div]:h-full   h-full flex mx-auto justify-between">
             {sections.map((section, index) => (
               <div
                 key={section.title}
@@ -570,8 +565,7 @@ export default function Page({
                   `font-bold px-3 lg:px-4 !flex h-full max-lg:justify-center  max-lg:gap-2 gap-4 items-center`,
                   currentSection > index + 1 && "text-success-500",
                   currentSection === index + 1 && "text-primary-500"
-                )}
-              >
+                )}>
                 <div
                   className={cn(
                     "w-9 h-9 flex justify-center items-center rounded-full",
@@ -579,8 +573,7 @@ export default function Page({
                     currentSection === index + 1 && "bg-primary-500 text-white",
                     currentSection < index + 1 &&
                       "bg-neutral-100 text-neutral-400"
-                  )}
-                >
+                  )}>
                   <div className="m-5">
                     <IconSlider />
                   </div>
@@ -637,8 +630,7 @@ export default function Page({
                     <div className="flex w-full justify-center">
                       <Link
                         className="h-[56px] font-sans text-base border border-secondary-500 text-secondary-500 font-bold rounded-m flex justify-center items-center min-w-[155px]"
-                        href={`/program/training/${params.slug}/${params.subslug}/test`}
-                      >
+                        href={`/program/training/module/${params.subslug}/test`}>
                         View Result
                       </Link>
                     </div>
@@ -659,8 +651,7 @@ export default function Page({
 
                     <Link
                       className="h-[56px] font-sans text-base bg-secondary-500 rounded-m flex justify-center items-center min-w-[155px] text-white"
-                      href={`/program/training/${params.slug}/${params.subslug}/test`}
-                    >
+                      href={`/program/training/${params.slug}/${params.subslug}/test`}>
                       Start Test
                     </Link>
                   </>
@@ -687,8 +678,7 @@ export default function Page({
                     <Form {...form}>
                       <form
                         onSubmit={form.handleSubmit(onSubmit)}
-                        className="w-full space-y-6"
-                      >
+                        className="w-full space-y-6">
                         {currentSectionData.data.map((questionItem, index) => (
                           <FormField
                             key={index}
@@ -712,8 +702,7 @@ export default function Page({
                                       onValueChange={field.onChange}
                                       defaultValue={field.value}
                                       className="flex flex-col space-y-1 px-6 pb-6"
-                                      disabled={submitted}
-                                    >
+                                      disabled={submitted}>
                                       {questionItem.choices.map(
                                         (option, optionIndex) => {
                                           const isOptionSelected =
@@ -728,8 +717,7 @@ export default function Page({
                                           return (
                                             <FormItem
                                               key={optionIndex}
-                                              className="flex items-center space-x-3 space-y-0"
-                                            >
+                                              className="flex items-center space-x-3 space-y-0">
                                               <FormControl>
                                                 <RadioGroupItem
                                                   className={cn(
@@ -754,8 +742,7 @@ export default function Page({
                                                   submitted && isOptionWrong
                                                     ? "text-[#F04B35]"
                                                     : ""
-                                                )}
-                                              >
+                                                )}>
                                                 {option.choice}
                                               </FormLabel>
                                             </FormItem>
@@ -775,14 +762,12 @@ export default function Page({
                           className="h-[56px] px-5 bg-[#E4E6E8] rounded-m text-black"
                           onClick={handleOpenDialog}
                           disabled={submitted}
-                          type="button"
-                        >
+                          type="button">
                           Submit
                         </Button>
                         <Dialog
                           open={isDialogOpen}
-                          onOpenChange={setIsDialogOpen}
-                        >
+                          onOpenChange={setIsDialogOpen}>
                           <DialogContent className="bg-white">
                             <DialogHeader className="text-[28px] font-bold">
                               Submit
@@ -801,16 +786,14 @@ export default function Page({
                               <Button
                                 disabled={isLoading}
                                 onClick={onSubmit}
-                                className="mt-4 h-[56px] bg-secondary-500 w-full text-white"
-                              >
+                                className="mt-4 h-[56px] bg-secondary-500 w-full text-white">
                                 Yes
                               </Button>
                               <Button
                                 type="button"
                                 disabled={isLoading}
                                 onClick={() => setIsDialogOpen(false)}
-                                className="mt-4 h-[56px] bg-[#F04B35] w-full text-white"
-                              >
+                                className="mt-4 h-[56px] bg-[#F04B35] w-full text-white">
                                 Cancel
                               </Button>
                             </div>
@@ -867,14 +850,14 @@ export default function Page({
 
                       <Form {...checkboxForm}>
                         <form
-                          onSubmit={checkboxForm.handleSubmit(onCheckboxSubmit)}
-                        >
+                          onSubmit={checkboxForm.handleSubmit(
+                            onCheckboxSubmit
+                          )}>
                           <div className="flex flex-col gap-6">
                             {items.map((item, index) => (
                               <div
                                 key={item.id}
-                                className="flex items-center gap-10"
-                              >
+                                className="flex items-center gap-10">
                                 <div className="w-2">{index + 1}.</div>
                                 <FormField
                                   control={checkboxForm.control}
@@ -935,8 +918,7 @@ export default function Page({
                           <div className="mt-10 flex justify-center w-full">
                             <Button
                               className="h-[56px] bg-secondary-500 text-white max-lg:w-full lg:min-w-[300px] rounded-m"
-                              type="submit"
-                            >
+                              type="submit">
                               Submit
                             </Button>
                           </div>
@@ -987,14 +969,12 @@ export default function Page({
                         <TabsList className="grid w-full grid-cols-2 lg:w-[600px]">
                           <TabsTrigger
                             className="border-neutral-800 font-sans text-base font-bold border-r-0 border rounded-l-m rounded-r-0"
-                            value="task"
-                          >
+                            value="task">
                             Task List
                           </TabsTrigger>
                           <TabsTrigger
                             className="border-neutral-800 border font-sans text-base font-bold rounded-l-0 rounded-r-m"
-                            value="feedback"
-                          >
+                            value="feedback">
                             Feedback
                           </TabsTrigger>
                         </TabsList>
@@ -1034,8 +1014,7 @@ export default function Page({
                                         status === "Pass"
                                           ? "text-green-600"
                                           : "text-red-600"
-                                      }
-                                    >
+                                      }>
                                       {status}
                                     </TableCell>
                                   </TableRow>
@@ -1051,8 +1030,7 @@ export default function Page({
                             </div>
                             <Textarea
                               disabled
-                              className="p-4 min-h-[300px] font-mono"
-                            >
+                              className="p-4 min-h-[300px] font-mono">
                               {checkboxForm.getValues("summary")}
                             </Textarea>
                           </div>
