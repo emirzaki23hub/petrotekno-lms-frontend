@@ -141,12 +141,11 @@ const page = () => {
                     {item.date}
                   </span>
                 </div>
-                <Button
-                  variant="outline"
-                  className="rounded-m bg-[#E4E6E8]"
-                  size="icon">
+                <Link
+                  href={"/program/training/module/1?section=9"}
+                  className="rounded-m bg-[#E4E6E8] w-10 h-10 flex justify-center items-center">
                   <IconArrowRight className="h-4 w-4" />
-                </Button>
+                </Link>
               </div>
             ))}
           </div>
@@ -180,9 +179,14 @@ const page = () => {
                 </div>
               </div>
             </div>
-            <Button className="h-[56px] rounded-m bg-secondary-500 text-white text-base">
+            {/* <Button className="h-[56px] rounded-m bg-secondary-500 text-white text-base">
               Start Training
-            </Button>
+            </Button> */}
+            <Link
+              href={`/program/training/module/1`}
+              className="flex bg-secondary-500 rounded-m h-[56px] items-center text-white px-5">
+              Start Training
+            </Link>
           </div>
           <div className=" bg-[#E4E6E8] rounded-b-m">
             <div className="py-4 px-6 flex flex-col gap-4">

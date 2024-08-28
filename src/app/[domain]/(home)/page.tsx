@@ -1,6 +1,7 @@
 import Image from "next/image";
 import FormInput from "./Form";
 import Logo from "../../../../public/images/eduteg.png";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -13,10 +14,9 @@ export default function Home() {
           {`Hey there! Let's get started`}
         </div>
         <FormInput />
-        {/* <div className="w-full text-center text-base">
-          Don’t have account?{" "}
+        {/* <div className="w-full text-right text-base">
           <Link className="text-primary-500 font-bold" href={"/register"}>
-            Create Account
+            Forgot Password?
           </Link>
         </div> */}
       </div>

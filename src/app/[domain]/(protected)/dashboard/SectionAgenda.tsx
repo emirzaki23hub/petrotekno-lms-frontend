@@ -46,8 +46,6 @@ const SectionAgenda: React.FC = () => {
           partBeforeDot
         );
 
-        console.log(response.data?.data);
-
         if (response.data?.data) {
           const formattedDate = format(date, "yyyy-MM-dd");
           const agendaForDate = response.data.data.find(
@@ -75,8 +73,6 @@ const SectionAgenda: React.FC = () => {
 
     fetchAgendaItems();
   }, [date]);
-
-  console.log(agendaItems);
 
   return (
     <div className="bg-white h-full rounded-m flex gap-4 flex-col p-4">
