@@ -10,7 +10,7 @@ export default function Home() {
           <Image src={Logo} height={27} width={149} alt="Logo" />
         </div>
         <div className="text-[28px] w-full text-center leading-8 font-bold">
-          Hey there! Let's get started{" "}
+          {`Hey there! Let's get started`}
         </div>
         <FormInput />
         {/* <div className="w-full text-center text-base">
