@@ -44,3 +44,9 @@ export interface Agenda {
   date: string;
   agenda: AgendaItem[];
 }
+
+export interface Company {
+  name: string;
+  subdomain: string;
+  logo_url: string;
+}
