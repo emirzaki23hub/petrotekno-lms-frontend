@@ -57,13 +57,15 @@ const Header = () => {
     <HeaderControl>
       <div className="h-[64px] fixed top-0 z-[20] bg-white border max-lg:hidden border-b-[#E4E6E8] p-4 flex justify-between items-center w-full">
         <Image src={Logo} height={27} width={149} alt="Logo" />
-        <Image
-          src={LogoEacop}
-          className="p-5"
-          height={27}
-          width={149}
-          alt="Logo"
-        />
+        {user?.logo_url && (
+          <Image
+            src={user?.logo_url}
+            className="p-5"
+            height={27}
+            width={149}
+            alt="Logo"
+          />
+        )}
 
         <div className="flex gap-6">
           <div className="h-10 w-10 flex justify-center rounded-m items-center bg-[#E4E6E8]">
@@ -78,16 +80,9 @@ const Header = () => {
         )}
       >
         <MobileSidebar />
-        {user?.logo_url && (
-          <div className="absolute left-1/2 -translate-x-[60%]">
-            <Image
-              src={user?.logo_url ?? ""}
-              height={40}
-              width={182.24}
-              alt="Logo"
-            />
-          </div>
-        )}
+        <div className="absolute left-1/2 -translate-x-[60%]">
+          <Image src={Logo} height={40} width={182.24} alt="Logo" />
+        </div>
         <div className="flex gap-1">
           <div className="h-full w-full p-2 flex justify-center rounded-m items-center bg-[#E4E6E8]">
             <Image src={IconBell} height={16} width={16} alt="Notification" />
