@@ -28,6 +28,8 @@ import { Loader2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import Bg1 from "../../../../../../../../../public/images/bg-1.png";
 import Logo from "../../../../../../../../../public/images/logo.png";
+import { useDomainHelper } from "@/hooks/useDomainHelper";
+import { da } from "date-fns/locale";
 
 interface QuestionResult {
   id: number;
@@ -127,24 +129,139 @@ const dummyData = [
   },
 ];
 
-const dynamicSchema = z.object(
-  dummyData.reduce((schema, item) => {
-    if (item.options) {
-      // Multiple-choice question
-      schema[`question-${item.id}`] = z
-        .string()
-        .min(1, "Please select an option.");
-    } else {
-      // Essay question
-      schema[`question-${item.id}`] = z
-        .string()
-        .min(1, "Please provide a detailed answer.");
-    }
-    return schema;
-  }, {} as Record<string, z.ZodTypeAny>)
-);
+const dummyDemoData = [
+  {
+    id: 1,
+    question: "Which pump type is not categorized as rotary pumps?",
+    options: ["Gear", "Diaphragm", "Lobe", "Screw"],
+    correctAnswer: "Screw",
+  },
+  {
+    id: 2,
+    question:
+      "Which pump type is more affected by operating pressure, in regards of its efficiency?",
+    options: ["Screw", "Piston", "Centrifugal", "Gear"],
+    correctAnswer: "Centrifugal",
+    image: Bg1,
+  },
+  {
+    id: 3,
+    question: "Which pump type is capable to create suction lift?",
+    options: ["Centrifugal", "Gear", "Propeller", "Turbine"],
+    correctAnswer: "Gear",
+  },
+  {
+    id: 4,
+    question:
+      "Which Pump Type is better for services that require high flow stability?",
+    options: ["Centrifugal", "Positive Displacement"],
+    correctAnswer: "Positive Displacement",
+  },
+  {
+    id: 5,
+    question:
+      "Which Pump Type is better for services that have high viscosity?",
+    options: ["Centrifugal", "Positive Displacement"],
+    correctAnswer: "Positive Displacement",
+  },
+  {
+    id: 6,
+    question: "Which Pump Type is better for basic (general) operation?",
+    options: ["Centrifugal", "Positive Displacement"],
+    correctAnswer: "Centrifugal",
+  },
+  {
+    id: 7,
+    question:
+      "Which of following parameter is less important in selecting pump type?",
+    options: [
+      "Flow Regulation",
+      "Liquid Viscosity",
+      "Country of Origin",
+      "Energy Consumption",
+    ],
+    correctAnswer: "Country of Origin",
+  },
+  {
+    id: 8,
+    question:
+      "Which of following pump driver is less used for centrifugal pump?",
+    options: ["Electric Motor", "Turbine", "Diesel Engine", "Instrument Air"],
+    correctAnswer: "Instrument Air",
+  },
+  {
+    id: 9,
+    question:
+      "Which of following parameter is less important in considering whether to use API 610 pump or not?",
+    options: [
+      "Discharge Pressure",
+      "Baseplate Footprint",
+      "Rotative Speed",
+      "Pumping Temperature",
+    ],
+    correctAnswer: "Baseplate Footprint",
+  },
+  {
+    id: 10,
+    question: "Which operating region has is bigger range?",
+    options: ["Allowable Operating Region", "Preferred Operating Region"],
+    correctAnswer: "Allowable Operating Region",
+  },
+  // Essay Questions
+  {
+    id: 11,
+    question:
+      "What is the device that mostly applied as accessory to reciprocating pump?",
+    type: "essay",
+  },
+  {
+    id: 12,
+    question:
+      "What is the lowest material class of reciprocating pump according to API 674?",
+    type: "essay",
+  },
+  {
+    id: 13,
+    question:
+      "What international standard is to be referred to in designing Gearbox?",
+    type: "essay",
+  },
+  {
+    id: 14,
+    question:
+      "Which type of reciprocating pump is best suitable for pumping toxic and hazardous fluid?",
+    type: "essay",
+  },
+  {
+    id: 15,
+    question:
+      "Which rotary pump type is typically longer than other rotary pump types?",
+    type: "essay",
+  },
+];
 
 export default function Test() {
+  const { getPartBeforeDot } = useDomainHelper();
+  const partBeforeDot = getPartBeforeDot();
+
+  const dataToUse = partBeforeDot === "demo" ? dummyDemoData : dummyData;
+
+  const dynamicSchema = z.object(
+    dataToUse.reduce((schema, item) => {
+      if (item.options) {
+        // Multiple-choice question
+        schema[`question-${item.id}`] = z
+          .string()
+          .min(1, "Please select an option.");
+      } else {
+        // Essay question
+        schema[`question-${item.id}`] = z
+          .string()
+          .min(1, "Please provide a detailed answer.");
+      }
+      return schema;
+    }, {} as Record<string, z.ZodTypeAny>)
+  );
   const router = useRouter();
 
   const form = useForm<z.infer<typeof dynamicSchema>>({
@@ -163,7 +280,7 @@ export default function Test() {
   const onSubmit = async (data: z.infer<typeof dynamicSchema>) => {
     setIsLoading(true);
 
-    const results = dummyData.map((item) => {
+    const results = dataToUse.map((item) => {
       if (item.options) {
         return {
           id: item.id,
@@ -193,14 +310,14 @@ export default function Test() {
   };
 
   useEffect(() => {
-    const count = dummyData.reduce((acc, item) => {
+    const count = dataToUse.reduce((acc, item) => {
       return form.getValues()[`question-${item.id}`] ? acc + 1 : acc;
     }, 0);
     setAnsweredCount(count);
   }, [form.watch()]);
 
   const handleOpenDialog = () => {
-    if (answeredCount === dummyData.length) {
+    if (answeredCount === dataToUse.length) {
       setIsDialogOpen(true);
     }
   };
@@ -225,7 +342,9 @@ export default function Test() {
             className="lg:block hidden"
           />
           <div className=" h-16 border-[#E4E6E8] border-l flex px-4 justify-center items-center text-base font-mono font-bold ">
-            Test Marine Transport of Oil and Gas{" "}
+            {partBeforeDot === "demo"
+              ? "Pump Operation, Maintenance, and Troubleshooting"
+              : " Test Marine Transport of Oil and Gas"}
           </div>
         </div>
         <div className="flex gap-6 max-lg:w-full  h-16 justify-center items-center px-4">
@@ -233,12 +352,12 @@ export default function Test() {
             <div className="flex justify-between max-lg:w-full">
               <div>Progress</div>
               <div>
-                {answeredCount}/{dummyData.length}
+                {answeredCount}/{dataToUse.length}
               </div>
             </div>
             <Progress
               className="bg-success-50 h-1 w-full"
-              value={(answeredCount / dummyData.length) * 100}
+              value={(answeredCount / dataToUse.length) * 100}
             />
           </div>
           <div>
@@ -252,7 +371,7 @@ export default function Test() {
             ) : (
               <Button
                 onClick={handleOpenDialog}
-                disabled={answeredCount < dummyData.length}
+                disabled={answeredCount < dataToUse.length}
                 className="h-10 rounded-m px-10 flex justify-center text-sm font-bold text-neutral-400 b items-center bg-neutral-700"
               >
                 Submit
@@ -289,7 +408,7 @@ export default function Test() {
           ) : (
             <Button
               onClick={handleOpenDialog}
-              disabled={answeredCount < dummyData.length}
+              disabled={answeredCount < dataToUse.length}
               className="h-10 rounded-m px-10 flex justify-center text-sm font-bold text-white b items-center bg-secondary-500"
             >
               Submit
@@ -298,19 +417,21 @@ export default function Test() {
         </div>
       </div>
       <div className="h-16 lg:hidden fixed top-16 bg-white flex text-neutral-800 font-bold justify-center items-center font-mono w-full">
-        Test Marine Transport of Oil and Gas{" "}
+        {partBeforeDot === "demo"
+          ? "Pump Operation, Maintenance, and Troubleshooting"
+          : " Test Marine Transport of Oil and Gas"}{" "}
       </div>
       <div className="h-16 px-5 lg:hidden fixed bottom-0 bg-white flex text-neutral-800 font-bold justify-center items-center font-mono w-full">
         <div className="flex flex-col w-full  h-16 px-4 justify-center lg:min-w-[182px] ">
           <div className="flex justify-between max-lg:w-full">
             <div>Progress</div>
             <div>
-              {answeredCount}/{dummyData.length}
+              {answeredCount}/{dataToUse.length}
             </div>
           </div>
           <Progress
             className="bg-success-50 h-1 w-full"
-            value={(answeredCount / dummyData.length) * 100}
+            value={(answeredCount / dataToUse.length) * 100}
           />
         </div>
       </div>
@@ -323,7 +444,7 @@ export default function Test() {
             >
               {currentPage === 1 && (
                 <>
-                  {dummyData
+                  {dataToUse
                     .filter((item) => item.options)
                     .map((item, index) => (
                       <FormField
@@ -428,7 +549,7 @@ export default function Test() {
 
               {currentPage === 2 && (
                 <>
-                  {dummyData
+                  {dataToUse
                     .filter((item) => !item.options)
                     .map((item, index) => {
                       const isCorrect = isSubmitted

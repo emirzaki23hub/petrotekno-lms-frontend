@@ -24,21 +24,10 @@ import {
 import Link from "next/link";
 import Bg1 from "../../../../../../../public/images/bg-1.png";
 import { format, parseISO } from "date-fns";
-
-const fetchData = async () => {
-  try {
-    const response = await fetch(
-      "https://private-013718-petro8.apiary-mock.com/module"
-    );
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-    return await response.json();
-  } catch (error) {
-    console.error("Fetch error:", error);
-    return [];
-  }
-};
+import { restTraining } from "@/rest/training";
+import { useDomainHelper } from "@/hooks/useDomainHelper";
+import { Training } from "@/types";
+import { id as localeID } from "date-fns/locale"; // Import Indonesian locale
 
 interface Module {
   id: number;
@@ -48,6 +37,8 @@ interface Module {
 }
 
 export default function Page({ params }: { params: { slug: string } }) {
+  const router = useRouter();
+
   const trainingModules = Array.from({ length: 26 }, (_, index) => ({
     module: 1,
     title: `Module ${index + 1}: Title`,
@@ -65,22 +56,46 @@ export default function Page({ params }: { params: { slug: string } }) {
   const totalPages = Math.ceil(trainingModules.length / ITEMS_PER_PAGE);
 
   const [modules, setModules] = useState<Module[]>([]);
+  const [training, setTraining] = useState<Training | null>(null);
+
   const [loading, setLoading] = useState(true); // Add loading state
 
+  const { getPartBeforeDot } = useDomainHelper();
+  const partBeforeDot = getPartBeforeDot();
+
   useEffect(() => {
-    const loadModules = async () => {
+    const loadData = async () => {
       try {
+        const token = localStorage.getItem("authToken");
+
+        if (!token) {
+          throw new Error("No authentication token found. Please log in.");
+        }
+
         setLoading(true); // Set loading to true before fetching data
-        const data = await fetchData();
-        setModules(data);
+
+        // Fetch module list
+        const moduleData = await restTraining.getModuleList(
+          token,
+          partBeforeDot
+        );
+        setModules(moduleData?.data?.data ?? []);
+
+        // Fetch training list
+        const trainingData = await restTraining.getTrainingList(
+          token,
+          partBeforeDot
+        );
+        setTraining(trainingData?.data?.data ?? null); // Adjust according to the structure of the response
       } catch (error) {
         console.error("Fetch error:", error);
       } finally {
         setLoading(false); // Set loading to false after data is fetched
       }
     };
-    loadModules();
-  }, []);
+
+    loadData();
+  }, [partBeforeDot]); // Ensure dependencies are correct
 
   const handlePageChange = (page: React.SetStateAction<number>) => {
     setCurrentPage(page);
@@ -120,7 +135,21 @@ export default function Page({ params }: { params: { slug: string } }) {
     );
   };
 
-  const router = useRouter();
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!training) {
+    return <div>No training data available.</div>;
+  }
+
+  const fixedStartDate = training.start_date.replace(/=>/g, ":");
+
+  // Format the date and time
+  const formattedDate = format(new Date(fixedStartDate), "dd MMM yyyy", {
+    locale: localeID,
+  });
+  const formattedTime = format(new Date(fixedStartDate), "HH.mm");
   return (
     <div className="flex flex-col gap-9">
       <Breadcrumb>
@@ -135,7 +164,7 @@ export default function Page({ params }: { params: { slug: string } }) {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbPage className="text-primary-500 font-bold">
-              Production Operations Training
+              Module
             </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
@@ -160,9 +189,7 @@ export default function Page({ params }: { params: { slug: string } }) {
             />
           </svg>
         </Button>
-        <h1 className="text-[34px] leading-9 font-bold">
-          East Africa Crude Oil Pipeline Project Training Programme{" "}
-        </h1>
+        <h1 className="text-[34px] leading-9 font-bold">{training?.title}</h1>
       </div>
       <div className="flex flex-col rounded-m">
         <Image
@@ -175,7 +202,7 @@ export default function Page({ params }: { params: { slug: string } }) {
         />
         <div className="p-6 flex flex-col text-neutral-700 rounded-b-m bg-white gap-4">
           <div className="flex gap-2">
-            <IconHome /> 3 Module
+            <IconHome /> {training?.module} Module
           </div>
           <div className="text-base text-neutral-400">
             Start Date: 01 Jun 2024 • 09.00 WIB

@@ -50,3 +50,67 @@ export interface Company {
   subdomain: string;
   logo_url: string;
 }
+
+export interface Training {
+  id: number;
+  module: number;
+  periode: string;
+  title: string;
+  start_date: string;
+}
+
+export interface Module {
+  id: number;
+  title: string;
+  subtitle: string;
+  date: string;
+  progress: number;
+}
+
+export interface BaseSection {
+  title: string;
+  type: string;
+}
+
+export interface PDFSection extends BaseSection {
+  type: "PDF";
+  link: string;
+}
+
+export interface QuizChoice {
+  choice: string;
+  answer: boolean;
+}
+
+export interface QuizQuestion {
+  question: string;
+  choices: QuizChoice[];
+}
+
+export interface QuizSection extends BaseSection {
+  type: "QUIZ";
+  data: QuizQuestion[];
+}
+
+export interface JobCardListItem {
+  choice: string;
+  actual?: number; // `actual` is optional because it only appears in `result` type lists
+}
+
+export interface JobCardTask {
+  type: "list" | "result";
+  task: string;
+  list: JobCardListItem[];
+}
+
+export interface JobCardSection extends BaseSection {
+  type: "JOB_CARD";
+  data: JobCardTask[];
+}
+
+export interface TestSection extends BaseSection {
+  type: "TEST";
+  data: QuizQuestion[];
+}
+
+export type Section = PDFSection | QuizSection | JobCardSection | TestSection;

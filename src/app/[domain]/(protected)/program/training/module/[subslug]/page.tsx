@@ -69,6 +69,8 @@ interface ArrowProps {
 
 import dynamic from "next/dynamic";
 import IconChevron from "@/components/icons/IconChevron";
+import { restTraining } from "@/rest/training";
+import { useDomainHelper } from "@/hooks/useDomainHelper";
 
 const PdfViewer = dynamic(() => import("@/components/PdfViewer"), {
   loading: () => <p>Loading...</p>,
@@ -85,6 +87,7 @@ interface QuestionItem {
   question: string;
   choices: Option[];
   type: string;
+  link?: string;
 }
 
 interface Section {
@@ -254,20 +257,96 @@ const items = [
 
 type FormSchemaType = z.infer<typeof FormSchema>;
 
-const fetchData = async ({ id }: { id: number }) => {
-  try {
-    const response = await fetch(
-      `https://private-013718-petro8.apiary-mock.com/module/${id}`
-    );
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-    return await response.json();
-  } catch (error) {
-    console.error("Fetch error:", error);
-    return [];
-  }
-};
+const dataDemo: Section[] = [
+  {
+    title: "Section 1",
+    type: "PDF",
+    link: "/demodummy.pdf",
+    data: [],
+  },
+  {
+    title: "Quiz",
+    type: "QUIZ",
+    data: [
+      {
+        question:
+          "Which pump type is not categorize as dynamic pressure pumps?",
+        choices: [
+          {
+            choice: "Turbine",
+            answer: false,
+          },
+          {
+            choice: "Vane",
+            answer: true,
+          },
+          {
+            choice: "Centrifugal",
+            answer: false,
+          },
+          {
+            choice: "Propeller",
+            answer: false,
+          },
+        ],
+        type: "",
+      },
+      {
+        question: "Which pump type is categorize as mixed flow pumped?",
+        choices: [
+          {
+            choice: "Turbine",
+            answer: false,
+          },
+          {
+            choice: "Vane",
+            answer: false,
+          },
+          {
+            choice: "Centrifugal",
+            answer: false,
+          },
+          {
+            choice: "Propeller",
+            answer: true,
+          },
+        ],
+        type: "",
+      },
+    ],
+    link: "",
+  },
+  {
+    title: "Pump Operation, Maintenance, and Troubleshooting",
+    type: "TEST",
+    data: [
+      {
+        question: "Favourite programming language?",
+        choices: [
+          {
+            choice: "Swift",
+            answer: false,
+          },
+          {
+            choice: "Python",
+            answer: true,
+          },
+          {
+            choice: "Objective-C",
+            answer: false,
+          },
+          {
+            choice: "Ruby",
+            answer: false,
+          },
+        ],
+        type: "",
+        link: "",
+      },
+    ],
+    link: "",
+  },
+];
 
 export default function Page({
   params,
@@ -277,8 +356,11 @@ export default function Page({
   const router = useRouter();
   const [sections, setSections] = useState<Section[]>([]);
 
+  const { getPartBeforeDot } = useDomainHelper();
+  const partBeforeDot = getPartBeforeDot();
+
   const searchParams = useSearchParams();
-  const totalSections = sections.length; // Adjust this based on your total number of sections
+  const totalSections = sections.length;
 
   const sectionParam = searchParams.get("section");
 
@@ -297,17 +379,28 @@ export default function Page({
 
   const sliderRef = useRef<Slider>(null);
   useEffect(() => {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      throw new Error("No authentication token found. Please log in.");
+    }
     const loadModules = async () => {
       const id = parseInt(params.subslug, 10);
       if (!isNaN(id)) {
-        const data = await fetchData({ id });
-        setSections(data); // Assuming result is an array of Section
+        if (partBeforeDot === "demo") {
+          setSections(dataDemo);
+        } else {
+          const data = await restTraining.getSection(token, partBeforeDot, id);
+          setSections((data?.data?.data as Section[]) ?? []);
+        }
       } else {
         console.error("Invalid ID:", params.subslug);
       }
     };
     loadModules();
   }, [params.subslug]);
+
+  console.log(sections);
 
   useEffect(() => {
     if (
@@ -336,7 +429,8 @@ export default function Page({
       onClick={onClick}
       className={cn(
         "border-[#E4E6E8] min-w-[56px] border-r  left-0 top-0 absolute flex justify-center items-center border-l rounded-none h-full bg-white z-10 rounded-l-m   "
-      )}>
+      )}
+    >
       <IconChevron dir="left" />
     </button>
   );
@@ -346,7 +440,8 @@ export default function Page({
       onClick={onClick}
       className={cn(
         "border-[#E4E6E8] min-w-[56px] right-0 top-0 absolute flex justify-center items-center border-l rounded-none h-full bg-white z-10 rounded-r-m "
-      )}>
+      )}
+    >
       <IconChevron dir="right" />
     </button>
   );
@@ -354,8 +449,8 @@ export default function Page({
     dots: false,
     infinite: false,
     speed: 500,
-    slidesToShow: 5, // Show 4 slides on desktop
-    slidesToScroll: 5, // Scroll 4 slides at a time
+    slidesToShow: sections.length > 5 ? 5 : sections.length, // Show 4 slides on desktop
+    slidesToScroll: sections.length > 5 ? 5 : sections.length, // Scroll 4 slides at a time
     prevArrow: (
       <PrevArrow
         onClick={function (
@@ -520,7 +615,7 @@ export default function Page({
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink href="/program/training/module">
-              East Africa Crude Oil Pipeline Project Training Programme /
+              Module /
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem>
@@ -533,13 +628,15 @@ export default function Page({
       <div className="flex gap-4 items-center">
         <Link
           href={`/program/training/module`}
-          className="h-10 w-10 flex items-center justify-center rounded-m bg-[#E4E6E] border-black border">
+          className="h-10 w-10 flex items-center justify-center rounded-m bg-[#E4E6E] border-black border"
+        >
           <svg
             width="8"
             height="12"
             viewBox="0 0 8 12"
             fill="none"
-            xmlns="http://www.w3.org/2000/svg">
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <path
               fillRule="evenodd"
               clipRule="evenodd"
@@ -557,7 +654,8 @@ export default function Page({
           <Slider
             ref={sliderRef}
             {...settings}
-            className="w-full [&>div]:h-full px-5 lg:pr-14 lg:pl-20 [&>div>div]:h-full [&>div>div>div]:h-full [&>div>div>div>div]:h-full   h-full flex mx-auto justify-between">
+            className="w-full [&>div]:h-full px-5 lg:pr-14 lg:pl-20 [&>div>div]:h-full [&>div>div>div]:h-full [&>div>div>div>div]:h-full   h-full flex mx-auto justify-between"
+          >
             {sections.map((section, index) => (
               <div
                 key={section.title}
@@ -565,7 +663,8 @@ export default function Page({
                   `font-bold px-3 lg:px-4 !flex h-full max-lg:justify-center  max-lg:gap-2 gap-4 items-center`,
                   currentSection > index + 1 && "text-success-500",
                   currentSection === index + 1 && "text-primary-500"
-                )}>
+                )}
+              >
                 <div
                   className={cn(
                     "w-9 h-9 flex justify-center items-center rounded-full",
@@ -573,7 +672,8 @@ export default function Page({
                     currentSection === index + 1 && "bg-primary-500 text-white",
                     currentSection < index + 1 &&
                       "bg-neutral-100 text-neutral-400"
-                  )}>
+                  )}
+                >
                   <div className="m-5">
                     <IconSlider />
                   </div>
@@ -600,13 +700,13 @@ export default function Page({
                 {hasSubmitted ? (
                   <div className="flex max-w-[536px] w-full mx-auto justify-center items-start flex-col gap-4">
                     <div className="flex gap-2 text-sm text-primary-500 font-bold">
-                      20 Questions
+                      15 Questions
                     </div>
                     <div className="text-2xl font-sans leading-7 font-bold">
-                      Level Measurement Test
+                      {currentSectionData.title}
                     </div>
                     <div className="text-base text-neutral-400">
-                      Start Date: 25 Jun 2024 • 09.00 WIB
+                      Start Date: 30 Aug 2024 • 09.00 WIB
                     </div>
                     <div className="bg-neutral-100 rounded-m flex gap-[102px] font-mono p-4 lg:min-w-[536px] justify-center">
                       <div className="flex flex-col gap-1.5">
@@ -622,7 +722,7 @@ export default function Page({
                           Correct Answer
                         </div>
                         <div className="text-[34px] font-bold text-center">
-                          10/10
+                          5/15
                         </div>
                       </div>
                     </div>
@@ -630,8 +730,9 @@ export default function Page({
                     <div className="flex w-full justify-center">
                       <Link
                         className="h-[56px] font-sans text-base border border-secondary-500 text-secondary-500 font-bold rounded-m flex justify-center items-center min-w-[155px]"
-                        href={`/program/training/module/${params.subslug}/test`}>
-                        View Result
+                        href={`/program/training/module/${params.subslug}/test`}
+                      >
+                        Resit
                       </Link>
                     </div>
                   </div>
@@ -639,19 +740,20 @@ export default function Page({
                   <>
                     <div className="flex flex-col text-neutral-700 font-mono gap-4">
                       <div className="flex gap-2 text-sm text-primary-500 font-bold">
-                        20 Questions
+                        15 Questions
                       </div>
                       <div className="text-2xl font-sans leading-7 font-bold">
-                        Level Measurement Test
+                        {currentSectionData.title}
                       </div>
                       <div className="text-base text-neutral-400">
-                        Start Date: 25 Jun 2024 • 09.00 WIB
+                        Start Date: 30 Aug 2024 • 09.00 WIB
                       </div>
                     </div>
 
                     <Link
                       className="h-[56px] font-sans text-base bg-secondary-500 rounded-m flex justify-center items-center min-w-[155px] text-white"
-                      href={`/program/training/${params.slug}/${params.subslug}/test`}>
+                      href={`/program/training/module/${params.subslug}/test`}
+                    >
                       Start Test
                     </Link>
                   </>
@@ -678,7 +780,8 @@ export default function Page({
                     <Form {...form}>
                       <form
                         onSubmit={form.handleSubmit(onSubmit)}
-                        className="w-full space-y-6">
+                        className="w-full space-y-6"
+                      >
                         {currentSectionData.data.map((questionItem, index) => (
                           <FormField
                             key={index}
@@ -702,7 +805,8 @@ export default function Page({
                                       onValueChange={field.onChange}
                                       defaultValue={field.value}
                                       className="flex flex-col space-y-1 px-6 pb-6"
-                                      disabled={submitted}>
+                                      disabled={submitted}
+                                    >
                                       {questionItem.choices.map(
                                         (option, optionIndex) => {
                                           const isOptionSelected =
@@ -717,7 +821,8 @@ export default function Page({
                                           return (
                                             <FormItem
                                               key={optionIndex}
-                                              className="flex items-center space-x-3 space-y-0">
+                                              className="flex items-center space-x-3 space-y-0"
+                                            >
                                               <FormControl>
                                                 <RadioGroupItem
                                                   className={cn(
@@ -742,7 +847,8 @@ export default function Page({
                                                   submitted && isOptionWrong
                                                     ? "text-[#F04B35]"
                                                     : ""
-                                                )}>
+                                                )}
+                                              >
                                                 {option.choice}
                                               </FormLabel>
                                             </FormItem>
@@ -762,12 +868,14 @@ export default function Page({
                           className="h-[56px] px-5 bg-[#E4E6E8] rounded-m text-black"
                           onClick={handleOpenDialog}
                           disabled={submitted}
-                          type="button">
+                          type="button"
+                        >
                           Submit
                         </Button>
                         <Dialog
                           open={isDialogOpen}
-                          onOpenChange={setIsDialogOpen}>
+                          onOpenChange={setIsDialogOpen}
+                        >
                           <DialogContent className="bg-white">
                             <DialogHeader className="text-[28px] font-bold">
                               Submit
@@ -786,14 +894,16 @@ export default function Page({
                               <Button
                                 disabled={isLoading}
                                 onClick={onSubmit}
-                                className="mt-4 h-[56px] bg-secondary-500 w-full text-white">
+                                className="mt-4 h-[56px] bg-secondary-500 w-full text-white"
+                              >
                                 Yes
                               </Button>
                               <Button
                                 type="button"
                                 disabled={isLoading}
                                 onClick={() => setIsDialogOpen(false)}
-                                className="mt-4 h-[56px] bg-[#F04B35] w-full text-white">
+                                className="mt-4 h-[56px] bg-[#F04B35] w-full text-white"
+                              >
                                 Cancel
                               </Button>
                             </div>
@@ -850,14 +960,14 @@ export default function Page({
 
                       <Form {...checkboxForm}>
                         <form
-                          onSubmit={checkboxForm.handleSubmit(
-                            onCheckboxSubmit
-                          )}>
+                          onSubmit={checkboxForm.handleSubmit(onCheckboxSubmit)}
+                        >
                           <div className="flex flex-col gap-6">
                             {items.map((item, index) => (
                               <div
                                 key={item.id}
-                                className="flex items-center gap-10">
+                                className="flex items-center gap-10"
+                              >
                                 <div className="w-2">{index + 1}.</div>
                                 <FormField
                                   control={checkboxForm.control}
@@ -918,7 +1028,8 @@ export default function Page({
                           <div className="mt-10 flex justify-center w-full">
                             <Button
                               className="h-[56px] bg-secondary-500 text-white max-lg:w-full lg:min-w-[300px] rounded-m"
-                              type="submit">
+                              type="submit"
+                            >
                               Submit
                             </Button>
                           </div>
@@ -969,12 +1080,14 @@ export default function Page({
                         <TabsList className="grid w-full grid-cols-2 lg:w-[600px]">
                           <TabsTrigger
                             className="border-neutral-800 font-sans text-base font-bold border-r-0 border rounded-l-m rounded-r-0"
-                            value="task">
+                            value="task"
+                          >
                             Task List
                           </TabsTrigger>
                           <TabsTrigger
                             className="border-neutral-800 border font-sans text-base font-bold rounded-l-0 rounded-r-m"
-                            value="feedback">
+                            value="feedback"
+                          >
                             Feedback
                           </TabsTrigger>
                         </TabsList>
@@ -1014,7 +1127,8 @@ export default function Page({
                                         status === "Pass"
                                           ? "text-green-600"
                                           : "text-red-600"
-                                      }>
+                                      }
+                                    >
                                       {status}
                                     </TableCell>
                                   </TableRow>
@@ -1030,7 +1144,8 @@ export default function Page({
                             </div>
                             <Textarea
                               disabled
-                              className="p-4 min-h-[300px] font-mono">
+                              className="p-4 min-h-[300px] font-mono"
+                            >
                               {checkboxForm.getValues("summary")}
                             </Textarea>
                           </div>
