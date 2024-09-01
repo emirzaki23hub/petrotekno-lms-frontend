@@ -14,49 +14,29 @@ import Image from "next/image";
 import IconHome from "@/components/icons/IconHome";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-} from "@/components/ui/pagination"; // Assuming you have these components
+// import {
+//   Pagination,
+//   PaginationContent,
+//   PaginationItem,
+//   PaginationLink,
+//   PaginationNext,
+// } from "@/components/ui/pagination";
 import Link from "next/link";
-import Bg1 from "../../../../../../../public/images/bg-1.png";
-import { format, parseISO } from "date-fns";
+import { format, isAfter, parseISO } from "date-fns";
 import { restTraining } from "@/rest/training";
 import { useDomainHelper } from "@/hooks/useDomainHelper";
-import { Training } from "@/types";
+import { Training, TrainingProgramData } from "@/types";
 import { id as localeID } from "date-fns/locale"; // Import Indonesian locale
-
-interface Module {
-  id: number;
-  subtitle: string;
-  progress: number;
-  date: string;
-}
 
 export default function Page({ params }: { params: { slug: string } }) {
   const router = useRouter();
 
-  const trainingModules = Array.from({ length: 26 }, (_, index) => ({
-    module: 1,
-    title: `Module ${index + 1}: Title`,
-    sessions: "4 Sessions",
-    completedSessions: "1/4 Sessions",
-    progress: 30,
-    startDate: "25 June 2024",
-    score: index % 3 === 0 ? 100 : 0, // Dummy score for illustration
-    slug: `module-${index + 1}`,
-  }));
+  // const ITEMS_PER_PAGE = 5;
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const totalPages = Math.ceil(trainingModules.length / ITEMS_PER_PAGE);
+  const [trainings, setTrainings] = useState<Training[]>([]); // Ensure it's an array
 
-  const ITEMS_PER_PAGE = 5;
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const totalPages = Math.ceil(trainingModules.length / ITEMS_PER_PAGE);
-
-  const [modules, setModules] = useState<Module[]>([]);
-  const [training, setTraining] = useState<Training | null>(null);
+  const [modules, setModules] = useState<TrainingProgramData | null>(null); // Change to `null` if it's not an array
 
   const [loading, setLoading] = useState(true); // Add loading state
 
@@ -72,84 +52,87 @@ export default function Page({ params }: { params: { slug: string } }) {
           throw new Error("No authentication token found. Please log in.");
         }
 
-        setLoading(true); // Set loading to true before fetching data
+        setLoading(true);
 
-        // Fetch module list
-        const moduleData = await restTraining.getModuleList(
+        const response = await restTraining.getTrainingList(
           token,
           partBeforeDot
         );
-        setModules(moduleData?.data?.data ?? []);
+        const data = response?.data?.data;
+        if (!Array.isArray(data)) {
+          console.error("Training data is not an array");
+          setTrainings([]);
+          return;
+        }
 
-        // Fetch training list
-        const trainingData = await restTraining.getTrainingList(
-          token,
-          partBeforeDot
-        );
-        setTraining(trainingData?.data?.data ?? null); // Adjust according to the structure of the response
+        setTrainings(data);
+
+        if (data.length > 0) {
+          const moduleResponse = await restTraining.getTrainingDetailList(
+            token,
+            partBeforeDot,
+            data[0].id
+          );
+          const moduleData = moduleResponse?.data?.data;
+          if (moduleData) {
+            setModules(moduleData);
+          } else {
+            console.error("Module data is not valid");
+            setModules(null);
+          }
+        }
       } catch (error) {
         console.error("Fetch error:", error);
       } finally {
-        setLoading(false); // Set loading to false after data is fetched
+        setLoading(false);
       }
     };
 
     loadData();
-  }, [partBeforeDot]); // Ensure dependencies are correct
+  }, [partBeforeDot]);
 
-  const handlePageChange = (page: React.SetStateAction<number>) => {
-    setCurrentPage(page);
-  };
+  // const handlePageChange = (page: React.SetStateAction<number>) => {
+  //   setCurrentPage(page);
+  // };
 
-  const paginatedModules = trainingModules.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  // const paginatedModules = trainingModules.slice(
+  //   (currentPage - 1) * ITEMS_PER_PAGE,
+  //   currentPage * ITEMS_PER_PAGE
+  // );
 
-  const renderPagination = () => {
-    return (
-      <Pagination>
-        <PaginationContent>
-          {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-            (page) => (
-              <PaginationItem key={page}>
-                <PaginationLink
-                  onClick={() => handlePageChange(page)}
-                  className={cn(
-                    page === currentPage ? "bg-white" : "",
-                    "cursor-pointer"
-                  )}
-                  isActive={page === currentPage}
-                >
-                  {page}
-                </PaginationLink>
-              </PaginationItem>
-            )
-          )}
+  // const renderPagination = () => {
+  //   return (
+  //     <Pagination>
+  //       <PaginationContent>
+  //         {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+  //           (page) => (
+  //             <PaginationItem key={page}>
+  //               <PaginationLink
+  //                 onClick={() => handlePageChange(page)}
+  //                 className={cn(
+  //                   page === currentPage ? "bg-white" : "",
+  //                   "cursor-pointer"
+  //                 )}
+  //                 isActive={page === currentPage}
+  //               >
+  //                 {page}
+  //               </PaginationLink>
+  //             </PaginationItem>
+  //           )
+  //         )}
 
-          <PaginationItem>
-            <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
-    );
-  };
+  //         <PaginationItem>
+  //           <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
+  //         </PaginationItem>
+  //       </PaginationContent>
+  //     </Pagination>
+  //   );
+  // };
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
-  if (!training) {
-    return <div>No training data available.</div>;
-  }
-
-  const fixedStartDate = training.start_date.replace(/=>/g, ":");
-
-  // Format the date and time
-  const formattedDate = format(new Date(fixedStartDate), "dd MMM yyyy", {
-    locale: localeID,
-  });
-  const formattedTime = format(new Date(fixedStartDate), "HH.mm");
   return (
     <div className="flex flex-col gap-9">
       <Breadcrumb>
@@ -171,7 +154,7 @@ export default function Page({ params }: { params: { slug: string } }) {
       </Breadcrumb>
       <div className="flex gap-4 items-center">
         <Button
-          onClick={() => router.back()}
+          onClick={() => router.push("/program")}
           className="h-10 w-10 bg-[#E4E6E] border-black border"
         >
           <svg
@@ -189,23 +172,31 @@ export default function Page({ params }: { params: { slug: string } }) {
             />
           </svg>
         </Button>
-        <h1 className="text-[34px] leading-9 font-bold">{training?.title}</h1>
+        <h1 className="text-[34px] leading-9 font-bold">
+          {trainings[0]?.training.data.title}
+        </h1>
       </div>
       <div className="flex flex-col rounded-m">
         <Image
           alt="hi"
-          src={Bg1.src}
+          src={trainings[0].training.data.image_url}
           width={0}
           height={0}
-          className="h-auto w-full rounded-t-m object-cover"
+          className="h-[365px] w-full rounded-t-m object-cover"
           sizes="50vw"
         />
         <div className="p-6 flex flex-col text-neutral-700 rounded-b-m bg-white gap-4">
           <div className="flex gap-2">
-            <IconHome /> {training?.module} Module
+            <IconHome /> {trainings[0]?.training.data.module_total} Module
           </div>
           <div className="text-base text-neutral-400">
-            Start Date: 01 Jun 2024 • 09.00 WIB
+            <div className="text-sm leading-6 text-neutral-400">
+              Start Date:{" "}
+              {format(new Date(trainings[0].start_date), "dd MMMM yyyy", {
+                locale: localeID,
+              })}{" "}
+              • {format(new Date(trainings[0].start_date), "HH:mm")} WIB
+            </div>{" "}
           </div>
         </div>
       </div>
@@ -219,51 +210,79 @@ export default function Page({ params }: { params: { slug: string } }) {
               <div className="flex justify-center items-center h-20">
                 <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
               </div>
-            ) : (
-              modules.map((module, index) => {
-                // Format the date
-                const date = parseISO(module.date);
-                const formattedDate = format(date, "d MMMM yyyy");
-                return (
-                  <div
-                    key={module.id} // Use `module.id` as the key
-                    className={cn(
-                      "h-full flex flex-col items-end justify-end",
-                      index !== 0 && "lg:mt-4 pt-4"
-                    )}
-                  >
-                    <div className="flex gap-2 w-full items-center max-xl:gap-5 justify-between">
-                      <div className="flex flex-col gap-2 w-full">
-                        <div className="text-sm text-primary-500 font-bold">
-                          M{module.id}
-                        </div>
-                        <div className="text-[20px] leading-6 text-neutral-800 font-bold">
-                          {module.subtitle}
-                        </div>
-                        {module.progress > 0 && (
-                          <div className="text-success-400 text-[20px] leading-6 font-bold">
-                            Progress {module.progress}%
-                          </div>
-                        )}
-                        <div className="text-sm text-neutral-400">
-                          {formattedDate}
-                        </div>
-                        <Progress
-                          className="bg-success-50 h-1 w-full"
-                          value={module.progress}
-                        />
-                      </div>
+            ) : modules?.sessions?.data?.length ? (
+              <div className="flex flex-col divide-y divide-[#E4E6E8] font-mono">
+                {modules.sessions.data.map((session, index) => {
+                  // Parse the session date
+                  const sessionDate = parseISO(session.class_date);
+                  const formattedDate = format(sessionDate, "d MMMM yyyy");
+                  const now = new Date();
 
-                      <Link
-                        href={`/program/training/module/${module.id}`}
-                        className="flex bg-secondary-500 rounded-m h-[56px] items-center text-white px-5"
-                      >
-                        Learn
-                      </Link>
+                  const isSessionToday = isAfter(now, sessionDate);
+
+                  return (
+                    <div
+                      key={session.id} // Use `session.id` as the key
+                      className={cn(
+                        "h-full flex flex-col items-end justify-end",
+                        index !== 0 && "lg:mt-4 pt-4"
+                      )}
+                    >
+                      <div className="flex gap-2 w-full items-center max-xl:gap-5 justify-between">
+                        <div className="flex flex-col gap-2 w-full">
+                          <div className="text-sm text-primary-500 font-bold">
+                            {session.module.data.subtitle}
+                          </div>
+                          <div className="text-[20px] leading-6 text-neutral-800 font-bold">
+                            {session.module.data.title}
+                          </div>
+                          {session.score && (
+                            <div className="text-success-400 text-[20px] leading-6 font-bold">
+                              Progress {session.score}%
+                            </div>
+                          )}
+                          <div className="text-sm text-neutral-400">
+                            {formattedDate}
+                          </div>
+                          <Progress
+                            className="bg-success-50 h-1 w-full"
+                            value={session.progress_session}
+                          />
+                        </div>
+                        <div className="flex flex-col gap-3">
+                          <Link
+                            href={`/program/training/module/${modules.id}/sessions/${session.id}`}
+                            className={cn(
+                              "flex bg-secondary-500 rounded-m justify-center h-[56px] items-center text-white px-5",
+                              !isSessionToday
+                                ? "opacity-50 cursor-not-allowed pointer-events-none"
+                                : ""
+                            )}
+                            aria-disabled={!isSessionToday}
+                          >
+                            Learn
+                          </Link>
+                          {session.module.data.url_download_zip && (
+                            <a
+                              href={session.module.data.url_download_zip || "#"}
+                              download
+                              target="_blank"
+                              className={cn(
+                                "flex bg-secondary-500 rounded-m h-[56px] items-center text-white px-5"
+                              )}
+                              aria-disabled={!isSessionToday}
+                            >
+                              Download
+                            </a>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                );
-              })
+                  );
+                })}
+              </div>
+            ) : (
+              <div>No sessions available</div>
             )}
           </div>
         </div>

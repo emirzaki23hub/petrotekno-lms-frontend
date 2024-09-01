@@ -7,15 +7,25 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import SectionAgenda from "./SectionAgenda";
 import AbsenceAttendance from "./SectionAttendace";
-import Image1 from "../../../../../public/images/1.png";
 import Link from "next/link";
 import { restTraining } from "@/rest/training";
 import { useDomainHelper } from "@/hooks/useDomainHelper";
-import { Module } from "@/types";
+import { Training, TrainingProgramData } from "@/types";
+import { format, isAfter, parseISO } from "date-fns";
+import { id as localeID } from "date-fns/locale"; // Import Indonesian locale
+
+interface TrainingDataItem {
+  title: string;
+  date: string;
+}
 
 export default function Page() {
-  const [modules, setModules] = useState<Module[]>([]);
+  const [trainings, setTrainings] = useState<Training[]>([]); // Ensure it's an array
+
+  const [modules, setModules] = useState<TrainingProgramData | null>(null); // Change to `null` if it's not an array
+
   const [loading, setLoading] = useState(true); // Add loading state
+
   const { getPartBeforeDot } = useDomainHelper();
   const partBeforeDot = getPartBeforeDot();
 
@@ -28,42 +38,54 @@ export default function Page() {
           throw new Error("No authentication token found. Please log in.");
         }
 
-        setLoading(true); // Set loading to true before fetching data
+        setLoading(true);
 
-        // Fetch modules
-        const modulesResponse = await restTraining.getModuleList(
+        const response = await restTraining.getTrainingList(
           token,
           partBeforeDot
         );
-        setModules(modulesResponse?.data?.data ?? []);
+        const data = response?.data?.data;
+        if (!Array.isArray(data)) {
+          console.error("Training data is not an array");
+          setTrainings([]);
+          return;
+        }
+
+        setTrainings(data);
+
+        if (data.length > 0) {
+          const moduleResponse = await restTraining.getTrainingDetailList(
+            token,
+            partBeforeDot,
+            data[0].id
+          );
+          const moduleData = moduleResponse?.data?.data;
+          if (moduleData) {
+            setModules(moduleData);
+          } else {
+            console.error("Module data is not valid");
+            setModules(null);
+          }
+        }
       } catch (error) {
         console.error("Fetch error:", error);
       } finally {
-        setLoading(false); // Set loading to false after data is fetched
+        setLoading(false);
       }
     };
 
     loadData();
-  }, [partBeforeDot]); // Ensure dependencies are correct
+  }, [partBeforeDot]);
 
-  const trainingData = [
-    {
-      title: "Production Operations: Test Module 24",
-      date: "25 June 2025",
-    },
-    {
-      title: "OPITO Test",
-      date: "25 June 2025",
-    },
-    {
-      title: "ECITB Test",
-      date: "25 June 2025",
-    },
-    {
-      title: "ECITB Test pt.2",
-      date: "25 June 2025",
-    },
+  const trainingData: TrainingDataItem[] = [
+    // Uncomment the lines below to simulate data.
+    // { title: "Test Module 1", date: "2024-09-10" },
+    // { title: "Test Module 2", date: "2024-09-15" },
   ];
+
+  const startDate = modules?.start_date
+    ? new Date(trainings[0].start_date)
+    : null;
 
   return (
     <div className="flex flex-col h-full gap-6 overflow-hidden">
@@ -83,99 +105,100 @@ export default function Page() {
               <div className="flex justify-center items-center h-full">
                 Loading...
               </div>
+            ) : !modules ||
+              !modules.sessions ||
+              modules.sessions.data.length === 0 ? (
+              <div className="text-center text-neutral-500">
+                No upcoming sessions.
+              </div>
             ) : (
-              modules.map((module, index) => {
-                // Generate a random number of completed sessions
-                const maxCompletedSessions = modules.length; // Assuming sessions is the max number of completed sessions
-                const randomCompletedSessions = Math.floor(
-                  Math.random() * (maxCompletedSessions + 1)
-                );
-
-                return (
-                  <div
-                    key={module.id} // Use a unique identifier
-                    className={cn(
-                      "h-full flex flex-col items-end justify-end",
-                      index !== 0 && "lg:mt-4 pt-4"
-                    )}
-                  >
-                    <div className="flex gap-5 w-full max-xl:gap-5 justify-between">
-                      <div className="flex gap-2 max-xl:flex-col justify-between w-full">
-                        <div className="flex flex-col gap-1 lg:min-w-[205px] 2xl:min-w-[295px]">
-                          <div className="text-neutral-400 text-xs leading-4">
-                            {module.title}
-                          </div>
-                          <div className="text-neutral-800 max-lg:text-xs text-sm leading-5 font-bold">
-                            {module.subtitle}
-                          </div>
-                        </div>
-                        <div className="flex flex-col gap-1 w-full lg:max-w-[145px] 2xl:min-w-[165px]">
-                          <div className="text-neutral-400 text-xs leading-4">
-                            Sessions
-                          </div>
-                          <div className="text-neutral-800 text-sm max-lg:text-xs leading-5 font-bold">
-                            {modules.length}{" "}
-                            {/* Display the number of sessions for this module */}
-                          </div>
-                        </div>
-                        <div className="flex flex-col gap-2 w-full">
-                          <div className="text-neutral-400 flex w-full justify-between text-xs leading-4">
-                            <span>
-                              {0}/{modules.length} Sessions
-                            </span>{" "}
-                            {/* Display the random number of completed sessions */}
-                            <span>{module.progress}%</span>
-                          </div>
-                          <div className="h-5 flex items-center">
-                            <Progress
-                              className="bg-success-50 h-1"
-                              value={module.progress}
-                            />
-                          </div>
-                        </div>
+              modules.sessions.data.map((session) => (
+                <div
+                  key={session.id}
+                  className="min-h-[72px]  flex justify-between gap-2 p-4"
+                >
+                  <div className="flex justify-between w-full items-start gap-1">
+                    <div className="flex flex-col gap-1 lg:min-w-[205px] 2xl:min-w-[295px]">
+                      <div className="text-neutral-400 text-xs leading-4">
+                        {session.module.data.subtitle}
                       </div>
-                      <div className="flex items-center h-full">
-                        <Link
-                          href={`/program/training/module/${module.id}`}
-                          className="flex bg-secondary-500 rounded-m h-[56px] items-center text-white px-5"
-                        >
-                          Learn
-                        </Link>
+                      <div className="text-base text-neutral-800 font-bold">
+                        {session.module.data.title}
                       </div>
                     </div>
+
+                    <div className="flex flex-col justify-center gap-1 w-full lg:max-w-[145px] 2xl:min-w-[165px]">
+                      <div className="text-neutral-400 text-xs leading-4">
+                        Sessions
+                      </div>
+                      {session.progress_session}
+                      <div className="text-neutral-800 text-sm max-lg:text-xs leading-5 font-bold">
+                        {/* Display the number of sessions for this module */}
+                      </div>
+                    </div>
+                    <div className="flex flex-col justify-center gap-2 w-full">
+                      <div className="text-neutral-400 flex w-full justify-between text-xs leading-4">
+                        <span>
+                          {0}/{modules.training.data.module_total} Sessions
+                        </span>{" "}
+                        {/* Display the random number of completed sessions */}
+                        <span>{modules.score}%</span>
+                      </div>
+                      <Progress
+                        className="bg-success-50 h-1"
+                        value={session.score}
+                      />
+                    </div>
                   </div>
-                );
-              })
+                  <Link
+                    href={`/program/training/module/${modules?.id}/sessions/${session.id}`}
+                    className="rounded-m bg-[#E4E6E8] w-10 h-10 flex justify-center items-center"
+                  >
+                    <IconArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              ))
             )}
           </div>
         </div>
         <div className="lg:w-2/5 p-4 bg-white rounded-m flex flex-col gap-4">
           <div className="text-[20px] leading-6 font-bold border-[#E4E6E8] border-b h-10">
-            Upcoming Test{" "}
+            Upcoming Test
           </div>
-          <div className="flex flex-col gap-4 font-mono">
-            {trainingData.map((item, index) => (
-              <div
-                key={index}
-                className="min-h-[72px] border border-[#E4E6E8] rounded-m flex justify-between gap-2 p-4"
-              >
-                <div className="flex flex-col gap-1">
-                  <div className="text-base text-neutral-800 font-bold ">
-                    {item.title}
-                  </div>
-                  <span className="text-xs leading-4 text-neutral-400">
-                    {item.date}
-                  </span>
-                </div>
-                <Link
-                  href={"/program/training/module/1?section=9"}
-                  className="rounded-m bg-[#E4E6E8] w-10 h-10 flex justify-center items-center"
+          {trainingData.length > 0 ? (
+            <div className="flex flex-col gap-4 font-mono">
+              {trainingData.map((item, index) => (
+                <div
+                  key={index}
+                  className="min-h-[72px] border border-[#E4E6E8] rounded-m flex justify-between gap-2 p-4"
                 >
-                  <IconArrowRight className="h-4 w-4" />
-                </Link>
+                  <div className="flex flex-col gap-1">
+                    <div className="text-base text-neutral-800 font-bold">
+                      {item.title}
+                    </div>
+                    <span className="text-xs leading-4 text-neutral-400">
+                      {item.date}
+                    </span>
+                  </div>
+                  <Link
+                    href="/program/training/module/1?section=9"
+                    className="rounded-m bg-[#E4E6E8] w-10 h-10 flex justify-center items-center"
+                  >
+                    <IconArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center p-6 text-center text-neutral-800">
+              <div className="text-lg font-semibold">
+                No upcoming tests available.
               </div>
-            ))}
-          </div>
+              <div className="mt-2 text-neutral-400">
+                Please check back later.
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <div className="bg-white h-full rounded-m  flex gap-4 flex-col p-4">
@@ -187,7 +210,7 @@ export default function Page() {
           <div className="flex max-lg:flex-col lg:p-6 p-4 gap-2 justify-between font-mono lg;items-end">
             <div className="flex max-lg:flex-col  gap-2">
               <Image
-                src={Image1.src}
+                src={modules?.training?.data.image_url ?? ""}
                 width={0}
                 height={0}
                 sizes="40vw"
@@ -196,21 +219,28 @@ export default function Page() {
               />
               <div className="flex flex-col gap-4">
                 <div className="text-sm text-primary-500  font-bold">
-                  25 Module • 30 Days
+                  {modules?.training?.data.module_total} Module •{" "}
+                  {modules?.days} Days
                 </div>
                 <div className="text-[20px] leading-6 text-neutral-800 font-bold font-sans">
-                  Production Operations Training
+                  {modules?.training?.data.title}
                 </div>
-                <div className="text-sm leading-6 text-neutral-400 ">
-                  Start Date: 25 Jun 2024 • 09.00 WIB
-                </div>
+                {startDate ? (
+                  <>
+                    Start Date:{" "}
+                    {format(startDate, "dd MMMM yyyy", {
+                      locale: localeID,
+                    })}{" "}
+                    • {format(startDate, "HH:mm")} WIB
+                  </>
+                ) : (
+                  <span>Date not available</span>
+                )}
               </div>
             </div>
-            {/* <Button className="h-[56px] rounded-m bg-secondary-500 text-white text-base">
-              Start Training
-            </Button> */}
+
             <Link
-              href={`/program/training/module/1`}
+              href={`/program/training/module/${modules?.id}/sessions/${modules?.sessions.data[0].id}`}
               className="flex bg-secondary-500 rounded-m h-[56px] items-center text-white px-5"
             >
               Start Training
@@ -218,8 +248,13 @@ export default function Page() {
           </div>
           <div className=" bg-[#E4E6E8] rounded-b-m">
             <div className="py-4 px-6 flex flex-col gap-4">
-              <Progress className="bg-success-50 h-1" value={0.5} />
-              <div className="text-sm font-mono">Progression: Module 01</div>
+              <Progress
+                className="bg-success-50 h-1"
+                value={trainings[0]?.progress_module}
+              />
+              <div className="text-sm font-mono">
+                Progression: Module {trainings[0]?.progress_module}
+              </div>
             </div>
           </div>
         </div>

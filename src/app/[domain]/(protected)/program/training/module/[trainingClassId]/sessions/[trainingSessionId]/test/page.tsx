@@ -26,10 +26,9 @@ import {
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import Bg1 from "../../../../../../../../../public/images/bg-1.png";
-import Logo from "../../../../../../../../../public/images/logo.png";
+import Bg1 from "../../../../../../../../../../../public/images/bg-1.png";
+import Logo from "../../../../../../../../../../../public/images/logo.png";
 import { useDomainHelper } from "@/hooks/useDomainHelper";
-import { da } from "date-fns/locale";
 
 interface QuestionResult {
   id: number;

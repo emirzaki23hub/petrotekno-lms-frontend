@@ -17,7 +17,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, title }) => {
   const [currentPageImage, setCurrentPageImage] = useState<string | null>(null);
   const [direction, setDirection] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState(1);
+  const [zoomLevel, setZoomLevel] = useState(5);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -168,7 +168,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, title }) => {
     <div
       ref={containerRef}
       className={`relative flex justify-center items-center w-full overflow-hidden bg-[#333639] ${
-        isFullscreen ? "h-screen" : "h-[610px]"
+        isFullscreen ? "h-screen" : "h-[750px]"
       }`}
     >
       <AnimatePresence initial={false} mode="popLayout" custom={direction}>
@@ -189,9 +189,10 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, title }) => {
       </AnimatePresence>
 
       <div className="absolute drop-shadow-2xl z-[5] bg-[#333639] w-full justify-between items-center border-white top-0 right-0 p-5 flex">
-        <div className="text-white max-lg:text-xs text-lg font-semibold">
-          {title}
-        </div>
+        <div
+          dangerouslySetInnerHTML={{ __html: title }}
+          className="text-white max-lg:text-xs text-base font-semibold"
+        ></div>
 
         <div className="text-white text-lg font-semibold">
           {pageNum} / {pageCount}

@@ -36,6 +36,7 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 // import { DialogTitle } from "@radix-ui/react-dialog";
@@ -59,7 +60,7 @@ import { Loader2 } from "lucide-react";
 import IconSlider from "@/components/icons/IconSlider";
 import { startOfToday } from "date-fns";
 import Link from "next/link";
-import Bg1 from "../../../../../../../../public/images/bg-1.png";
+import Bg1 from "../../../../../../../../../../public/images/bg-1.png";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -71,6 +72,9 @@ import dynamic from "next/dynamic";
 import IconChevron from "@/components/icons/IconChevron";
 import { restTraining } from "@/rest/training";
 import { useDomainHelper } from "@/hooks/useDomainHelper";
+import { QuizQuestion, TrainingSessionData } from "@/types";
+import IconPlay from "@/components/icons/IconPlay";
+import IconPdf from "@/components/icons/IconPdf";
 
 const PdfViewer = dynamic(() => import("@/components/PdfViewer"), {
   loading: () => <p>Loading...</p>,
@@ -351,70 +355,74 @@ const dataDemo: Section[] = [
 export default function Page({
   params,
 }: {
-  params: { slug: string; subslug: string };
+  params: {
+    trainingClassId: string;
+    subslug: string;
+
+    trainingSessionId: string;
+  };
 }) {
   const router = useRouter();
-  const [sections, setSections] = useState<Section[]>([]);
+  const [sections, setSections] = useState<TrainingSessionData>({
+    id: "",
+    class_date: "",
+    score: null,
+    progress_session: 0,
+    module: {
+      data: {
+        id: "",
+        title: "",
+        subtitle: "",
+        url_download_zip: null,
+        sections: {
+          data: [],
+        },
+      },
+    },
+  });
+  const [currentSection, setCurrentSection] = useState<number>(1);
 
   const { getPartBeforeDot } = useDomainHelper();
   const partBeforeDot = getPartBeforeDot();
 
   const searchParams = useSearchParams();
-  const totalSections = sections.length;
 
-  const sectionParam = searchParams.get("section");
-
-  const [currentSection, setCurrentSection] = useState<number>(() => {
-    const section = sectionParam ? parseInt(sectionParam, 10) : 1;
-
-    return section >= 1 && section <= totalSections ? section : 1;
-  });
-
-  useEffect(() => {
-    const section = sectionParam ? parseInt(sectionParam, 10) : 1;
-    if (section >= 1 && section <= totalSections) {
-      setCurrentSection(section);
-    }
-  }, [sectionParam, totalSections]);
-
-  const sliderRef = useRef<Slider>(null);
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-
     if (!token) {
       throw new Error("No authentication token found. Please log in.");
     }
     const loadModules = async () => {
       const id = parseInt(params.subslug, 10);
-      if (!isNaN(id)) {
-        if (partBeforeDot === "demo") {
-          setSections(dataDemo);
-        } else {
-          const data = await restTraining.getSection(token, partBeforeDot, id);
-          setSections((data?.data?.data as Section[]) ?? []);
-        }
-      } else {
-        console.error("Invalid ID:", params.subslug);
-      }
+      const data = await restTraining.getTrainingSessionDetail(
+        token,
+        partBeforeDot,
+        params.trainingClassId,
+        params.trainingSessionId
+      );
+      setSections((data?.data?.data as TrainingSessionData) ?? null);
     };
     loadModules();
   }, [params.subslug]);
 
-  console.log(sections);
+  const sectionParam = searchParams.get("section");
 
   useEffect(() => {
-    if (
-      sliderRef.current &&
-      currentSection > 0 &&
-      currentSection <= sections.length
-    ) {
-      sliderRef.current.slickGoTo(currentSection - 1);
+    if (sections) {
+      const totalSections = sections.module.data.sections.data.length;
+      const section = sectionParam ? parseInt(sectionParam, 10) : 1;
+      if (section >= 1 && section <= totalSections) {
+        setCurrentSection(section);
+      } else {
+        setCurrentSection(1); // Default to the first section if out of range
+      }
     }
-  }, [sections, currentSection]);
+  }, [sectionParam, sections]);
 
-  const form = useForm<z.infer<typeof dynamicSchema>>({
-    resolver: zodResolver(dynamicSchema),
-  });
+  const currentSectionData =
+    sections?.module.data.sections.data[currentSection - 1];
+
+  const sliderRef = useRef<Slider>(null);
 
   const checkboxForm = useForm<FormSchemaType>({
     resolver: zodResolver(FormSchema),
@@ -449,8 +457,14 @@ export default function Page({
     dots: false,
     infinite: false,
     speed: 500,
-    slidesToShow: sections.length > 5 ? 5 : sections.length, // Show 4 slides on desktop
-    slidesToScroll: sections.length > 5 ? 5 : sections.length, // Scroll 4 slides at a time
+    slidesToShow:
+      sections?.module.data.sections.data.length > 5
+        ? 5
+        : sections?.module.data.sections.data.length,
+    slidesToScroll:
+      sections?.module.data.sections.data.length > 5
+        ? 5
+        : sections?.module.data.sections.data.length,
     prevArrow: (
       <PrevArrow
         onClick={function (
@@ -507,52 +521,59 @@ export default function Page({
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  async function onSubmit(data: z.infer<typeof dynamicSchema>) {
-    console.log("Form submit initiated");
-    try {
-      setIsLoading(true);
+  // const totalSections = sections.length;
+  // async function onSubmit(data: z.infer<typeof dynamicSchema>) {
+  //   console.log("Form submit initiated");
+  //   try {
+  //     setIsLoading(true);
 
-      console.log("Current section data:", currentSectionData);
+  //     console.log("Current section data:", currentSectionData);
 
-      // Map through the current section's questions and check answers
-      const results = currentSectionData.data.map((item, index) => {
-        const selectedAnswer = data[`question-${index}`];
-        const correctAnswer = item.choices.find(
-          (choice) => choice.answer
-        )?.choice;
+  //     // Map through the current section's questions and check answers
+  //     const results = currentSectionData.data.map((item, index) => {
+  //       const selectedAnswer = data[`question-${index}`];
+  //       const correctAnswer = item.choices.find(
+  //         (choice) => choice.answer
+  //       )?.choice;
 
-        console.log(
-          `Question ${
-            index + 1
-          } - Selected: ${selectedAnswer}, Correct: ${correctAnswer}`
-        );
+  //       console.log(
+  //         `Question ${
+  //           index + 1
+  //         } - Selected: ${selectedAnswer}, Correct: ${correctAnswer}`
+  //       );
 
-        return {
-          id: index, // Or use item.id if available
-          isCorrect: selectedAnswer === correctAnswer,
-        };
-      });
+  //       return {
+  //         id: index, // Or use item.id if available
+  //         isCorrect: selectedAnswer === correctAnswer,
+  //       };
+  //     });
 
-      console.log("Results:", results);
+  //     console.log("Results:", results);
 
-      // Simulate an API call delay with setTimeout
-      setTimeout(() => {
-        setSubmittedData(results);
-        setIsLoading(false);
-        setSubmitted(true); // Set submitted state to true
-        setIsDialogOpen(false);
-      }, 2000);
-    } catch (error) {
-      console.error("Error during form submission:", error);
-      setIsLoading(false);
-    }
-  }
+  //     // Simulate an API call delay with setTimeout
+  //     setTimeout(() => {
+  //       setSubmittedData(results);
+  //       setIsLoading(false);
+  //       setSubmitted(true); // Set submitted state to true
+  //       setIsDialogOpen(false);
+  //     }, 2000);
+  //   } catch (error) {
+  //     console.error("Error during form submission:", error);
+  //     setIsLoading(false);
+  //   }
+  // }
 
   const goToNextSection = () => {
     setCurrentSection((prev) => {
       const nextSection = prev + 1;
-      updateUrl(nextSection);
-      return nextSection;
+      if (
+        sections &&
+        nextSection <= sections.module.data.sections.data.length
+      ) {
+        updateUrl(nextSection);
+        return nextSection;
+      }
+      return prev;
     });
   };
 
@@ -567,14 +588,14 @@ export default function Page({
     });
   };
 
-  const updateUrl = (section: string | number) => {
-    const params = new URLSearchParams(searchParams);
-    params.set("section", section.toString()); // Convert section to string
+  const updateUrl = (section: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("section", section.toString());
     router.push(`?${params.toString()}`);
   };
 
-  const initialDate = startOfToday();
-  const [selectedDate, setSelectedDate] = useState<Date>(initialDate);
+  // const initialDate = startOfToday();
+  // const [selectedDate, setSelectedDate] = useState<Date>(initialDate);
   // const getStatus = (score: number) => {
   //   return score > 5 ? "Pass" : "Fail";
   // };
@@ -589,17 +610,124 @@ export default function Page({
     setHasSubmitted(isSubmitted === "true");
   }, []);
 
-  const currentSectionData = sections[currentSection - 1];
+  // const currentSectionData = sections[currentSection - 1];
 
-  const getScoreAndStatus = () => {
-    const score = Math.floor(Math.random() * 11); // Random score between 0-10
-    const status = score > 5 ? "Pass" : "Fail"; // Pass if score > 5, otherwise Fail
-    return { score, status };
+  // const getScoreAndStatus = () => {
+  //   const score = Math.floor(Math.random() * 11); // Random score between 0-10
+  //   const status = score > 5 ? "Pass" : "Fail"; // Pass if score > 5, otherwise Fail
+  //   return { score, status };
+  // };
+
+  // const scoreData = useMemo(() => {
+  //   return items.map(() => getScoreAndStatus());
+  // }, [items]);
+
+  const documents = currentSectionData?.documents.data || [];
+
+  const [quizData, setQuizData] = useState<QuizQuestion[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchQuizData = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+
+      if (!currentSectionData) return;
+      if (!token) {
+        throw new Error("No authentication token found. Please log in.");
+      }
+
+      setLoading(true);
+
+      if (currentSectionData.type === "QUIZ") {
+        const response = await restTraining.getTrainingSessionQuiz(
+          token,
+          partBeforeDot,
+          params.trainingClassId,
+          params.trainingSessionId,
+          currentSectionData.id
+        );
+        setQuizData(response?.data?.data ?? []);
+      }
+    } catch (err) {
+      setError("Failed to fetch quiz data");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const scoreData = useMemo(() => {
-    return items.map(() => getScoreAndStatus());
-  }, [items]);
+  useEffect(() => {
+    fetchQuizData();
+  }, [currentSectionData]);
+
+  const dynamicSchema = z.object(
+    quizData.reduce((schema, item) => {
+      schema[`question-${item.id}`] = z
+        .string()
+        .min(1, "Please select an option.");
+      return schema;
+    }, {} as Record<string, z.ZodTypeAny>)
+  );
+
+  const form = useForm<z.infer<typeof dynamicSchema>>({
+    resolver: zodResolver(dynamicSchema),
+  });
+
+  const onSubmit = async (data: any) => {
+    try {
+      console.log("Submitted data:", data);
+
+      const token = localStorage.getItem("authToken");
+
+      if (!currentSectionData) return;
+      if (!token) {
+        throw new Error("No authentication token found. Please log in.");
+      }
+
+      // Map the submitted data into the correct format for the API
+      const answers = Object.keys(data)
+        .map((questionKey) => {
+          // Extract the question ID from the key
+          const questionId = questionKey.replace("question-", "");
+          // Find the answer object using the answer ID from data
+          const answer = quizData
+            .find((item) => item.id === questionId)
+            ?.answers.data.find(
+              (answer) => answer.answer === data[questionKey]
+            );
+
+          return answer
+            ? {
+                question_id: questionId,
+                answer_id: answer.id, // Ensure answer_id is always a string
+              }
+            : null; // Return null if answer is not found
+        })
+        .filter((answer) => answer !== null) as {
+        question_id: string;
+        answer_id: string;
+      }[]; // Filter out null values and assert type
+
+      // Prepare the request body
+      const requestBody = {
+        token: token, // Replace with the actual token
+        domain: partBeforeDot, // Replace with the actual domain
+        trainingClassId: params.trainingClassId, // Replace with the actual training class ID
+        trainingSessionId: params.trainingSessionId, // Replace with the actual training session ID
+        trainingSectionId: currentSectionData.id, // Replace with the actual training section ID
+        answers: answers,
+      };
+
+      const response = await restTraining.postPostSubmitQuiz(requestBody);
+      if (response.ok) {
+        setIsDialogOpen(false);
+      }
+
+      console.log("API Response:", response);
+    } catch (error) {
+      console.error("Error submitting quiz:", error);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -656,7 +784,7 @@ export default function Page({
             {...settings}
             className="w-full [&>div]:h-full px-5 lg:pr-14 lg:pl-20 [&>div>div]:h-full [&>div>div>div]:h-full [&>div>div>div>div]:h-full   h-full flex mx-auto justify-between"
           >
-            {sections.map((section, index) => (
+            {sections?.module.data.sections.data.map((section, index) => (
               <div
                 key={section.title}
                 className={cn(
@@ -678,7 +806,10 @@ export default function Page({
                     <IconSlider />
                   </div>
                 </div>
-                <span className="line-clamp-1">{section.title}</span>
+                <span
+                  className="line-clamp-1"
+                  dangerouslySetInnerHTML={{ __html: section.type }}
+                ></span>
               </div>
             ))}
           </Slider>
@@ -688,13 +819,139 @@ export default function Page({
       {currentSectionData ? (
         <>
           {currentSectionData.type === "PDF" && (
-            <PdfViewer
-              title={currentSectionData.title}
-              url={currentSectionData.link}
-            />
+            <>
+              <PdfViewer
+                title={currentSectionData.title}
+                url={currentSectionData.file_url}
+              />
+            </>
           )}
 
-          {currentSectionData.type === "TEST" && (
+          {currentSectionData.materials.data.length > 0 && (
+            <div className="p-6 font-mono bg-white rounded-m flex items-start">
+              <div className="flex gap-6 w-full max-lg:flex-col">
+                <div className="w-full bg-white rounded-m flex flex-col gap-4">
+                  <div className="text-[20px] leading-6 font-bold border-[#E4E6E8] border-b h-10">
+                    Materi
+                  </div>
+                  <div className="flex flex-col gap-4 font-mono">
+                    {currentSectionData.materials.data.map((item, index) => (
+                      <div
+                        key={index}
+                        className="min-h-12 flex justify-between gap-2"
+                      >
+                        <div
+                          className={cn(
+                            "flex gap-6 items-center text-neutral-700 font-bold"
+                          )}
+                        >
+                          <div
+                            className={cn(
+                              "h-12 w-12 flex justify-center items-center rounded-full bg-neutral-100 text-neutral-400"
+                            )}
+                          >
+                            <IconPlay />
+                          </div>
+                          {item.title}
+                        </div>
+                        <Dialog>
+                          <DialogTrigger>
+                            <Button
+                              variant="outline"
+                              className="rounded-m border-neutral-500 border-2 text-sm font-bold px-6 py-2.5 min-w-20"
+                              size="icon"
+                            >
+                              Play
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="bg-white p-0">
+                            <DialogHeader className="pt-5 px-5">
+                              <DialogTitle className="text-[28px] font-bold leading-8">
+                                {item.title}
+                              </DialogTitle>
+                            </DialogHeader>
+                            <DialogDescription className="rounded-b-m">
+                              <iframe
+                                src={item.url}
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                                className="w-full h-80 rounded-b-m"
+                              ></iframe>
+                            </DialogDescription>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {documents.length > 0 && (
+            <div className="p-6 font-mono bg-white rounded-m flex items-start">
+              <div className="flex gap-6 w-full max-lg:flex-col">
+                <div className="w-full bg-white rounded-m flex flex-col gap-4">
+                  <div className="text-[20px] leading-6 font-bold border-[#E4E6E8] border-b h-10">
+                    Document
+                  </div>
+                  <div className="flex flex-col gap-4 font-mono">
+                    {documents.map((item, index) => (
+                      <div
+                        key={index}
+                        className="min-h-12 flex justify-between gap-2"
+                      >
+                        <div
+                          className={cn(
+                            "flex gap-6 max-lg:gap-3 items-center text-neutral-100"
+                          )}
+                        >
+                          <div
+                            className={cn(
+                              "h-12 w-12 max-lg:h-20 flex justify-center items-center rounded-full bg-neutral-100 text-neutral-400",
+                              item.status === "Done" &&
+                                "bg-success-500 text-white"
+                            )}
+                          >
+                            <IconPdf />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <div
+                              className={cn(
+                                "text-base text-neutral-800 font-bold",
+                                item.status === "Done" && "text-success-500"
+                              )}
+                            >
+                              {item.title}
+                            </div>
+                            <span
+                              className={cn(
+                                "text-xs leading-4 text-neutral-400",
+                                item.status === "Done" && "text-success-500"
+                              )}
+                            >
+                              {item.fileName}
+                            </span>
+                          </div>
+                        </div>
+                        <Link
+                          className="rounded-m border-neutral-500 border-2 text-sm font-bold px-6 py-2.5  text-center min-w-[135px]"
+                          href={item.url}
+                          download
+                          target="_blank"
+                        >
+                          Download
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* {currentSectionData.type === "TEST" && (
             <>
               <div className="p-6 flex max-lg:flex-col max-lg:gap-4 max-lg:items-center justify-between rounded-m bg-white items-end">
                 {hasSubmitted ? (
@@ -760,11 +1017,11 @@ export default function Page({
                 )}
               </div>
             </>
-          )}
+          )} */}
 
           <SectionNavigation
             currentSection={currentSection}
-            sections={sections}
+            sections={sections?.module.data.sections.data}
             goToPrevSection={goToPrevSection}
             goToNextSection={goToNextSection}
           />
@@ -782,92 +1039,100 @@ export default function Page({
                         onSubmit={form.handleSubmit(onSubmit)}
                         className="w-full space-y-6"
                       >
-                        {currentSectionData.data.map((questionItem, index) => (
-                          <FormField
-                            key={index}
-                            control={form.control}
-                            name={`question-${index}`}
-                            render={({ field }) => {
-                              const selectedAnswer = field.value;
+                        {quizData.map((questionItem, index) => {
+                          const userAnswer = questionItem.participant_answer;
+                          const correctAnswer = questionItem.correct_answer;
+                          const isDisabled = Boolean(
+                            userAnswer && correctAnswer
+                          );
 
-                              return (
-                                <FormItem className="space-y-6 bg-white border rounded-m">
-                                  <div className="flex flex-col space-y-1 pt-6">
-                                    <FormLabel className="font-bold px-6 text-primary-500 mb-4">
-                                      Question {index + 1}
-                                    </FormLabel>
-                                    <FormLabel className="font-mono px-6 text-base font-bold">
-                                      {questionItem.question}
-                                    </FormLabel>
-                                  </div>
-                                  <FormControl>
-                                    <RadioGroup
-                                      onValueChange={field.onChange}
-                                      defaultValue={field.value}
-                                      className="flex flex-col space-y-1 px-6 pb-6"
-                                      disabled={submitted}
-                                    >
-                                      {questionItem.choices.map(
-                                        (option, optionIndex) => {
-                                          const isOptionSelected =
-                                            field.value === option.choice;
-                                          const isOptionCorrect =
-                                            option.answer === true;
-                                          const isOptionWrong =
-                                            submitted &&
-                                            !isOptionCorrect &&
-                                            isOptionSelected;
+                          return (
+                            <FormField
+                              key={questionItem.id}
+                              control={form.control}
+                              name={`question-${questionItem.id}`}
+                              render={({ field }) => {
+                                const selectedAnswer = field.value;
 
-                                          return (
-                                            <FormItem
-                                              key={optionIndex}
-                                              className="flex items-center space-x-3 space-y-0"
-                                            >
-                                              <FormControl>
-                                                <RadioGroupItem
+                                return (
+                                  <FormItem className="space-y-6 bg-white border rounded-m">
+                                    <div className="flex flex-col space-y-1 pt-6">
+                                      <FormLabel className="font-bold px-6 text-primary-500 mb-4">
+                                        Question {index + 1}
+                                      </FormLabel>
+                                      <FormLabel className="font-mono px-6 text-base font-bold">
+                                        {questionItem.question}
+                                      </FormLabel>
+                                    </div>
+                                    <FormControl>
+                                      <RadioGroup
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                        className="flex flex-col space-y-1 px-6 pb-6"
+                                        disabled={isDisabled}
+                                      >
+                                        {questionItem.answers.data.map(
+                                          (option) => {
+                                            const isOptionSelected =
+                                              field.value === option.answer;
+                                            const isOptionCorrect =
+                                              correctAnswer === option.id;
+                                            const isOptionWrong =
+                                              userAnswer === option.id &&
+                                              !isOptionCorrect;
+
+                                            return (
+                                              <FormItem
+                                                key={option.id}
+                                                className="flex items-center space-x-3 space-y-0"
+                                              >
+                                                <FormControl>
+                                                  <RadioGroupItem
+                                                    className={cn(
+                                                      "data-[state=checked]:bg-green-500 data-[state=checked]:text-white",
+                                                      isOptionCorrect
+                                                        ? "bg-green-300"
+                                                        : isOptionWrong
+                                                        ? "bg-[#F04B35]"
+                                                        : ""
+                                                    )}
+                                                    value={option.answer}
+                                                    disabled={isDisabled}
+                                                  />
+                                                </FormControl>
+                                                <FormLabel
                                                   className={cn(
-                                                    "data-[state=checked]:bg-green-500 data-[state=checked]:text-white",
-                                                    submitted && isOptionCorrect
-                                                      ? "bg-green-300"
-                                                      : submitted &&
-                                                        isOptionWrong
-                                                      ? "data-[state=checked]:bg-primary-500"
+                                                    "font-normal",
+                                                    isOptionCorrect
+                                                      ? "text-green-500"
+                                                      : isOptionWrong
+                                                      ? "text-[#F04B35]"
                                                       : ""
                                                   )}
-                                                  value={option.choice}
-                                                  disabled={submitted}
-                                                />
-                                              </FormControl>
-                                              <FormLabel
-                                                className={cn(
-                                                  "font-normal",
-                                                  submitted && isOptionCorrect
-                                                    ? "text-green-500"
-                                                    : "",
-                                                  submitted && isOptionWrong
-                                                    ? "text-[#F04B35]"
-                                                    : ""
-                                                )}
-                                              >
-                                                {option.choice}
-                                              </FormLabel>
-                                            </FormItem>
-                                          );
-                                        }
-                                      )}
-                                    </RadioGroup>
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              );
-                            }}
-                          />
-                        ))}
+                                                >
+                                                  {option.answer}
+                                                </FormLabel>
+                                              </FormItem>
+                                            );
+                                          }
+                                        )}
+                                      </RadioGroup>
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                );
+                              }}
+                            />
+                          );
+                        })}
 
                         <Button
                           className="h-[56px] px-5 bg-[#E4E6E8] rounded-m text-black"
                           onClick={handleOpenDialog}
-                          disabled={submitted}
+                          disabled={Boolean(
+                            quizData[0]?.participant_answer &&
+                              quizData[0]?.correct_answer
+                          )}
                           type="button"
                         >
                           Submit
@@ -884,7 +1149,7 @@ export default function Page({
                               Are you sure to submit the answer of the test?
                             </DialogDescription>
 
-                            {isLoading && (
+                            {loading && (
                               <div className="flex justify-center items-center">
                                 <Loader2 className="mr-2 size-12 animate-spin" />
                               </div>
@@ -892,15 +1157,15 @@ export default function Page({
 
                             <div className="flex gap-4 w-full">
                               <Button
-                                disabled={isLoading}
-                                onClick={onSubmit}
+                                disabled={loading}
+                                onClick={form.handleSubmit(onSubmit)}
                                 className="mt-4 h-[56px] bg-secondary-500 w-full text-white"
                               >
                                 Yes
                               </Button>
                               <Button
                                 type="button"
-                                disabled={isLoading}
+                                disabled={loading}
                                 onClick={() => setIsDialogOpen(false)}
                                 className="mt-4 h-[56px] bg-[#F04B35] w-full text-white"
                               >
@@ -917,7 +1182,7 @@ export default function Page({
             </div>
           )}
 
-          {currentSectionData.type === "JOB_CARD" && (
+          {/* {currentSectionData.type === "JOB_CARD" && (
             <>
               {!jobCardSubmitted ? (
                 <div className="p-6 font-mono bg-white rounded-m flex items-start">
@@ -1156,7 +1421,7 @@ export default function Page({
                 </div>
               )}
             </>
-          )}
+          )} */}
         </>
       ) : (
         <div>Loading...</div>

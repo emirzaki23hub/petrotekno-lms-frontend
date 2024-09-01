@@ -52,12 +52,58 @@ export interface Company {
 }
 
 export interface Training {
-  id: number;
-  module: number;
-  periode: string;
+  id: string;
   title: string;
   start_date: string;
+  progress_module: number;
+  score: number;
+  days: number;
+  training: {
+    data: {
+      id: string;
+      title: string;
+      image_url: string;
+      module_total: number;
+    };
+  };
 }
+
+type ModuleData = {
+  id: string;
+  title: string;
+  subtitle: string;
+  url_download_zip: string | null;
+};
+
+type SessionData = {
+  id: string;
+  class_date: string;
+  score: number | null;
+  progress_session: number;
+  module: {
+    data: ModuleData;
+  };
+};
+
+export type TrainingProgramData = {
+  id: string;
+  title: string;
+  start_date: string;
+  progress_module: number;
+  score: number;
+  days: number;
+  training: {
+    data: {
+      id: string;
+      title: string;
+      image_url: string;
+      module_total: number;
+    };
+  };
+  sessions: {
+    data: SessionData[];
+  };
+};
 
 export interface Module {
   id: number;
@@ -77,15 +123,15 @@ export interface PDFSection extends BaseSection {
   link: string;
 }
 
-export interface QuizChoice {
-  choice: string;
-  answer: boolean;
-}
+// export interface QuizChoice {
+//   choice: string;
+//   answer: boolean;
+// }
 
-export interface QuizQuestion {
-  question: string;
-  choices: QuizChoice[];
-}
+// export interface QuizQuestion {
+//   question: string;
+//   choices: QuizChoice[];
+// }
 
 export interface QuizSection extends BaseSection {
   type: "QUIZ";
@@ -114,3 +160,58 @@ export interface TestSection extends BaseSection {
 }
 
 export type Section = PDFSection | QuizSection | JobCardSection | TestSection;
+
+interface SectionData {
+  id: string;
+  title: string;
+  type: "QUIZ" | "PDF";
+  video_url: string | null;
+  file_url: string;
+  materials: {
+    data: any[]; // Adjust based on the actual data structure
+  };
+  documents: {
+    data: any[]; // Adjust based on the actual data structure
+  };
+  job_cards: {
+    data: any[]; // Adjust based on the actual data structure
+  };
+}
+
+// Define the type for the module data
+interface ModuleDatas {
+  id: string;
+  title: string;
+  subtitle: string;
+  url_download_zip: string | null;
+  sections: {
+    data: SectionData[];
+  };
+}
+
+// Define the type for the session data
+export interface TrainingSessionData {
+  id: string;
+  class_date: string; // ISO date string
+  score: number | null;
+  progress_session: number;
+  module: {
+    data: ModuleDatas;
+  };
+}
+
+interface Answer {
+  id: string;
+  answer: string;
+}
+
+export interface QuizQuestion {
+  id: string;
+  question: string;
+  file_url: string | null;
+  participant_answer: string | null;
+  correct_answer: string | null;
+  answers: {
+    data: Answer[];
+  };
+}

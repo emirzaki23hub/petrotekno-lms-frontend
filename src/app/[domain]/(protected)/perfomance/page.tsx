@@ -26,80 +26,79 @@ const TrainingModuleChart = dynamic(() => import("./TrainingModuleChart"), {
   ssr: false,
 });
 
+interface TableDataItem {
+  module: string;
+  theory: number;
+  practical: number;
+}
+
+interface Certification {
+  id: number;
+  title: string;
+  imageSrc: {
+    src: string;
+  };
+}
+
 const page = () => {
-  const trainingData = [
-    {
-      title: "Production Operations: Test Module 24",
-      date: "25 June 2025",
-    },
-    {
-      title: "OPITO Test",
-      date: "25 June 2025",
-    },
-    {
-      title: "ECITB Test",
-      date: "25 June 2025",
-    },
-  ];
+  // const trainingData = [
+  //   {
+  //     title: "Production Operations: Test Module 24",
+  //     date: "25 June 2025",
+  //   },
+  //   {
+  //     title: "OPITO Test",
+  //     date: "25 June 2025",
+  //   },
+  //   {
+  //     title: "ECITB Test",
+  //     date: "25 June 2025",
+  //   },
+  // ];
+
+  const trainingData: any = [];
 
   const cardData = [
     {
       icon: IconClock,
-      value: "25",
+      value: "0",
       unit: "H",
       description: "Total Learning Hours",
     },
     {
       icon: IconComplete,
-      value: "5",
+      value: "0",
       description: "Module Complete",
     },
     {
       icon: IconMonitor,
-      value: "4",
+      value: "0",
       description: "Webinar Complete",
     },
     {
       icon: IconLearning,
-      value: "12",
+      value: "0",
       description: "E-Learning Complete",
     },
     {
       icon: IconCertification,
-      value: "3",
+      value: "0",
       description: "Certification Complete",
     },
   ];
 
-  const tableData = [
-    { module: "Production Operations: Module 20", theory: 90, practical: 85 },
-    { module: "Production Operations: Module 21", theory: 90, practical: 85 },
-    { module: "Production Operations: Module 22", theory: 90, practical: 85 },
-    { module: "Production Operations: Module 23", theory: 85, practical: 100 },
-    { module: "Production Operations: Module 24", theory: 90, practical: 85 },
+  const tableData: TableDataItem[] = [
+    // { module: "Production Operations: Module 20", theory: 90, practical: 85 },
+    // { module: "Production Operations: Module 21", theory: 90, practical: 85 },
+    // { module: "Production Operations: Module 22", theory: 90, practical: 85 },
+    // { module: "Production Operations: Module 23", theory: 85, practical: 100 },
+    // { module: "Production Operations: Module 24", theory: 90, practical: 85 },
   ];
 
-  const certifications = [
-    {
-      id: 1,
-      title: "OPITO Certification",
-      imageSrc: BadgeBg,
-    },
-    // {
-    //   id: 2,
-    //   title: "City & Guilds Certification",
-    //   imageSrc: BadgeEffect,
-    // },
-    // {
-    //   id: 3,
-    //   title: "CompEx Certification",
-    //   imageSrc: BadgeOutline,
-    // },
-    // {
-    //   id: 4,
-    //   title: "ECITB Certification",
-    //   imageSrc: BadgeEcitb,
-    // },
+  const certifications: Certification[] = [
+    // Example items
+    // { id: 1, title: "Certification A", imageSrc: { src: "/path/to/imageA.jpg" } },
+    // { id: 2, title: "Certification B", imageSrc: { src: "/path/to/imageB.jpg" } },
   ];
 
   return (
@@ -149,32 +148,77 @@ const page = () => {
         </div>
         <div className="lg:w-2/5 p-4 bg-white rounded-m flex flex-col gap-4">
           <div className="text-[20px] leading-6 font-bold border-[#E4E6E8] border-b h-10">
-            Latest Performace{" "}
+            Latest Performance{" "}
           </div>
-          <div className="flex flex-col gap-4 font-mono">
-            {trainingData.map((item, index) => (
-              <div
-                key={index}
-                className="min-h-[72px] border border-[#E4E6E8] rounded-m flex justify-between gap-2 p-4"
-              >
-                <div className="flex flex-col gap-1">
-                  <div className="text-base text-neutral-800 font-bold ">
-                    {item.title}
+          {trainingData.length > 0 ? (
+            <div className="flex flex-col gap-4 font-mono">
+              {trainingData.map(
+                (
+                  item: {
+                    title:
+                      | string
+                      | number
+                      | bigint
+                      | boolean
+                      | React.ReactElement<
+                          any,
+                          string | React.JSXElementConstructor<any>
+                        >
+                      | Iterable<React.ReactNode>
+                      | React.ReactPortal
+                      | Promise<React.AwaitedReactNode>
+                      | null
+                      | undefined;
+                    date:
+                      | string
+                      | number
+                      | bigint
+                      | boolean
+                      | React.ReactElement<
+                          any,
+                          string | React.JSXElementConstructor<any>
+                        >
+                      | Iterable<React.ReactNode>
+                      | React.ReactPortal
+                      | Promise<React.AwaitedReactNode>
+                      | null
+                      | undefined;
+                  },
+                  index: React.Key | null | undefined
+                ) => (
+                  <div
+                    key={index}
+                    className="min-h-[72px] border border-[#E4E6E8] rounded-m flex justify-between gap-2 p-4"
+                  >
+                    <div className="flex flex-col gap-1">
+                      <div className="text-base text-neutral-800 font-bold">
+                        {item.title}
+                      </div>
+                      <span className="text-xs leading-4 text-neutral-400">
+                        {item.date}
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="rounded-m bg-[#E4E6E8]"
+                      size="icon"
+                    >
+                      <IconArrowRight className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <span className="text-xs leading-4 text-neutral-400">
-                    {item.date}
-                  </span>
-                </div>
-                <Button
-                  variant="outline"
-                  className="rounded-m bg-[#E4E6E8]"
-                  size="icon"
-                >
-                  <IconArrowRight className="h-4 w-4" />
-                </Button>
+                )
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center p-6">
+              <div className="text-lg font-semibold text-neutral-800">
+                No recent performance data available
               </div>
-            ))}
-          </div>
+              <div className="mt-4 text-neutral-400">
+                Please check back later or contact support.
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <div className="flex gap-6 w-full  overflow-hidden  max-lg:flex-col">
@@ -194,22 +238,33 @@ const page = () => {
             <div className="text-base max-lg:text-xs leading-5">Theory</div>
             <div className="text-base max-lg:text-xs leading-5">Practical</div>
           </div>
-          {tableData.map((item, index) => (
-            <div
-              key={index}
-              className=" border lg:min-h-[52px] border-[#E4E6E8] rounded-m flex max-lg:items-start items-center justify-between gap-2 p-4"
-            >
-              <div className="text-base max-lg:text-sm max-lg:leading-none text-neutral-800 font-bold ">
-                {item.module}
+          {tableData.length > 0 ? (
+            tableData.map((item, index) => (
+              <div
+                key={index}
+                className="border lg:min-h-[52px] border-[#E4E6E8] rounded-m flex max-lg:items-start items-center justify-between gap-2 p-4"
+              >
+                <div className="text-base max-lg:text-sm max-lg:leading-none text-neutral-800 font-bold">
+                  {item.module}
+                </div>
+                <span className="text-sm leading-4 pr-10 text-success-400 font-bold">
+                  {item.theory}
+                </span>
+                <span className="text-sm leading-4 pr-4 text-success-400 font-bold">
+                  {item.practical}
+                </span>
               </div>
-              <span className="text-sm  leading-4 pr-10 text-success-400 font-bold">
-                {item.theory}
-              </span>
-              <span className="text-sm leading-4 pr-4 text-success-400 font-bold">
-                {item.practical}
-              </span>
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center p-6">
+              <div className="text-lg font-semibold text-neutral-800">
+                No data available
+              </div>
+              <div className="mt-4 text-neutral-400">
+                Please check back later or contact support.
+              </div>
             </div>
-          ))}
+          )}
         </div>
       </div>
       <div className="p-6 bg-white rounded-m flex flex-col gap-4">
@@ -217,19 +272,27 @@ const page = () => {
           Certification Obtain{" "}
         </div>
 
-        <div className="grid grid-cols-4 max-lg:grid-cols-1 gap-2">
-          {certifications.map((cert, index) => (
-            <div
-              key={index}
-              className="flex border border-[#E4E6E8] p-6 rounded-m flex-col gap-4 justify-center items-center"
-            >
-              <CertificationCard
-                index={cert.id}
-                title={cert.title}
-                imageSrc={cert.imageSrc.src}
-              />
+        <div className="flex flex-col items-center justify-center p-6">
+          {certifications.length > 0 ? (
+            <div className="grid grid-cols-4 max-lg:grid-cols-1 gap-2">
+              {certifications.map((cert) => (
+                <div
+                  key={cert.id}
+                  className="flex border border-[#E4E6E8] p-6 rounded-m flex-col gap-4 justify-center items-center"
+                >
+                  <CertificationCard
+                    index={cert.id}
+                    title={cert.title}
+                    imageSrc={cert.imageSrc.src}
+                  />
+                </div>
+              ))}
             </div>
-          ))}
+          ) : (
+            <div className="text-center text-lg text-neutral-800">
+              No certifications available at the moment.
+            </div>
+          )}
         </div>
       </div>
     </div>

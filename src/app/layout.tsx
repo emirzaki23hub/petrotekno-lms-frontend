@@ -3,10 +3,6 @@ import { Titillium_Web as FontSans, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = {
-  title: "Petrotekno - Technical School",
-};
-
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
