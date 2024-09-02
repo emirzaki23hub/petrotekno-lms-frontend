@@ -519,55 +519,10 @@ export default function Page({
   };
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [submittedData, setSubmittedData] = useState<z.infer<
-    typeof dynamicSchema
-  > | null>(null);
 
   function handleOpenDialog() {
     setIsDialogOpen(true);
   }
-
-  // const totalSections = sections.length;
-  // async function onSubmit(data: z.infer<typeof dynamicSchema>) {
-  //   console.log("Form submit initiated");
-  //   try {
-  //     setIsLoading(true);
-
-  //     console.log("Current section data:", currentSectionData);
-
-  //     // Map through the current section's questions and check answers
-  //     const results = currentSectionData.data.map((item, index) => {
-  //       const selectedAnswer = data[`question-${index}`];
-  //       const correctAnswer = item.choices.find(
-  //         (choice) => choice.answer
-  //       )?.choice;
-
-  //       console.log(
-  //         `Question ${
-  //           index + 1
-  //         } - Selected: ${selectedAnswer}, Correct: ${correctAnswer}`
-  //       );
-
-  //       return {
-  //         id: index, // Or use item.id if available
-  //         isCorrect: selectedAnswer === correctAnswer,
-  //       };
-  //     });
-
-  //     console.log("Results:", results);
-
-  //     // Simulate an API call delay with setTimeout
-  //     setTimeout(() => {
-  //       setSubmittedData(results);
-  //       setIsLoading(false);
-  //       setSubmitted(true); // Set submitted state to true
-  //       setIsDialogOpen(false);
-  //     }, 2000);
-  //   } catch (error) {
-  //     console.error("Error during form submission:", error);
-  //     setIsLoading(false);
-  //   }
-  // }
 
   const goToNextSection = () => {
     setCurrentSection((prev) => {
@@ -590,7 +545,8 @@ export default function Page({
         updateUrl(prevSection);
         return prevSection;
       }
-      return prev; // Return the current value if it's already 1
+      return prev;
+      1;
     });
   };
 
@@ -729,6 +685,12 @@ export default function Page({
     }
   };
 
+  useEffect(() => {
+    if (sliderRef.current) {
+      sliderRef.current.slickGoTo(currentSection - 1); // Move to the correct slide
+    }
+  }, [currentSection]);
+
   return (
     <div className="flex flex-col gap-6">
       <Breadcrumb>
@@ -778,18 +740,18 @@ export default function Page({
         </h1>
       </div>
       {currentSectionData && (
-        <div className=" bg-white flex min-h-[60px] rounded-m justify-between">
+        <div className="bg-white flex min-h-[60px] rounded-m justify-between">
           <div className="w-full">
             <Slider
               ref={sliderRef}
               {...settings}
-              className="w-full [&>div]:h-full px-5 lg:pr-14 lg:pl-20 [&>div>div]:h-full [&>div>div>div]:h-full [&>div>div>div>div]:h-full   h-full flex mx-auto justify-between"
+              className="w-full [&>div]:h-full px-5 lg:pr-14 lg:pl-20 [&>div>div]:h-full [&>div>div>div]:h-full [&>div>div>div>div]:h-full h-full flex mx-auto justify-between"
             >
               {sections?.module.data.sections.data.map((section, index) => (
                 <div
                   key={section.title}
                   className={cn(
-                    `font-bold px-3 lg:px-4 !flex h-full max-lg:justify-center  max-lg:gap-2 gap-4 items-center`,
+                    `font-bold px-3 lg:px-4 !flex h-full max-lg:justify-center max-lg:gap-2 gap-4 items-center`,
                     currentSection > index + 1 && "text-success-500",
                     currentSection === index + 1 && "text-primary-500"
                   )}
@@ -808,10 +770,11 @@ export default function Page({
                       <IconSlider />
                     </div>
                   </div>
-                  <span
-                    className="line-clamp-1"
-                    dangerouslySetInnerHTML={{ __html: section.type }}
-                  ></span>
+                  <span className="line-clamp-1">
+                    {section.type === "PDF"
+                      ? `Lesson ${index + 1}`
+                      : section.type}
+                  </span>
                 </div>
               ))}
             </Slider>
