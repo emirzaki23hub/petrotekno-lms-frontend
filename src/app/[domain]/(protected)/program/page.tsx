@@ -40,6 +40,7 @@ const Page = () => {
         }
       } catch (error) {
         console.error("Fetch error:", error);
+        setLoading(false);
       } finally {
         setLoading(false); // Set loading to false after data is fetched
       }

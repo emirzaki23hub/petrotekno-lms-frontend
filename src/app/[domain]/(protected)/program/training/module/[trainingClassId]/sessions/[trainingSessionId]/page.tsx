@@ -386,22 +386,31 @@ export default function Page({
   const partBeforeDot = getPartBeforeDot();
 
   const searchParams = useSearchParams();
+  const [isloadingSection, setIsLoadingSection] = useState<boolean>(false); // Step 1: Add loading state
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) {
       throw new Error("No authentication token found. Please log in.");
     }
+
     const loadModules = async () => {
-      const id = parseInt(params.subslug, 10);
-      const data = await restTraining.getTrainingSessionDetail(
-        token,
-        partBeforeDot,
-        params.trainingClassId,
-        params.trainingSessionId
-      );
-      setSections((data?.data?.data as TrainingSessionData) ?? null);
+      setIsLoadingSection(true); // Step 2: Set loading to true before API call
+      try {
+        const data = await restTraining.getTrainingSessionDetail(
+          token,
+          partBeforeDot,
+          params.trainingClassId,
+          params.trainingSessionId
+        );
+        setSections((data?.data?.data as TrainingSessionData) ?? null);
+      } catch (error) {
+        console.error("Error fetching training session details:", error);
+      } finally {
+        setIsLoadingSection(false); // Step 3: Set loading to false after API call
+      }
     };
+
     loadModules();
   }, [params.subslug]);
 
@@ -485,17 +494,17 @@ export default function Page({
     ),
     responsive: [
       {
-        breakpoint: 1024, // For screens smaller than 1024px
+        breakpoint: 1024,
         settings: {
-          slidesToShow: 2, // Show 2 slides on smaller screens
-          slidesToScroll: 2, // Scroll 2 slides at a time
+          slidesToShow: 2,
+          slidesToScroll: 2,
         },
       },
       {
-        breakpoint: 600, // For screens smaller than 600px
+        breakpoint: 600,
         settings: {
-          slidesToShow: 1, // Show 1 slide on very small screens
-          slidesToScroll: 1, // Scroll 1 slide at a time
+          slidesToShow: 1,
+          slidesToScroll: 1,
         },
       },
     ],
@@ -673,8 +682,6 @@ export default function Page({
 
   const onSubmit = async (data: any) => {
     try {
-      console.log("Submitted data:", data);
-
       const token = localStorage.getItem("authToken");
 
       if (!currentSectionData) return;
@@ -682,12 +689,9 @@ export default function Page({
         throw new Error("No authentication token found. Please log in.");
       }
 
-      // Map the submitted data into the correct format for the API
       const answers = Object.keys(data)
         .map((questionKey) => {
-          // Extract the question ID from the key
           const questionId = questionKey.replace("question-", "");
-          // Find the answer object using the answer ID from data
           const answer = quizData
             .find((item) => item.id === questionId)
             ?.answers.data.find(
@@ -697,22 +701,21 @@ export default function Page({
           return answer
             ? {
                 question_id: questionId,
-                answer_id: answer.id, // Ensure answer_id is always a string
+                answer_id: answer.id,
               }
-            : null; // Return null if answer is not found
+            : null;
         })
         .filter((answer) => answer !== null) as {
         question_id: string;
         answer_id: string;
-      }[]; // Filter out null values and assert type
+      }[];
 
-      // Prepare the request body
       const requestBody = {
-        token: token, // Replace with the actual token
-        domain: partBeforeDot, // Replace with the actual domain
-        trainingClassId: params.trainingClassId, // Replace with the actual training class ID
-        trainingSessionId: params.trainingSessionId, // Replace with the actual training session ID
-        trainingSectionId: currentSectionData.id, // Replace with the actual training section ID
+        token: token,
+        domain: partBeforeDot,
+        trainingClassId: params.trainingClassId,
+        trainingSessionId: params.trainingSessionId,
+        trainingSectionId: currentSectionData.id,
         answers: answers,
       };
 
@@ -721,8 +724,6 @@ export default function Page({
         setIsDialogOpen(false);
         setSubmitted(true);
       }
-
-      console.log("API Response:", response);
     } catch (error) {
       console.error("Error submitting quiz:", error);
     }
@@ -776,46 +777,51 @@ export default function Page({
           Module {params.subslug}
         </h1>
       </div>
-      <div className=" bg-white flex min-h-[60px] rounded-m justify-between">
-        <div className="w-full">
-          <Slider
-            ref={sliderRef}
-            {...settings}
-            className="w-full [&>div]:h-full px-5 lg:pr-14 lg:pl-20 [&>div>div]:h-full [&>div>div>div]:h-full [&>div>div>div>div]:h-full   h-full flex mx-auto justify-between"
-          >
-            {sections?.module.data.sections.data.map((section, index) => (
-              <div
-                key={section.title}
-                className={cn(
-                  `font-bold px-3 lg:px-4 !flex h-full max-lg:justify-center  max-lg:gap-2 gap-4 items-center`,
-                  currentSection > index + 1 && "text-success-500",
-                  currentSection === index + 1 && "text-primary-500"
-                )}
-              >
+      {currentSectionData && (
+        <div className=" bg-white flex min-h-[60px] rounded-m justify-between">
+          <div className="w-full">
+            <Slider
+              ref={sliderRef}
+              {...settings}
+              className="w-full [&>div]:h-full px-5 lg:pr-14 lg:pl-20 [&>div>div]:h-full [&>div>div>div]:h-full [&>div>div>div>div]:h-full   h-full flex mx-auto justify-between"
+            >
+              {sections?.module.data.sections.data.map((section, index) => (
                 <div
+                  key={section.title}
                   className={cn(
-                    "w-9 h-9 flex justify-center items-center rounded-full",
-                    currentSection > index + 1 && "bg-success-400 text-white",
-                    currentSection === index + 1 && "bg-primary-500 text-white",
-                    currentSection < index + 1 &&
-                      "bg-neutral-100 text-neutral-400"
+                    `font-bold px-3 lg:px-4 !flex h-full max-lg:justify-center  max-lg:gap-2 gap-4 items-center`,
+                    currentSection > index + 1 && "text-success-500",
+                    currentSection === index + 1 && "text-primary-500"
                   )}
                 >
-                  <div className="m-5">
-                    <IconSlider />
+                  <div
+                    className={cn(
+                      "w-9 h-9 flex justify-center items-center rounded-full",
+                      currentSection > index + 1 && "bg-success-400 text-white",
+                      currentSection === index + 1 &&
+                        "bg-primary-500 text-white",
+                      currentSection < index + 1 &&
+                        "bg-neutral-100 text-neutral-400"
+                    )}
+                  >
+                    <div className="m-5">
+                      <IconSlider />
+                    </div>
                   </div>
+                  <span
+                    className="line-clamp-1"
+                    dangerouslySetInnerHTML={{ __html: section.type }}
+                  ></span>
                 </div>
-                <span
-                  className="line-clamp-1"
-                  dangerouslySetInnerHTML={{ __html: section.type }}
-                ></span>
-              </div>
-            ))}
-          </Slider>
+              ))}
+            </Slider>
+          </div>
         </div>
-      </div>
+      )}
 
-      {currentSectionData ? (
+      {isloadingSection ? (
+        <div>Loading...</div>
+      ) : currentSectionData ? (
         <>
           {currentSectionData.type === "PDF" && (
             <>
@@ -1023,6 +1029,7 @@ export default function Page({
             sections={sections?.module.data.sections.data}
             goToPrevSection={goToPrevSection}
             goToNextSection={goToNextSection}
+            params={params}
           />
 
           {currentSectionData.type === "QUIZ" && (
@@ -1423,7 +1430,7 @@ export default function Page({
           )} */}
         </>
       ) : (
-        <div>Loading...</div>
+        <></>
       )}
     </div>
   );

@@ -148,6 +148,25 @@ const postPostSubmitQuiz = (body: {
   );
 };
 
+const postTrainingSessionFinish = (body: {
+  token: string;
+  domain: string;
+  trainingClassId: string;
+  trainingSessionId: string;
+}) => {
+  return postData<BaseResponse>(
+    `/company/trainings/${body.trainingClassId}/sessions/${body.trainingSessionId}/finish`,
+    {},
+
+    {
+      headers: {
+        "X-Company": body.domain,
+        Authorization: `Bearer ${body.token}`,
+      },
+    }
+  );
+};
+
 export const restTraining = {
   getTrainingList,
   getTrainingDetailList,
@@ -156,4 +175,5 @@ export const restTraining = {
   getTrainingSessionDetail,
   getTrainingSessionQuiz,
   postPostSubmitQuiz,
+  postTrainingSessionFinish,
 };

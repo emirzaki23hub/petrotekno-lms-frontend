@@ -89,12 +89,10 @@ export default function Page() {
 
   return (
     <div className="flex flex-col h-full gap-6 overflow-hidden">
-      {/* section1 */}
       <div className="flex w-full max-lg:gap-2 max-lg:flex-col justify-between items-center">
         <h1 className="text-[34px] font-bold">Home</h1>
       </div>
       <AbsenceAttendance />
-      {/* section2 */}
       <div className="flex gap-6 max-lg:flex-col ">
         <div className="lg:w-3/5 w-full bg-white rounded-m flex flex-col gap-6 p-4">
           <div className="text-[20px] leading-6 font-bold border-[#E4E6E8] border-b h-10">
@@ -115,9 +113,9 @@ export default function Page() {
               modules.sessions.data.map((session) => (
                 <div
                   key={session.id}
-                  className="min-h-[72px]  flex justify-between gap-2 p-4"
+                  className="min-h-[72px]  flex justify-between gap-5 p-4"
                 >
-                  <div className="flex justify-between w-full items-start gap-1">
+                  <div className="flex justify-between w-full items-start gap-5">
                     <div className="flex flex-col gap-1 lg:min-w-[205px] 2xl:min-w-[295px]">
                       <div className="text-neutral-400 text-xs leading-4">
                         {session.module.data.subtitle}
@@ -151,10 +149,12 @@ export default function Page() {
                     </div>
                   </div>
                   <Link
-                    href={`/program/training/module/${modules?.id}/sessions/${session.id}`}
-                    className="rounded-m bg-[#E4E6E8] w-10 h-10 flex justify-center items-center"
+                    href={`/program/training/module/${modules.id}/sessions/${session.id}`}
+                    className={cn(
+                      "flex bg-secondary-500 rounded-m justify-center h-[56px] items-center text-white px-5"
+                    )}
                   >
-                    <IconArrowRight className="h-4 w-4" />
+                    Learn
                   </Link>
                 </div>
               ))
@@ -206,58 +206,62 @@ export default function Page() {
           On-going Training{" "}
         </div>
 
-        <div className="flex flex-col border border-[#E4E6E8] rounded-m">
-          <div className="flex max-lg:flex-col lg:p-6 p-4 gap-2 justify-between font-mono lg;items-end">
-            <div className="flex max-lg:flex-col  gap-2">
-              <Image
-                src={modules?.training?.data.image_url ?? ""}
-                width={0}
-                height={0}
-                sizes="40vw"
-                className="h-auto w-full lg:w-[161px] lg:h-[104px]"
-                alt="prod"
-              />
-              <div className="flex flex-col gap-4">
-                <div className="text-sm text-primary-500  font-bold">
-                  {modules?.training?.data.module_total} Module •{" "}
-                  {modules?.days} Days
+        {modules ? (
+          <div className="flex flex-col border border-[#E4E6E8] rounded-m">
+            <div className="flex max-lg:flex-col lg:p-6 p-4 gap-2 justify-between font-mono lg;items-end">
+              <div className="flex max-lg:flex-col  gap-2">
+                <Image
+                  src={modules?.training?.data.image_url ?? ""}
+                  width={0}
+                  height={0}
+                  sizes="40vw"
+                  className="h-auto w-full lg:w-[161px] lg:h-[104px]"
+                  alt="prod"
+                />
+                <div className="flex flex-col gap-4">
+                  <div className="text-sm text-primary-500  font-bold">
+                    {modules?.training?.data.module_total} Module •{" "}
+                    {modules?.days} Days
+                  </div>
+                  <div className="text-[20px] leading-6 text-neutral-800 font-bold font-sans">
+                    {modules?.training?.data.title}
+                  </div>
+                  {startDate ? (
+                    <>
+                      Start Date:{" "}
+                      {format(startDate, "dd MMMM yyyy", {
+                        locale: localeID,
+                      })}{" "}
+                      • {format(startDate, "HH:mm")} WIB
+                    </>
+                  ) : (
+                    <span>Date not available</span>
+                  )}
                 </div>
-                <div className="text-[20px] leading-6 text-neutral-800 font-bold font-sans">
-                  {modules?.training?.data.title}
-                </div>
-                {startDate ? (
-                  <>
-                    Start Date:{" "}
-                    {format(startDate, "dd MMMM yyyy", {
-                      locale: localeID,
-                    })}{" "}
-                    • {format(startDate, "HH:mm")} WIB
-                  </>
-                ) : (
-                  <span>Date not available</span>
-                )}
               </div>
-            </div>
 
-            <Link
-              href={`/program/training/module/${modules?.id}/sessions/${modules?.sessions.data[0].id}`}
-              className="flex bg-secondary-500 rounded-m h-[56px] items-center text-white px-5"
-            >
-              Start Training
-            </Link>
-          </div>
-          <div className=" bg-[#E4E6E8] rounded-b-m">
-            <div className="py-4 px-6 flex flex-col gap-4">
-              <Progress
-                className="bg-success-50 h-1"
-                value={trainings[0]?.progress_module}
-              />
-              <div className="text-sm font-mono">
-                Progression: Module {trainings[0]?.progress_module}
+              <Link
+                href={`/program/training/module/${modules?.id}/sessions/${modules?.sessions.data[0].id}`}
+                className="flex bg-secondary-500 rounded-m h-[56px] items-center text-white px-5"
+              >
+                Start Training
+              </Link>
+            </div>
+            <div className=" bg-[#E4E6E8] rounded-b-m">
+              <div className="py-4 px-6 flex flex-col gap-4">
+                <Progress
+                  className="bg-success-50 h-1"
+                  value={trainings[0]?.progress_module}
+                />
+                <div className="text-sm font-mono">
+                  Progression: Module {trainings[0]?.progress_module}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div>No Data</div>
+        )}
       </div>
 
       <SectionAgenda />

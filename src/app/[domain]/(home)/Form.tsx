@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -76,6 +76,33 @@ const FormInput = () => {
       setLoading(false);
     }
   }
+
+  const hasFetchedUserInfo = useRef(false);
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+
+        if (!token) {
+          throw new Error("No authentication token found. Please log in.");
+        }
+
+        const response = await restAuth.getUserInfo(token, partBeforeDot);
+
+        if (response?.data?.success) {
+          window.location.replace("/dashboard");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (!hasFetchedUserInfo.current) {
+      fetchUserInfo();
+      hasFetchedUserInfo.current = true; // Set the ref to true after the first run
+    }
+  }, []);
 
   return (
     <div>
