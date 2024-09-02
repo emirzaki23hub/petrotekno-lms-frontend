@@ -518,9 +518,6 @@ export default function Page({
     setIsDialogOpen(true);
   }
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
   // const totalSections = sections.length;
   // async function onSubmit(data: z.infer<typeof dynamicSchema>) {
   //   console.log("Form submit initiated");
@@ -627,6 +624,7 @@ export default function Page({
   const [quizData, setQuizData] = useState<QuizQuestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
 
   const fetchQuizData = async () => {
     try {
@@ -658,7 +656,7 @@ export default function Page({
 
   useEffect(() => {
     fetchQuizData();
-  }, [currentSectionData]);
+  }, [currentSectionData, submitted]);
 
   const dynamicSchema = z.object(
     quizData.reduce((schema, item) => {
@@ -721,6 +719,7 @@ export default function Page({
       const response = await restTraining.postPostSubmitQuiz(requestBody);
       if (response.ok) {
         setIsDialogOpen(false);
+        setSubmitted(true);
       }
 
       console.log("API Response:", response);
@@ -1093,7 +1092,7 @@ export default function Page({
                                                       isOptionCorrect
                                                         ? "bg-green-300"
                                                         : isOptionWrong
-                                                        ? "bg-[#F04B35]"
+                                                        ? "bg-primary-500 data-[state=checked]:bg-primary-500"
                                                         : ""
                                                     )}
                                                     value={option.answer}
