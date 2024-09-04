@@ -58,13 +58,16 @@ const Header = () => {
       <div className="h-[64px] fixed top-0 z-[20] bg-white border max-lg:hidden border-b-[#E4E6E8] p-4 flex justify-between items-center w-full">
         <Image src={Logo} height={27} width={149} alt="Logo" />
         {user?.logo_url && (
-          <Image
-            src={user?.logo_url}
-            className="p-5"
-            height={27}
-            width={149}
-            alt="Logo"
-          />
+          <div className="h-[50px] w-auto">
+            <Image
+              sizes="30vw"
+              className="h-full w-full"
+              src={user?.logo_url}
+              height={0}
+              width={0}
+              alt="Logo"
+            />
+          </div>
         )}
 
         <div className="flex gap-6">
