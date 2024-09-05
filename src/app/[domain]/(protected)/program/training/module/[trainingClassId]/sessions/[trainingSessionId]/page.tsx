@@ -412,7 +412,7 @@ export default function Page({
     };
 
     loadModules();
-  }, [params.subslug]);
+  }, [params.trainingClassId]);
 
   const sectionParam = searchParams.get("section");
 
@@ -704,20 +704,22 @@ export default function Page({
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/program/training/module">
+            <BreadcrumbLink
+              href={`/program/training/module/${params.trainingClassId}`}
+            >
               Module /
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem>
             <BreadcrumbPage className="text-primary-500 font-bold">
-              Module {params.subslug}
+              {sections.module.data.title}
             </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <div className="flex gap-4 items-center">
         <Link
-          href={`/program/training/module`}
+          href={`/program/training/module/${params.trainingClassId}`}
           className="h-10 w-10 flex items-center justify-center rounded-m bg-[#E4E6E] border-black border"
         >
           <svg

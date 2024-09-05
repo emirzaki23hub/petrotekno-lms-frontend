@@ -12,7 +12,6 @@ interface SectionNavigationProps {
   goToNextSection: () => void;
   params: {
     trainingClassId: string;
-    subslug: string;
 
     trainingSessionId: string;
   };

@@ -97,7 +97,7 @@ const Page = () => {
                 </div>
               </div>
               <Link
-                href="/program/training/module"
+                href={`/program/training/module/${training.id}`}
                 className="h-[56px] flex justify-center items-center px-5 whitespace-nowrap rounded-m bg-success-500 text-white text-base"
               >
                 Start Training
