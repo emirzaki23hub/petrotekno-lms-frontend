@@ -164,7 +164,7 @@ export type Section = PDFSection | QuizSection | JobCardSection | TestSection;
 interface SectionData {
   id: string;
   title: string;
-  type: "QUIZ" | "PDF";
+  type: "QUIZ" | "PDF" | "VIDEO";
   video_url: string | null;
   file_url: string;
   materials: {

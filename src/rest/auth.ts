@@ -22,7 +22,7 @@ const postLogin = (body: {
 
 const postLogout = async (token: string, domain: string) => {
   return deleteData<BaseResponse>(
-    "/company/logout",
+    "/logout",
     {},
     {
       headers: {

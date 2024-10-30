@@ -12,6 +12,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import ReactPlayer from "react-player/youtube";
 import {
   Table,
   TableBody,
@@ -988,6 +989,17 @@ export default function Page({
               </div>
             </>
           )} */}
+
+          {currentSectionData.type === "VIDEO" && (
+            <div className="relative flex  items-center overflow-hidden rounded-xl bg-black max-lg:h-[273px] lg:aspect-[16/9]">
+              <ReactPlayer
+                url={currentSectionData.video_url ?? ""}
+                width="100%"
+                height="100%"
+                className=" !w-full lg:!aspect-video"
+              />
+            </div>
+          )}
 
           <SectionNavigation
             currentSection={currentSection}

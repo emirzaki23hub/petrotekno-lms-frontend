@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { restTraining } from "@/rest/training";
 import { Button } from "./ui/button";
 import { useDomainHelper } from "@/hooks/useDomainHelper";
+import { useRouter } from "next/navigation";
 
 interface SectionNavigationProps {
   currentSection: number;
@@ -36,6 +37,8 @@ export default function SectionNavigation({
   const { getPartBeforeDot } = useDomainHelper();
   const partBeforeDot = getPartBeforeDot();
 
+  const router = useRouter();
+
   const finishSession = async () => {
     setIsLoading(true);
     try {
@@ -52,7 +55,7 @@ export default function SectionNavigation({
       });
 
       if (response.data?.success) {
-        window.location.replace("/program/training/module");
+        router.push(`/program/training/module/${params.trainingClassId}`);
       } else {
         console.error("Failed to finish the training session");
       }
