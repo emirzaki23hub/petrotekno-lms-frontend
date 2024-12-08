@@ -215,3 +215,40 @@ export interface QuizQuestion {
     data: Answer[];
   };
 }
+
+export interface Stats {
+  totalEarningHour: number;
+  moduleComplete: number;
+  webminarComplete: number;
+  elearningComplete: number;
+  certificationComplete: number;
+}
+
+export interface TrainingStats {
+  category: string;
+  session: number;
+  percentage: number;
+}
+
+export interface LatestPerfomance {
+  id: string;
+  title: string;
+  date: string;
+}
+
+export interface Score {
+  label: string;
+  value: number;
+}
+
+export interface ModuleScore {
+  title: string;
+  theory_percent: number;
+  practical_percent: number;
+}
+
+export interface Certification {
+  title: string;
+  icon_url: string;
+  download_url: string;
+}

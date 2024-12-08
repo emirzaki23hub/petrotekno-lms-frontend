@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -13,6 +12,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { OverallChart } from "./OverallChart";
+import { TrainingStats } from "@/types";
+import { getIntakes } from "@/rest/perfomance";
+import { useDomainHelper } from "@/hooks/useDomainHelper";
 
 // Define the type for chart data
 interface ChartData {
@@ -23,22 +25,65 @@ interface ChartData {
 }
 
 const ChartTable = () => {
-  // Apply the type to chartData
-  const chartData: ChartData[] = [
-    // Example data
-    // { category: "Training", sessions: 43, percentage: 55, fill: "#D62027" },
-    // { category: "E-Learning", sessions: 12, percentage: 25, fill: "#E6797D" },
-    // { category: "Webinar", sessions: 5, percentage: 11, fill: "#EFA6A9" },
-    // { category: "Certification", sessions: 4, percentage: 9, fill: "#E6797D" },
-  ];
+  const [trainings, setTrainings] = React.useState<TrainingStats[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  const { getPartBeforeDot } = useDomainHelper();
+  const partBeforeDot = getPartBeforeDot();
+
+  React.useEffect(() => {
+    const loadData = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+
+        if (!token) {
+          throw new Error("No authentication token found. Please log in.");
+        }
+
+        setLoading(true);
+
+        const response = await getIntakes(token, partBeforeDot);
+        const data = response?.data?.data;
+
+        if (!Array.isArray(data)) {
+          console.error("Training data is not an array");
+          setTrainings([]);
+          return;
+        }
+
+        setTrainings(data);
+      } catch (error) {
+        console.error("Fetch error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [partBeforeDot]);
+
+  // Map trainings data to chartData with fill colors
+  const chartColors = ["#D62027", "#E6797D", "#EFA6A9", "#E6797D"];
+  const chartData: ChartData[] = trainings.map((training, index) => ({
+    category: training.category,
+    sessions: training.session,
+    percentage: training.percentage,
+    fill: chartColors[index % chartColors.length], // Cycle through colors
+  }));
 
   return (
     <Card className="flex flex-col p-0 border-transparent shadow-none border-none">
       <CardContent className="flex max-lg:flex-col flex-row p-0">
-        {chartData.length > 0 ? (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center p-6 w-full h-full">
+            <div className="text-lg font-semibold text-neutral-800">
+              Loading data...
+            </div>
+          </div>
+        ) : chartData.length > 0 ? (
           <>
             <div className="lg:flex-1 h-[250px] w-[250px] lg:flex max-lg:mx-auto lg:items-center justify-center">
-              <OverallChart />
+              <OverallChart data={chartData} />
             </div>
             <div className="flex-1">
               <Table>
@@ -55,8 +100,7 @@ const ChartTable = () => {
                       <TableCell className="font-medium flex items-center gap-1">
                         <span
                           style={{ background: data.fill }}
-                          className="h-3 w-3 rounded-full"
-                        ></span>{" "}
+                          className="h-3 w-3 rounded-full"></span>{" "}
                         <span>{data.category}</span>
                       </TableCell>
                       <TableCell>{data.sessions}</TableCell>

@@ -9,43 +9,85 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import React from "react";
+import { useDomainHelper } from "@/hooks/useDomainHelper";
+import { getScore } from "@/rest/perfomance";
+import { Score } from "@/types";
 
 // Define the type for chart data
 interface ChartData {
-  module: number;
-  percentage: number;
+  label: string;
+  value: number;
 }
 
-// Example data with the defined type
-const chartData: ChartData[] = [
-  // Uncomment the lines below to simulate empty chart data.
-  // { module: 16, percentage: 85 },
-  // { module: 17, percentage: 60 },
-  // { module: 18, percentage: Math.floor(Math.random() * 100) },
-  // { module: 19, percentage: Math.floor(Math.random() * 100) },
-  // { module: 20, percentage: Math.floor(Math.random() * 100) },
-  // { module: 21, percentage: Math.floor(Math.random() * 100) },
-  // { module: 22, percentage: Math.floor(Math.random() * 100) },
-  // { module: 23, percentage: Math.floor(Math.random() * 100) },
-];
-
 const chartConfig: ChartConfig = {
-  percentage: {
+  value: {
     label: "Percentage",
     color: "hsl(var(--chart-1))",
   },
 };
 
 const TrainingModuleChart = () => {
+  const [trainings, setTrainings] = React.useState<Score[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  const { getPartBeforeDot } = useDomainHelper();
+  const partBeforeDot = getPartBeforeDot();
+
+  React.useEffect(() => {
+    const loadData = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+
+        if (!token) {
+          throw new Error("No authentication token found. Please log in.");
+        }
+
+        setLoading(true);
+
+        const response = await getScore(token, partBeforeDot);
+        const data = response?.data?.data;
+
+        if (!Array.isArray(data)) {
+          console.error("Training data is not an array");
+          setTrainings([]);
+          return;
+        }
+
+        setTrainings(data);
+      } catch (error) {
+        console.error("Fetch error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [partBeforeDot]);
+
+  const chartData: ChartData[] = React.useMemo(() => {
+    return trainings.map((training) => ({
+      label: training.label,
+      value: training.value,
+    }));
+  }, [trainings]);
+
+
   return (
     <Card className="border-0">
       <CardContent className="lg:-ml-5 shadow-none w-full -ml-5 p-0 overflow-hidden">
-        {chartData.length > 0 ? (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center p-6">
+            <div className="text-lg font-semibold text-neutral-800">
+              Loading chart data...
+            </div>
+          </div>
+        ) : chartData.length > 0 ? (
           <ChartContainer config={chartConfig}>
             <BarChart data={chartData}>
               <CartesianGrid vertical={false} strokeDasharray="3 3" />
               <XAxis
-                dataKey="module"
+                dataKey="label"
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
@@ -55,12 +97,7 @@ const TrainingModuleChart = () => {
                 cursor={false}
                 content={<ChartTooltipContent hideLabel />}
               />
-              <Bar
-                dataKey="percentage"
-                fill="#D62027"
-                radius={8}
-                maxBarSize={12}
-              />
+              <Bar dataKey="value" fill="#D62027" radius={8} maxBarSize={12} />
             </BarChart>
           </ChartContainer>
         ) : (
@@ -76,8 +113,8 @@ const TrainingModuleChart = () => {
       </CardContent>
       {chartData.length > 0 && (
         <CardFooter className="flex mt-3 items-start gap-2 text-sm">
-          <span>X = (x) percentage</span>
-          <span>Y = module (y)</span>
+          <span>X = module (label)</span>
+          <span>Y = (value) percentage</span>
         </CardFooter>
       )}
     </Card>
