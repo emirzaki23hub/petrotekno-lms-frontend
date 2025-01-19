@@ -37,7 +37,7 @@ const page = () => {
         <LatestPerfomance />
       </div>
       <div className="grid lg:grid-cols-5 gap-6 w-full  overflow-hidden  max-lg:flex-col">
-        <div className="lg:p-6 p-4 col-span-3  lg:col-span-2 overflow-hidden bg-white  h-full  rounded-m  ">
+        <div className="lg:p-6 p-4 col-span-3  lg:col-span-2 overflow-y-auto min-[1600px]:h-[490px] bg-white  h-full  rounded-m  ">
           <div className="text-[20px] leading-6 font-bold border-[#E4E6E8] border-b h-10">
             Training Module Score
           </div>
