@@ -42,7 +42,7 @@ const TrainingModuleScore = () => {
     loadData();
   }, [partBeforeDot]);
   return (
-    <div className="col-span-3 max-lg:w-full p-6 bg-white rounded-m h-[420px] overflow-y-auto flex flex-col gap-4">
+    <div className="col-span-3 max-lg:w-full p-6 bg-white rounded-m h-[404px] overflow-y-auto flex flex-col gap-4">
       <div className="flex justify-between text-[20px] items-center font-bold leading-6 px-4">
         <div className="max-lg:text-sm">Training Module Score</div>
         <div className="text-base max-lg:text-xs leading-5">Theory</div>
