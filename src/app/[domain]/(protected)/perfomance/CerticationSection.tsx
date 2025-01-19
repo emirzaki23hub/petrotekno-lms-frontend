@@ -4,6 +4,7 @@ import CertificationCard from "./CertificationCard";
 import { Certification } from "@/types";
 import { useDomainHelper } from "@/hooks/useDomainHelper";
 import { getCertificaiton } from "@/rest/perfomance";
+import { cn } from "@/lib/utils";
 
 const CerticationSection = () => {
   const [trainings, setTrainings] = React.useState<Certification[]>([]);
@@ -49,7 +50,9 @@ const CerticationSection = () => {
         Certification Obtain{" "}
       </div>
 
-      <div className="flex flex-col items-center justify-center p-6">
+      <div className={cn("flex flex-col \ p-6",
+        trainings.length === 0 && 'items-center justify-center'
+      )}>
         {trainings.length > 0 ? (
           <div className="grid grid-cols-4 max-lg:grid-cols-1 gap-2">
             {trainings.map((cert, index) => (

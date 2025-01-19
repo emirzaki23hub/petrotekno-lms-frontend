@@ -95,7 +95,7 @@ const TrainingModuleChart = () => {
               <YAxis tickLine={false} axisLine={false} />
               <ChartTooltip
                 cursor={false}
-                content={<ChartTooltipContent hideLabel />}
+                content={<ChartTooltipContent className="bg-white" hideLabel />}
               />
               <Bar dataKey="value" fill="#D62027" radius={8} maxBarSize={12} />
             </BarChart>

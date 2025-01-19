@@ -42,7 +42,7 @@ const TrainingModuleScore = () => {
     loadData();
   }, [partBeforeDot]);
   return (
-    <div className="w-3/5 max-lg:w-full p-6 bg-white rounded-m flex flex-col gap-4">
+    <div className="col-span-3 max-lg:w-full p-6 bg-white rounded-m h-[420px] overflow-y-auto flex flex-col gap-4">
       <div className="flex justify-between text-[20px] items-center font-bold leading-6 px-4">
         <div className="max-lg:text-sm">Training Module Score</div>
         <div className="text-base max-lg:text-xs leading-5">Theory</div>
@@ -52,8 +52,8 @@ const TrainingModuleScore = () => {
         trainings.map((item, index) => (
           <div
             key={index}
-            className="border lg:min-h-[52px] border-[#E4E6E8] rounded-m flex max-lg:items-start items-center justify-between gap-2 p-4">
-            <div className="text-base max-lg:text-sm max-lg:leading-none text-neutral-800 font-bold">
+            className="border l border-[#E4E6E8] rounded-m flex max-lg:items-start items-center justify-between gap-2 p-4">
+            <div className="text-base w-[40%] max-lg:line-clamp-2 line-clamp-3 max-lg:text-sm max-lg:leading-none text-neutral-800 font-bold">
               {item.title}
             </div>
             <span className="text-sm leading-4 pr-10 text-success-400 font-bold">

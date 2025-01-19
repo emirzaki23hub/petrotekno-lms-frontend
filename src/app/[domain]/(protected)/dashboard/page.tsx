@@ -93,8 +93,8 @@ export default function Page() {
         <h1 className="text-[34px] font-bold">Home</h1>
       </div>
       <AbsenceAttendance />
-      <div className="flex gap-6 max-lg:flex-col ">
-        <div className="lg:w-3/5 w-full bg-white rounded-m flex flex-col gap-6 p-4">
+      <div className="grid lg:grid-cols-5 gap-6 max-lg:flex-col ">
+        <div className="lg:col-span-3 lg:h-[450px] overflow-y-auto w-full bg-white rounded-m flex flex-col gap-6 p-4">
           <div className="text-[20px] leading-6 font-bold border-[#E4E6E8] border-b h-10">
             Program Progress
           </div>
@@ -113,14 +113,14 @@ export default function Page() {
               modules.sessions.data.map((session) => (
                 <div
                   key={session.id}
-                  className="min-h-[72px]  flex justify-between gap-5 p-4"
+                  className=" flex justify-between gap-5 p-4"
                 >
                   <div className="flex justify-between w-full items-start gap-5">
                     <div className="flex flex-col gap-1 lg:min-w-[205px] 2xl:min-w-[295px]">
-                      <div className="text-neutral-400 text-xs leading-4">
+                      <div className="text-neutral-400  text-xs leading-4">
                         {session.module.data.subtitle}
                       </div>
-                      <div className="text-base text-neutral-800 font-bold">
+                      <div className="text-base text-neutral-800 line-clamp-3 font-bold">
                         {session.module.data.title}
                       </div>
                     </div>
@@ -146,12 +146,20 @@ export default function Page() {
                         className="bg-success-50 h-1"
                         value={session.score}
                       />
+                      <Link
+                    href={`/program/training/module/${modules.id}/sessions/${session.id}`}
+                    className={cn(
+                      "flex bg-secondary-500 lg:hidden rounded-m justify-center h-[56px] items-center text-white px-5"
+                    )}
+                  >
+                    Learn
+                  </Link>
                     </div>
                   </div>
                   <Link
                     href={`/program/training/module/${modules.id}/sessions/${session.id}`}
                     className={cn(
-                      "flex bg-secondary-500 rounded-m justify-center h-[56px] items-center text-white px-5"
+                      "flex bg-secondary-500 max-lg:hidden rounded-m justify-center h-[56px] items-center text-white px-5"
                     )}
                   >
                     Learn
@@ -161,7 +169,7 @@ export default function Page() {
             )}
           </div>
         </div>
-        <div className="lg:w-2/5 p-4 bg-white rounded-m flex flex-col gap-4">
+        <div className="lg:col-span-2 p-4 bg-white rounded-m flex flex-col gap-4">
           <div className="text-[20px] leading-6 font-bold border-[#E4E6E8] border-b h-10">
             Upcoming Test
           </div>
