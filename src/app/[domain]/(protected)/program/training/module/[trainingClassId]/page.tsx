@@ -143,6 +143,8 @@ export default function Page({
     (item) => item.id === params.trainingClassId
   );
 
+
+
   return (
     <div className="flex flex-col gap-9">
       <Breadcrumb>
@@ -282,7 +284,7 @@ export default function Page({
                           >
                             Learn
                           </Link>
-                          {session.module.data.url_download_zip && (
+                          {session.module.data.url_download_zip && partBeforeDot === 'eacop' && (
                             <a
                               href={session.module.data.url_download_zip || "#"}
                               download

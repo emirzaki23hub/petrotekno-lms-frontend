@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useDomainHelper } from "@/hooks/useDomainHelper";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
@@ -164,6 +165,11 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, title }) => {
     }),
   };
 
+
+    const { getPartBeforeDot } = useDomainHelper();
+    const partBeforeDot = getPartBeforeDot();
+
+    console.log(partBeforeDot)
   return (
     <div
       ref={containerRef}
@@ -226,7 +232,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, title }) => {
             </svg>
           </button>
 
-          <button
+         {partBeforeDot === 'eacop' && <button
             onClick={downloadPdf}
             className="text-white rounded-full shadow-lg transition-colors"
           >
@@ -243,7 +249,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, title }) => {
               />
             </svg>
           </button>
-
+}
           <button
             onClick={toggleFullscreen}
             className="text-white rounded-full shadow-lg  transition-colors"
