@@ -15,8 +15,8 @@ const AgendaItemComponent: React.FC<AgendaItem> = ({ activity, time }) => (
   <div className="bg-warning-50 border border-warning-400 font-mono flex gap-4 rounded-m p-4">
     <div className="border-warning-400 border-l-4"></div>
     <div className="flex flex-col gap-1 items-start">
-      <div className="text-sm font-bold ">{activity}</div>
-      <div className="text-xs text-neutral-400 leading-5 ">{time}</div>
+      <div className="text-sm font-bold">{activity}</div>
+      <div className="text-xs text-neutral-400 leading-5">{time}</div>
     </div>
   </div>
 );
@@ -36,32 +36,26 @@ const SectionAgenda: React.FC = () => {
 
       try {
         const token = localStorage.getItem("authToken");
+        if (!token) throw new Error("No authentication token found. Please log in.");
 
-        if (!token) {
-          throw new Error("No authentication token found. Please log in.");
-        }
+        const formattedDate = format(date, "yyyy-MM-dd");
 
+        // ✅ Pass date as query param
         const response = await restDashboard.getAgendaList(
           token,
-          partBeforeDot
+          partBeforeDot,
+          formattedDate
         );
 
         if (response.data?.data) {
-          const formattedDate = format(date, "yyyy-MM-dd");
-          const agendaForDate = response.data.data.find(
-            (item: { date: string }) => item.date === formattedDate
+          setAgendaItems(
+            response.data.data.map((agendaItem: AgendaItem) => ({
+              activity: agendaItem.activity,
+              time: agendaItem.time,
+            }))
           );
-
-          if (agendaForDate && agendaForDate.agenda) {
-            setAgendaItems(
-              agendaForDate.agenda.map((agendaItem: AgendaItem) => ({
-                activity: agendaItem.activity,
-                time: agendaItem.time,
-              }))
-            );
-          } else {
-            setAgendaItems([]);
-          }
+        } else {
+          setAgendaItems([]);
         }
       } catch (err) {
         setError("Failed to fetch agenda items. Please try again later.");
@@ -72,7 +66,7 @@ const SectionAgenda: React.FC = () => {
     };
 
     fetchAgendaItems();
-  }, [date]);
+  }, [date, partBeforeDot]);
 
   return (
     <div className="bg-white h-full rounded-m flex gap-4 flex-col p-4">
@@ -97,7 +91,7 @@ const SectionAgenda: React.FC = () => {
             ) : error ? (
               <div className="text-center text-red-500">{error}</div>
             ) : agendaItems.length > 0 ? (
-              agendaItems.map((item: AgendaItem, index: number) => (
+              agendaItems.map((item, index) => (
                 <AgendaItemComponent key={index} {...item} />
               ))
             ) : (
