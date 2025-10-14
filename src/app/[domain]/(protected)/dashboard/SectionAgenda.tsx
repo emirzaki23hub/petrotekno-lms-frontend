@@ -39,19 +39,19 @@ const SectionAgenda: React.FC = () => {
         if (!token) throw new Error("No authentication token found. Please log in.");
 
         const formattedDate = format(date, "yyyy-MM-dd");
-
-        // ✅ Pass date as query param
         const response = await restDashboard.getAgendaList(
           token,
           partBeforeDot,
           formattedDate
         );
 
-        if (response.data?.data) {
+        const dataArray = response.data?.data;
+        if (Array.isArray(dataArray) && dataArray.length > 0) {
+          const agendaList = dataArray[0].agenda || [];
           setAgendaItems(
-            response.data.data.map((agendaItem: AgendaItem) => ({
-              activity: agendaItem.activity,
-              time: agendaItem.time,
+            agendaList.map((item: AgendaItem) => ({
+              activity: item.activity,
+              time: item.time,
             }))
           );
         } else {
