@@ -7,9 +7,11 @@ import {
   Training,
   TrainingProgramData,
   TrainingSessionData,
+  UpcomingTraining,
   Webinar,
 } from "@/types";
 import { BaseResponse } from "@/types/auth";
+import { get } from "http";
 
 // Define the structure of a single webinar
 
@@ -22,6 +24,23 @@ const getTrainingList = (token: string, domain: string, page?: number) => {
   const url = `/company/trainings`;
 
   return getData<BaseResponse<Training>>(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "X-Company": domain,
+    },
+  });
+};
+
+
+const getTrainingUpcomingList = (token: string, domain: string, page?: number) => {
+  if (!token) {
+    throw new Error("No authentication token provided. Please log in.");
+  }
+
+  // Construct the URL, adding the page parameter only if page > 1
+  const url = `/company/trainings-upcoming`;
+
+  return getData<BaseResponse<UpcomingTraining>>(url, {
     headers: {
       Authorization: `Bearer ${token}`,
       "X-Company": domain,
@@ -176,4 +195,5 @@ export const restTraining = {
   getTrainingSessionQuiz,
   postPostSubmitQuiz,
   postTrainingSessionFinish,
+  getTrainingUpcomingList,
 };
