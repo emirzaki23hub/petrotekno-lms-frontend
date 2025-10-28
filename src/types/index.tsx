@@ -51,6 +51,16 @@ export interface Company {
   logo_url: string;
 }
 
+export interface UpcomingTraining {
+  id: number;
+  title: string;
+  participant_id: number;
+  uuid_training_class: string;
+  uuid_training_class_session: string;
+  uuid_section: string;
+  start_date: string;
+}
+
 export interface Training {
   id: string;
   title: string;
