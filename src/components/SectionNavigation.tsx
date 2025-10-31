@@ -30,7 +30,7 @@ export default function SectionNavigation({
   const nextSection =
     currentSection < sections.length ? sections[currentSection].title : null;
 
-  const isLastSection = currentSection === sections.length;
+  const isLastSection = sections.length > 1 && currentSection === sections.length;
 
   const [isLoading, setIsLoading] = useState(false);
 
