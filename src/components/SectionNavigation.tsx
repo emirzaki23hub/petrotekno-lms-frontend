@@ -13,7 +13,6 @@ interface SectionNavigationProps {
   goToNextSection: () => void;
   params: {
     trainingClassId: string;
-
     trainingSessionId: string;
   };
 }
@@ -66,6 +65,11 @@ export default function SectionNavigation({
       setIsLoading(false);
     }
   };
+
+
+  if (!prevSection && !nextSection && !isLastSection) {
+    return null;
+  }
 
   return (
     <div
