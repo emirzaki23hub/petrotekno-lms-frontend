@@ -363,6 +363,9 @@ export default function Page({
     trainingSessionId: string;
   };
 }) {
+
+  console.log(params.trainingClassId);
+
   const router = useRouter();
   const [sections, setSections] = useState<TrainingSessionData>({
     id: "",
@@ -636,12 +639,14 @@ export default function Page({
   const form = useForm<z.infer<typeof dynamicSchema>>({
     resolver: zodResolver(dynamicSchema),
   });
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const onSubmit = async (data: any) => {
+    // ▼▼▼ 1. Aktifkan loader saat fungsi dimulai ▼▼▼
+    setIsSubmitting(true);
     try {
       const token = localStorage.getItem("authToken");
 
-      if (!currentSectionData) return;
+      if (!currentSectionData) return; // finally akan tetap berjalan
       if (!token) {
         throw new Error("No authentication token found. Please log in.");
       }
@@ -657,15 +662,15 @@ export default function Page({
 
           return answer
             ? {
-                question_id: questionId,
-                answer_id: answer.id,
-              }
+              question_id: questionId,
+              answer_id: answer.id,
+            }
             : null;
         })
         .filter((answer) => answer !== null) as {
-        question_id: string;
-        answer_id: string;
-      }[];
+          question_id: string;
+          answer_id: string;
+        }[];
 
       const requestBody = {
         token: token,
@@ -677,12 +682,19 @@ export default function Page({
       };
 
       const response = await restTraining.postPostSubmitQuiz(requestBody);
+
       if (response.ok) {
         setIsDialogOpen(false);
         setSubmitted(true);
+        router.replace(`/program/training/module/${params.trainingClassId}/`)
       }
     } catch (error) {
       console.error("Error submitting quiz:", error);
+      // Di sini Anda bisa menambahkan notifikasi error untuk pengguna,
+      // misalnya: toast.error("Gagal mensubmit kuis.");
+    } finally {
+      // ▼▼▼ 2. Matikan loader setelah try/catch selesai ▼▼▼
+      setIsSubmitting(false);
     }
   };
 
@@ -764,9 +776,9 @@ export default function Page({
                       "w-9 h-9 flex justify-center items-center rounded-full",
                       currentSection > index + 1 && "bg-success-400 text-white",
                       currentSection === index + 1 &&
-                        "bg-primary-500 text-white",
+                      "bg-primary-500 text-white",
                       currentSection < index + 1 &&
-                        "bg-neutral-100 text-neutral-400"
+                      "bg-neutral-100 text-neutral-400"
                     )}
                   >
                     <div className="m-5">
@@ -882,7 +894,7 @@ export default function Page({
                             className={cn(
                               "h-12 w-12 max-lg:h-20 flex justify-center items-center rounded-full bg-neutral-100 text-neutral-400",
                               item.status === "Done" &&
-                                "bg-success-500 text-white"
+                              "bg-success-500 text-white"
                             )}
                           >
                             <IconPdf />
@@ -1076,8 +1088,8 @@ export default function Page({
                                                       isOptionCorrect
                                                         ? "bg-green-300"
                                                         : isOptionWrong
-                                                        ? "bg-primary-500 data-[state=checked]:bg-primary-500"
-                                                        : ""
+                                                          ? "bg-primary-500 data-[state=checked]:bg-primary-500"
+                                                          : ""
                                                     )}
                                                     value={option.answer}
                                                     disabled={isDisabled}
@@ -1089,8 +1101,8 @@ export default function Page({
                                                     isOptionCorrect
                                                       ? "text-green-500"
                                                       : isOptionWrong
-                                                      ? "text-[#F04B35]"
-                                                      : ""
+                                                        ? "text-[#F04B35]"
+                                                        : ""
                                                   )}
                                                 >
                                                   {option.answer}
@@ -1114,7 +1126,7 @@ export default function Page({
                           onClick={handleOpenDialog}
                           disabled={Boolean(
                             quizData[0]?.participant_answer &&
-                              quizData[0]?.correct_answer
+                            quizData[0]?.correct_answer
                           )}
                           type="button"
                         >
@@ -1140,10 +1152,15 @@ export default function Page({
 
                             <div className="flex gap-4 w-full">
                               <Button
-                                disabled={loading}
+                                disabled={isSubmitting}
                                 onClick={form.handleSubmit(onSubmit)}
                                 className="mt-4 h-[56px] bg-secondary-500 w-full text-white"
                               >
+                                {isSubmitting && (
+                                  <div className="flex justify-center items-center">
+                                    <Loader2 className="mr-2 size-12 animate-spin" />
+                                  </div>
+                                )}
                                 Yes
                               </Button>
                               <Button

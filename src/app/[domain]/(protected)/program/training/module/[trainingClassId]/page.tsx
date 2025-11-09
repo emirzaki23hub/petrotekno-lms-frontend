@@ -145,6 +145,8 @@ export default function Page({
 
 
 
+
+
   return (
     <div className="flex flex-col gap-9">
       <Breadcrumb>
@@ -241,6 +243,18 @@ export default function Page({
                   const now = new Date();
 
                   const isSessionToday = isAfter(now, sessionDate);
+                  const hasPassedScore =
+                    modules.score >= 85;
+
+                  const hasReachedMaxAttempts =
+                    typeof modules.total_max === "number" &&
+                    modules.total_max > 0 &&
+                    typeof modules.total_retry === "number" &&
+                    modules.total_retry >= modules.total_max;
+
+
+
+                  const isLearnDisabled = !isSessionToday || (hasReachedMaxAttempts || hasPassedScore);
 
                   return (
                     <div
@@ -263,6 +277,13 @@ export default function Page({
                               Progress {session.score}%
                             </div>
                           )}
+                          {
+                            modules.total_max > 0 ? (
+                              <div className="text-sm text-neutral-500 font-bold mt-1">
+                                {modules.total_retry}{" "}
+                                {modules.total_retry > 1 ? "Attempts" : "Attempt"}
+                              </div>
+                            ) : null}
                           <div className="text-sm text-neutral-400">
                             {formattedDate}
                           </div>
@@ -276,12 +297,11 @@ export default function Page({
                             href={`/program/training/module/${modules.id}/sessions/${session.id}`}
                             className={cn(
                               "flex bg-secondary-500 rounded-m justify-center h-[56px] items-center text-white px-5",
-                              !isSessionToday
+                              isLearnDisabled
                                 ? "opacity-50 cursor-not-allowed pointer-events-none"
                                 : ""
                             )}
-                            aria-disabled={!isSessionToday}
-                          >
+                            aria-disabled={isLearnDisabled}                          >
                             Learn
                           </Link>
                           {session.module.data.url_download_zip && partBeforeDot === 'eacop' && (
@@ -292,8 +312,7 @@ export default function Page({
                               className={cn(
                                 "flex bg-secondary-500 rounded-m h-[56px] items-center text-white px-5"
                               )}
-                              aria-disabled={!isSessionToday}
-                            >
+                              aria-disabled={isLearnDisabled}                            >
                               Download
                             </a>
                           )}

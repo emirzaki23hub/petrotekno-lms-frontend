@@ -102,6 +102,8 @@ export type TrainingProgramData = {
   progress_module: number;
   score: number;
   days: number;
+  total_retry: number;
+  total_max: number;
   training: {
     data: {
       id: string;
