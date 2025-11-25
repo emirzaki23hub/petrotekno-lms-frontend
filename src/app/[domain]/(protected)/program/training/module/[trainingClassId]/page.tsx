@@ -15,17 +15,17 @@ import IconHome from "@/components/icons/IconHome";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 // import {
-//   Pagination,
-//   PaginationContent,
-//   PaginationItem,
-//   PaginationLink,
-//   PaginationNext,
+//   Pagination,
+//   PaginationContent,
+//   PaginationItem,
+//   PaginationLink,
+//   PaginationNext,
 // } from "@/components/ui/pagination";
 import Link from "next/link";
 import { format, isAfter, parseISO } from "date-fns";
 import { restTraining } from "@/rest/training";
 import { useDomainHelper } from "@/hooks/useDomainHelper";
-import { Training, TrainingProgramData } from "@/types";
+import { Training, TrainingProgramData } from "@/types"; // Ensure TrainingProgramData is correctly imported
 import { id as localeID } from "date-fns/locale"; // Import Indonesian locale
 
 export default function Page({
@@ -95,44 +95,53 @@ export default function Page({
     };
 
     loadData();
-  }, [partBeforeDot]);
+  }, [partBeforeDot, params.trainingClassId]); // Added params.trainingClassId to dependency array
+
+  // --- Computed Variables for Assessment Status ---
+  const currentScore = modules?.score ?? 0;
+  const passingThreshold = modules?.threshold ?? 0;
+  const maxAttempts = modules?.total_max ?? 0;
+  const attemptsUsed = modules?.total_retry ?? 0;
+  const remainingAttempts = maxAttempts - attemptsUsed;
+  const hasPassed = currentScore >= passingThreshold;
+  const scoreProgress = currentScore > 100 ? 100 : currentScore; // Cap progress at 100%
 
   // const handlePageChange = (page: React.SetStateAction<number>) => {
-  //   setCurrentPage(page);
+  //   setCurrentPage(page);
   // };
 
   // const paginatedModules = trainingModules.slice(
-  //   (currentPage - 1) * ITEMS_PER_PAGE,
-  //   currentPage * ITEMS_PER_PAGE
+  //   (currentPage - 1) * ITEMS_PER_PAGE,
+  //   currentPage * ITEMS_PER_PAGE
   // );
 
   // const renderPagination = () => {
-  //   return (
-  //     <Pagination>
-  //       <PaginationContent>
-  //         {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-  //           (page) => (
-  //             <PaginationItem key={page}>
-  //               <PaginationLink
-  //                 onClick={() => handlePageChange(page)}
-  //                 className={cn(
-  //                   page === currentPage ? "bg-white" : "",
-  //                   "cursor-pointer"
-  //                 )}
-  //                 isActive={page === currentPage}
-  //               >
-  //                 {page}
-  //               </PaginationLink>
-  //             </PaginationItem>
-  //           )
-  //         )}
+  //   return (
+  //     <Pagination>
+  //       <PaginationContent>
+  //         {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+  //           (page) => (
+  //             <PaginationItem key={page}>
+  //               <PaginationLink
+  //                 onClick={() => handlePageChange(page)}
+  //                 className={cn(
+  //                   page === currentPage ? "bg-white" : "",
+  //                   "cursor-pointer"
+  //                 )}
+  //                 isActive={page === currentPage}
+  //               >
+  //                 {page}
+  //               </PaginationLink>
+  //             </PaginationItem>
+  //           )
+  //         )}
 
-  //         <PaginationItem>
-  //           <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
-  //         </PaginationItem>
-  //       </PaginationContent>
-  //     </Pagination>
-  //   );
+  //         <PaginationItem>
+  //           <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
+  //         </PaginationItem>
+  //       </PaginationContent>
+  //     </Pagination>
+  //   );
   // };
 
   if (loading) {
@@ -142,10 +151,6 @@ export default function Page({
   const trainingData = trainings?.find(
     (item) => item.id === params.trainingClassId
   );
-
-
-
-
 
   return (
     <div className="flex flex-col gap-9">
@@ -189,6 +194,7 @@ export default function Page({
         <h1 className="text-[34px] leading-9 font-bold">
           {trainingData?.training.data.title}
         </h1>
+
       </div>
       <div className="flex flex-col rounded-m">
         {trainingData?.training.data.image_url ? (
@@ -214,17 +220,69 @@ export default function Page({
                   Start Date:{" "}
                   {format(new Date(trainingData.start_date), "dd MMMM yyyy", {
                     locale: localeID,
-                  })}{" "}
+                  })}
                   • {format(new Date(trainingData.start_date), "HH:mm")} WIB
                 </>
               ) : (
                 "Start Date: TBA"
               )}
-            </div>{" "}
+            </div>
           </div>
         </div>
       </div>
       <div className="flex gap-6 max-lg:flex-col ">
+
+        {modules && modules.type === 'QUIZ' && (
+          <div className="lg:w-1/3 w-full bg-white rounded-m flex flex-col gap-6 p-4 h-fit border border-[#E4E6E8]">
+            <div className="text-[20px] leading-6 font-bold border-[#E4E6E8] border-b pb-4">
+              Assessment Status
+            </div>
+
+            {/* Current Score */}
+            <div className="flex flex-col gap-1">
+              <div className="text-sm text-neutral-500 font-medium">Your Current Score</div>
+              <div className={cn("text-5xl font-extrabold", hasPassed ? "text-success-500" : "text-danger-500")}>
+                {currentScore}%
+              </div>
+            </div>
+
+            {/* Threshold and Attempts */}
+            <div className="flex flex-col divide-y divide-[#E4E6E8] font-mono">
+              <div className="flex justify-between items-center py-2">
+                <div className="text-base text-neutral-800 font-medium">Passing Threshold</div>
+                <div className="text-base font-bold text-primary-500">
+                  {passingThreshold}%
+                </div>
+              </div>
+              <div className="flex justify-between items-center py-2">
+                <div className="text-base text-neutral-800 font-medium">Attempts Used</div>
+                <div className="text-base font-bold text-neutral-500">
+                  {attemptsUsed} / {maxAttempts}
+                </div>
+              </div>
+              <div className="flex justify-between items-center py-2">
+                <div className="text-base text-neutral-800 font-medium">Remaining Attempts</div>
+                <div className={cn("text-base font-bold", remainingAttempts > 0 ? "text-success-500" : "text-danger-500")}>
+                  {remainingAttempts}
+                </div>
+              </div>
+            </div>
+
+            {/* Progress Bar for Score */}
+            <div className="pt-2">
+              <Progress
+                className={cn("h-2", hasPassed ? "bg-success-50" : "bg-danger-50")}
+
+                value={scoreProgress}
+              />
+              <div className={cn("text-sm font-semibold mt-1", hasPassed ? "text-success-500" : "text-danger-500")}>
+                {hasPassed ? "Congratulations! Passed." : `Needs ${passingThreshold - currentScore}% more to pass.`}
+              </div>
+            </div>
+
+          </div>
+        )}
+
         <div className="w-full bg-white rounded-m flex flex-col gap-6 p-4">
           <div className="text-[20px] leading-6 font-bold border-[#E4E6E8] border-b h-10">
             Program Progress
@@ -243,18 +301,8 @@ export default function Page({
                   const now = new Date();
 
                   const isSessionToday = isAfter(now, sessionDate);
-                  const hasPassedScore =
-                    modules.score >= 85;
 
-                  const hasReachedMaxAttempts =
-                    typeof modules.total_max === "number" &&
-                    modules.total_max > 0 &&
-                    typeof modules.total_retry === "number" &&
-                    modules.total_retry >= modules.total_max;
-
-
-
-                  const isLearnDisabled = !isSessionToday || (hasReachedMaxAttempts || hasPassedScore);
+                  const isLearnDisabled = !isSessionToday;
 
                   return (
                     <div
@@ -277,13 +325,7 @@ export default function Page({
                               Progress {session.score}%
                             </div>
                           )}
-                          {
-                            modules.total_max > 0 ? (
-                              <div className="text-sm text-neutral-500 font-bold mt-1">
-                                {modules.total_retry}{" "}
-                                {modules.total_retry > 1 ? "Attempts" : "Attempt"}
-                              </div>
-                            ) : null}
+
                           <div className="text-sm text-neutral-400">
                             {formattedDate}
                           </div>
@@ -301,7 +343,8 @@ export default function Page({
                                 ? "opacity-50 cursor-not-allowed pointer-events-none"
                                 : ""
                             )}
-                            aria-disabled={isLearnDisabled}                          >
+                            aria-disabled={isLearnDisabled}
+                          >
                             Learn
                           </Link>
                           {session.module.data.url_download_zip && partBeforeDot === 'eacop' && (
@@ -312,7 +355,8 @@ export default function Page({
                               className={cn(
                                 "flex bg-secondary-500 rounded-m h-[56px] items-center text-white px-5"
                               )}
-                              aria-disabled={isLearnDisabled}                            >
+                              aria-disabled={isLearnDisabled}
+                            >
                               Download
                             </a>
                           )}

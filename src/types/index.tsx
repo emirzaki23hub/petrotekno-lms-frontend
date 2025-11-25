@@ -104,6 +104,8 @@ export type TrainingProgramData = {
   days: number;
   total_retry: number;
   total_max: number;
+  threshold: number;
+  type: string
   training: {
     data: {
       id: string;
