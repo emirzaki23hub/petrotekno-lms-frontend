@@ -83,56 +83,11 @@ const PdfViewer = dynamic(() => import("@/components/PdfViewer"), {
   ssr: false,
 });
 
-interface Option {
-  choice: string;
-  answer: boolean;
-}
 
-interface QuestionItem {
-  question: string;
-  choices: Option[];
-  type: string;
-  link?: string;
-}
 
-interface Section {
-  title: string;
-  type: string;
-  link: string;
-  data: QuestionItem[]; // Assuming all data is of type QuestionItem[]
-}
 
-const dummyData = [
-  {
-    id: 1,
-    question: "What is your favorite color?",
-    options: ["Red", "Blue", "Green"],
-    correctAnswer: "Blue", // Define the correct answer
-  },
-  {
-    id: 2,
-    question: "What is your favorite animal?",
-    options: ["Dog", "Cat", "Bird"],
-    correctAnswer: "Dog",
-    image: Bg1,
-  },
-  {
-    id: 3,
-    question: "What is your preferred vacation destination?",
-    options: ["Beach", "Mountain", "City"],
-    correctAnswer: "Mountain",
-  },
-];
 
-// Generate Zod schema dynamically
-const dynamicSchema = z.object(
-  dummyData.reduce((schema, item) => {
-    schema[`question-${item.id}`] = z
-      .string()
-      .min(1, "Please select an option.");
-    return schema;
-  }, {} as Record<string, z.ZodTypeAny>)
-);
+
 
 const FormSchema = z.object({
   items: z.array(z.string()).refine((value) => value.some((item) => item), {
@@ -141,217 +96,10 @@ const FormSchema = z.object({
   summary: z.string(),
 });
 
-const trainingData = [
-  {
-    title: "Session - 1",
-    fileName: "LHP-APP-GEN-DQ-PPR24-02 Rev0 Lesson Plan - Level.pdf",
-    date: "25 June 2025",
-    status: "Done", // Status for Session 1
-  },
-  {
-    title: "Session - 2",
-    fileName: "LHP-APP-GEN-DQ-PPR24-03 Rev0 Instructors Guide - Level.pdf",
-    date: "25 June 2025",
-    status: "Upcoming", // Status for Session 2
-  },
-  {
-    title: "Session - 3",
-    fileName: "LHP-APP-GEN-DK-PPR24-01 Rev0 JC 1.pdf",
-    date: "25 June 2025",
-    status: "Upcoming", // Status for Session 3
-  },
-  {
-    title: "Session - 4",
-    fileName: "LHP-APP-GEN-DK-PPR24-01 Rev0 JC 1.pdf",
-    date: "25 June 2025",
-    status: "Upcoming", // Status for Session 4
-  },
-  {
-    title: "Session - 5",
-    fileName: "LHP-APP-GEN-DK-PPR24-01 Rev0 JC 1.pdf",
-    date: "25 June 2025",
-    status: "Upcoming", // Status for Session 5
-  },
-];
-
-const materiData = [
-  {
-    title: "Video 1",
-    src: "https://www.youtube.com/embed/K4TOrB7at0Y?si=PbKol3mB7JIbPtW8",
-  },
-  {
-    title: "Session - 2",
-    src: "https://www.youtube.com/embed/K4TOrB7at0Y?si=PbKol3mB7JIbPtW8",
-  },
-];
-
-const items = [
-  {
-    id: "ppe",
-    label: "Correct PPE worn at all times",
-    score: Math.floor(Math.random() * 11),
-  },
-  {
-    id: "spool",
-    label: "Spool removal/reassembly procedure carried out correctly",
-    score: Math.floor(Math.random() * 11),
-  },
-  {
-    id: "tools",
-    label: "Correct tools selected for the task",
-    score: Math.floor(Math.random() * 11),
-  },
-  {
-    id: "flanges",
-    label: "Correct Blind Flanges selected",
-    score: Math.floor(Math.random() * 11),
-  },
-  {
-    id: "gaskets",
-    label: "Gaskets removed/replaced from flanges correctly",
-    score: Math.floor(Math.random() * 11),
-  },
-  {
-    id: "safe",
-    label: "Safe working and tool use observed throughout",
-    score: Math.floor(Math.random() * 11),
-  },
-  {
-    id: "alignment",
-    label: "Blind Flanges correctly aligned",
-    score: Math.floor(Math.random() * 11),
-  },
-  {
-    id: "tension",
-    label: "Blind Flanges correctly tensioned using tension gauge",
-    score: Math.floor(Math.random() * 11),
-  },
-  {
-    id: "clean",
-    label: "Work area kept clean and tidy",
-    score: Math.floor(Math.random() * 11),
-  },
-  {
-    id: "storage",
-    label: "Tools stored in correct cabinets",
-    score: Math.floor(Math.random() * 11),
-  },
-  {
-    id: "hazards",
-    label:
-      "Correctly identified all hazards and control measures related to the job",
-    score: Math.floor(Math.random() * 11),
-  },
-  {
-    id: "function",
-    label: "Described the function of the tools required satisfactorily",
-    score: Math.floor(Math.random() * 11),
-  },
-  {
-    id: "safety",
-    label: "Described the safe use of the tools required satisfactorily",
-    score: Math.floor(Math.random() * 11),
-  },
-  {
-    id: "mechanical",
-    label:
-      "Described mechanical processes involved in the task performed when removing/replacing spool",
-    score: Math.floor(Math.random() * 11),
-  },
-];
 
 type FormSchemaType = z.infer<typeof FormSchema>;
 
-const dataDemo: Section[] = [
-  {
-    title: "Section 1",
-    type: "PDF",
-    link: "/demodummy.pdf",
-    data: [],
-  },
-  {
-    title: "Quiz",
-    type: "QUIZ",
-    data: [
-      {
-        question:
-          "Which pump type is not categorize as dynamic pressure pumps?",
-        choices: [
-          {
-            choice: "Turbine",
-            answer: false,
-          },
-          {
-            choice: "Vane",
-            answer: true,
-          },
-          {
-            choice: "Centrifugal",
-            answer: false,
-          },
-          {
-            choice: "Propeller",
-            answer: false,
-          },
-        ],
-        type: "",
-      },
-      {
-        question: "Which pump type is categorize as mixed flow pumped?",
-        choices: [
-          {
-            choice: "Turbine",
-            answer: false,
-          },
-          {
-            choice: "Vane",
-            answer: false,
-          },
-          {
-            choice: "Centrifugal",
-            answer: false,
-          },
-          {
-            choice: "Propeller",
-            answer: true,
-          },
-        ],
-        type: "",
-      },
-    ],
-    link: "",
-  },
-  {
-    title: "Pump Operation, Maintenance, and Troubleshooting",
-    type: "TEST",
-    data: [
-      {
-        question: "Favourite programming language?",
-        choices: [
-          {
-            choice: "Swift",
-            answer: false,
-          },
-          {
-            choice: "Python",
-            answer: true,
-          },
-          {
-            choice: "Objective-C",
-            answer: false,
-          },
-          {
-            choice: "Ruby",
-            answer: false,
-          },
-        ],
-        type: "",
-        link: "",
-      },
-    ],
-    link: "",
-  },
-];
+
 
 export default function Page({
   params,
@@ -364,7 +112,6 @@ export default function Page({
   };
 }) {
 
-  console.log(params.trainingClassId);
 
   const router = useRouter();
   const [sections, setSections] = useState<TrainingSessionData>({
@@ -417,6 +164,8 @@ export default function Page({
 
     loadModules();
   }, [params.trainingClassId]);
+  const listRetryData = sections?.list_retry || [];
+
 
   const sectionParam = searchParams.get("section");
 
@@ -566,15 +315,7 @@ export default function Page({
   //   return score > 5 ? "Pass" : "Fail";
   // };
 
-  const [hasSubmitted, setHasSubmitted] = useState(false);
 
-  useEffect(() => {
-    // Access localStorage only on the client side
-    const savedResults = localStorage.getItem("quizResults");
-    const isSubmitted = localStorage.getItem("isSubmitted");
-
-    setHasSubmitted(isSubmitted === "true");
-  }, []);
 
   // const currentSectionData = sections[currentSection - 1];
 
@@ -1024,164 +765,226 @@ export default function Page({
           {currentSectionData.type === "QUIZ" && (
             <div className="p-6 font-mono bg-white rounded-m flex items-start">
               <div className="flex gap-6 w-full max-lg:flex-col">
+
+                {/* 🧩 QUIZ/QUESTION SECTION (Column 1) */}
                 <div className="w-full bg-white rounded-m flex flex-col gap-4">
                   <div className="text-[20px] leading-6 font-bold border-[#E4E6E8] border-b h-10">
                     Question
                   </div>
-                  <div className="flex p-6 flex-col border border-[#E4E6E8] rounded-m">
-                    <Form {...form}>
-                      <form
-                        onSubmit={form.handleSubmit(onSubmit)}
-                        className="w-full space-y-6"
-                      >
-                        {quizData.map((questionItem, index) => {
-                          const userAnswer = questionItem.participant_answer;
-                          const correctAnswer = questionItem.correct_answer;
-                          const isDisabled = Boolean(
-                            userAnswer && correctAnswer
-                          );
 
-                          return (
-                            <FormField
-                              key={questionItem.id}
-                              control={form.control}
-                              name={`question-${questionItem.id}`}
-                              render={({ field }) => {
-                                const selectedAnswer = field.value;
+                  {/* --- 🛑 NEW CHECK FOR EMPTY QUIZ DATA --- */}
+                  {quizData && quizData.length > 0 ? (
+                    <div className="flex p-6 flex-col border border-[#E4E6E8] rounded-m">
+                      <Form {...form}>
+                        <form
+                          onSubmit={form.handleSubmit(onSubmit)}
+                          className="w-full space-y-6"
+                        >
+                          {quizData.map((questionItem, index) => {
+                            const userAnswer = questionItem.participant_answer;
+                            const correctAnswer = questionItem.correct_answer;
+                            const isDisabled = Boolean(
+                              userAnswer && correctAnswer
+                            );
 
-                                return (
-                                  <FormItem className="space-y-6 bg-white border rounded-m">
-                                    <div className="flex flex-col space-y-1 pt-6">
-                                      <FormLabel className="font-bold px-6 text-primary-500 mb-4">
-                                        Question {index + 1}
-                                      </FormLabel>
-                                      <FormLabel className="font-mono px-6 text-base font-bold">
-                                        {questionItem.question}
-                                      </FormLabel>
-                                    </div>
-                                    <FormControl>
-                                      <RadioGroup
-                                        onValueChange={field.onChange}
-                                        defaultValue={field.value}
-                                        className="flex flex-col space-y-1 px-6 pb-6"
-                                        disabled={isDisabled}
-                                      >
-                                        {questionItem.answers.data.map(
-                                          (option) => {
-                                            const isOptionSelected =
-                                              field.value === option.answer;
-                                            const isOptionCorrect =
-                                              correctAnswer === option.id;
-                                            const isOptionWrong =
-                                              userAnswer === option.id &&
-                                              !isOptionCorrect;
-
-                                            return (
-                                              <FormItem
-                                                key={option.id}
-                                                className="flex items-center space-x-3 space-y-0"
-                                              >
-                                                <FormControl>
-                                                  <RadioGroupItem
+                            return (
+                              <FormField
+                                key={questionItem.id}
+                                control={form.control}
+                                name={`question-${questionItem.id}`}
+                                render={({ field }) => {
+                                  return (
+                                    <FormItem className="space-y-6 bg-white border rounded-m">
+                                      <div className="flex flex-col space-y-1 pt-6">
+                                        <FormLabel className="font-bold px-6 text-primary-500 mb-4">
+                                          Question {index + 1}
+                                        </FormLabel>
+                                        <FormLabel className="font-mono px-6 text-base font-bold">
+                                          {questionItem.question}
+                                        </FormLabel>
+                                      </div>
+                                      <FormControl>
+                                        <RadioGroup
+                                          onValueChange={field.onChange}
+                                          defaultValue={field.value}
+                                          className="flex flex-col space-y-1 px-6 pb-6"
+                                          disabled={isDisabled}
+                                        >
+                                          {questionItem.answers.data.map(
+                                            (option) => {
+                                              const isOptionCorrect =
+                                                correctAnswer === option.id;
+                                              const isOptionWrong =
+                                                userAnswer === option.id &&
+                                                !isOptionCorrect;
+                                              return (
+                                                <FormItem
+                                                  key={option.id}
+                                                  className="flex items-center space-x-3 space-y-0"
+                                                >
+                                                  <FormControl>
+                                                    <RadioGroupItem
+                                                      className={cn(
+                                                        "data-[state=checked]:bg-green-500 data-[state=checked]:text-white",
+                                                        isOptionCorrect
+                                                          ? "bg-green-300"
+                                                          : isOptionWrong
+                                                            ? "bg-primary-500 data-[state=checked]:bg-primary-500"
+                                                            : ""
+                                                      )}
+                                                      value={option.answer}
+                                                      disabled={isDisabled}
+                                                    />
+                                                  </FormControl>
+                                                  <FormLabel
                                                     className={cn(
-                                                      "data-[state=checked]:bg-green-500 data-[state=checked]:text-white",
+                                                      "font-normal",
                                                       isOptionCorrect
-                                                        ? "bg-green-300"
+                                                        ? "text-green-500"
                                                         : isOptionWrong
-                                                          ? "bg-primary-500 data-[state=checked]:bg-primary-500"
+                                                          ? "text-[#F04B35]"
                                                           : ""
                                                     )}
-                                                    value={option.answer}
-                                                    disabled={isDisabled}
-                                                  />
-                                                </FormControl>
-                                                <FormLabel
-                                                  className={cn(
-                                                    "font-normal",
-                                                    isOptionCorrect
-                                                      ? "text-green-500"
-                                                      : isOptionWrong
-                                                        ? "text-[#F04B35]"
-                                                        : ""
-                                                  )}
-                                                >
-                                                  {option.answer}
-                                                </FormLabel>
-                                              </FormItem>
-                                            );
-                                          }
-                                        )}
-                                      </RadioGroup>
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                );
-                              }}
-                            />
-                          );
-                        })}
+                                                  >
+                                                    {option.answer}
+                                                  </FormLabel>
+                                                </FormItem>
+                                              );
+                                            }
+                                          )}
+                                        </RadioGroup>
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  );
+                                }}
+                              />
+                            );
+                          })}
 
-                        <Button
-                          className="h-[56px] px-5 bg-[#E4E6E8] rounded-m text-black"
-                          onClick={handleOpenDialog}
-                          disabled={Boolean(
-                            quizData[0]?.participant_answer &&
-                            quizData[0]?.correct_answer
-                          )}
-                          type="button"
-                        >
-                          Submit
-                        </Button>
-                        <Dialog
-                          open={isDialogOpen}
-                          onOpenChange={setIsDialogOpen}
-                        >
-                          <DialogContent className="bg-white">
-                            <DialogHeader className="text-[28px] font-bold">
-                              Submit
-                            </DialogHeader>
-                            <DialogDescription className="text-base">
-                              Are you sure to submit the answer of the test?
-                            </DialogDescription>
-
-                            {loading && (
-                              <div className="flex justify-center items-center">
-                                <Loader2 className="mr-2 size-12 animate-spin" />
-                              </div>
+                          <Button
+                            className="h-[56px] px-5 bg-[#E4E6E8] rounded-m text-black"
+                            onClick={handleOpenDialog}
+                            disabled={Boolean(
+                              quizData[0]?.participant_answer &&
+                              quizData[0]?.correct_answer
                             )}
+                            type="button"
+                          >
+                            Submit
+                          </Button>
 
-                            <div className="flex gap-4 w-full">
-                              <Button
-                                disabled={isSubmitting}
-                                onClick={form.handleSubmit(onSubmit)}
-                                className="mt-4 h-[56px] bg-secondary-500 w-full text-white"
-                              >
-                                {isSubmitting && (
-                                  <div className="flex justify-center items-center">
-                                    <Loader2 className="mr-2 size-12 animate-spin" />
-                                  </div>
+                          {/* Submission Dialog */}
+                          <Dialog
+                            open={isDialogOpen}
+                            onOpenChange={setIsDialogOpen}
+                          >
+                            <DialogContent className="bg-white">
+                              <DialogHeader className="text-[28px] font-bold">
+                                Submit
+                              </DialogHeader>
+                              <DialogDescription className="text-base">
+                                Are you sure to submit the answer of the test?
+                              </DialogDescription>
+
+                              {loading && (
+                                <div className="flex justify-center items-center">
+                                  <Loader2 className="mr-2 size-12 animate-spin" />
+                                </div>
+                              )}
+
+                              <div className="flex gap-4 w-full">
+                                <Button
+                                  disabled={isSubmitting}
+                                  onClick={form.handleSubmit(onSubmit)}
+                                  className="mt-4 h-[56px] bg-secondary-500 w-full text-white"
+                                >
+                                  {isSubmitting && (
+                                    <div className="flex justify-center items-center">
+                                      <Loader2 className="mr-2 size-12 animate-spin" />
+                                    </div>
+                                  )}
+                                  Yes
+                                </Button>
+                                <Button
+                                  type="button"
+                                  disabled={loading}
+                                  onClick={() => setIsDialogOpen(false)}
+                                  className="mt-4 h-[56px] bg-[#F04B35] w-full text-white"
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </form>
+                      </Form>
+                    </div>
+                  ) : (
+                    /* Empty State for Quiz */
+                    <div className="p-10 text-center text-lg text-gray-500 border border-[#E4E6E8] rounded-m bg-gray-50">
+                      {`📝 **This quiz section is unavailable.** This might be because the questions aren't ready, or maybe you already maxed your tries to take the test.   `}                 </div>
+                  )}
+                </div>
+
+                {/* 🔄 RETRY HISTORY SECTION (Column 2) */}
+                <div className="w-1/3 max-lg:w-full bg-white rounded-m flex flex-col gap-4">
+                  <div className="text-[20px] leading-6 font-bold border-[#E4E6E8] border-b h-10">
+                    Retry History
+                  </div>
+                  <div className="flex flex-col gap-4">
+                    {listRetryData && listRetryData.length > 0 ? (
+                      listRetryData.map((retry, index) => (
+                        <div
+                          key={retry.id}
+                          className="p-4 border border-[#E4E6E8] rounded-m bg-gray-50 flex justify-between items-center"
+                        >
+                          <div className="flex flex-col gap-1">
+                            {/* Attempt Number and UUID */}
+                            <div className="flex items-center gap-2">
+                              <div className="flex flex-col">
+
+                                <div className="font-bold text-lg">Attempt #{index + 1}</div>
+                                {retry.status_send_jgc ? (
+                                  <span className="px-2 py-0.5 text-xs font-semibold leading-none rounded-full bg-blue-100 text-blue-800">
+                                    SENT TO JGC
+                                  </span>
+                                ) : (
+                                  <span className="px-2 py-0.5 text-xs font-semibold leading-none rounded-full bg-yellow-100 text-yellow-800">
+                                    PENDING
+                                  </span>
                                 )}
-                                Yes
-                              </Button>
-                              <Button
-                                type="button"
-                                disabled={loading}
-                                onClick={() => setIsDialogOpen(false)}
-                                className="mt-4 h-[56px] bg-[#F04B35] w-full text-white"
-                              >
-                                Cancel
-                              </Button>
+                              </div>
+                              {/* 🏅 NEW: JGC Status Badge */}
+
                             </div>
-                          </DialogContent>
-                        </Dialog>
-                      </form>
-                    </Form>
+
+                            {/* Ensure you still have the UUID line if needed */}
+                            {/* <div className="text-sm text-gray-600">UUID: {retry.uuid.substring(0, 8)}...</div> */}
+                          </div>
+
+                          {/* Score and Total Retries */}
+                          <div className="text-right">
+                            <div className={`font-extrabold text-xl ${
+                              // Parses the string score to an integer for correct comparison, defaulting to "0" if null
+                              parseInt(retry.score ?? "0") > 85 ? 'text-green-600' : 'text-red-500'
+                              }`}>
+                              Score: {retry.score}
+                            </div>
+                            <div className="text-xs text-gray-500">Total Retries: {retry.total_retry}</div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-4 border border-[#E4E6E8] rounded-m text-center text-gray-500">
+                        No retry attempts found.
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
           )}
-
           {/* {currentSectionData.type === "JOB_CARD" && (
             <>
               {!jobCardSubmitted ? (

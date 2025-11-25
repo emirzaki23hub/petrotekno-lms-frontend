@@ -212,11 +212,21 @@ export interface TrainingSessionData {
   module: {
     data: ModuleDatas;
   };
+  list_retry?: RetryAttempt[];
 }
 
 interface Answer {
   id: string;
   answer: string;
+}
+
+export interface RetryAttempt {
+  id: number;
+  uuid: string;
+  total_retry: number;
+  score: string | null;
+  status_send_jgc: boolean
+
 }
 
 export interface QuizQuestion {
