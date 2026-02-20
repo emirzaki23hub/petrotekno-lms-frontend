@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { Button } from "./ui/button";
 import {
@@ -6,7 +8,6 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import IconUser from "../../public/icons/icon-user.svg";
@@ -18,10 +19,13 @@ import { restAuth } from "@/rest/auth";
 interface User {
   name: string;
   email: string;
-  // Add any other fields you expect in the user object
 }
 
-export function UserNav() {
+interface UserNavProps {
+  onOpenChangePassword?: () => void;
+}
+
+export function UserNav({ onOpenChangePassword }: UserNavProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { getPartBeforeDot } = useDomainHelper();
@@ -34,20 +38,14 @@ export function UserNav() {
     const fetchUserInfo = async () => {
       try {
         const token = localStorage.getItem("authToken");
-
-        if (!token) {
-          throw new Error("No authentication token found. Please log in.");
-        }
+        if (!token) throw new Error("No authentication token found.");
 
         const response = await restAuth.getUserInfo(token, partBeforeDot);
-
         if (response?.data?.success) {
           setUser(response.data.data as unknown as User);
-        } else {
-          console.log("Failed to fetch user info");
         }
       } catch (error) {
-        console.log(error);
+        console.log("UserInfo fetch error:", error);
       }
     };
 
@@ -56,15 +54,11 @@ export function UserNav() {
 
   const handleLogout = async () => {
     setLoading(true);
-
     try {
       const token = localStorage.getItem("authToken");
-
       if (token) {
         await restAuth.postLogout(token, partBeforeDot);
-
         localStorage.removeItem("authToken");
-
         window.location.replace("/");
       }
     } catch (error) {
@@ -80,7 +74,7 @@ export function UserNav() {
         <Button
           variant="ghost"
           className="h-10 max-lg:h-8 max-lg:min-w-8 lg:min-w-10 flex justify-center rounded-m items-center bg-secondary-200 p-0"
-          disabled={loading} // Disable button during loading
+          disabled={loading}
         >
           <Image src={IconUser} height={16} width={16} alt="User" />
         </Button>
@@ -102,8 +96,19 @@ export function UserNav() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+
+        {/* 2. Add the Change Password Item */}
         <DropdownMenuItem
           className="cursor-pointer"
+          onClick={onOpenChangePassword}
+        >
+          Change Password
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem
+          className="cursor-pointer text-red-600 focus:text-red-600"
           onClick={handleLogout}
           disabled={loading}
         >

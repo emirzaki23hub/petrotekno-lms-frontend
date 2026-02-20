@@ -1,4 +1,4 @@
-import { deleteData, getData, postData } from "@/lib/fetch";
+import { deleteData, getData, postData, putData } from "@/lib/fetch";
 import { BaseResponse } from "@/types/auth";
 
 const postLogin = (body: {
@@ -54,9 +54,28 @@ const getUserInfo = (token: string, domain: string) => {
   });
 };
 
+const putChangePassword = (
+  domain: string,
+  token: string,
+  body: { current_password: string; password: string; password_confirmation: string }
+) => {
+  return putData<BaseResponse>(
+    "/company/change-password",
+    body,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "X-Company": domain,
+
+      },
+    }
+  );
+};
+
 export const restAuth = {
   postLogin,
   getCompany,
   postLogout,
   getUserInfo,
+  putChangePassword,
 };
