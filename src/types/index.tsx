@@ -32,6 +32,7 @@ export type Session = {
   file_url: string; // URL to the file or resource
   read_at: string | null; // Date when the session was read, or null if not yet read
   video_url: string | null;
+  embed_ppt: string | null;
 };
 
 interface AgendaItem {
@@ -178,7 +179,7 @@ export type Section = PDFSection | QuizSection | JobCardSection | TestSection;
 interface SectionData {
   id: string;
   title: string;
-  type: "QUIZ" | "PDF" | "VIDEO";
+  type: "QUIZ" | "PDF" | "VIDEO" | 'PPT';
   video_url: string | null;
   file_url: string;
   materials: {
@@ -190,6 +191,7 @@ interface SectionData {
   job_cards: {
     data: any[]; // Adjust based on the actual data structure
   };
+  embed_ppt: string | null;
 }
 
 // Define the type for the module data

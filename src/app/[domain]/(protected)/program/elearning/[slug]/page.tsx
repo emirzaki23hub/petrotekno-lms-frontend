@@ -191,6 +191,8 @@ export default function Page({ params }: { params: { slug: string } }) {
     );
   }
 
+
+
   return (
     <div className="flex flex-col gap-9">
       <Breadcrumb>
@@ -244,19 +246,28 @@ export default function Page({ params }: { params: { slug: string } }) {
       </div>
       <>
         {currentLoading ? (
-          <div className="h-[610px] bg-gray-500 animate-pulse"></div> // Replace with your actual loader component or element
+          <div className="h-[610px] bg-gray-500 animate-pulse"></div>
         ) : webinar?.sessions.data[currentSession - 1]?.type === "VIDEO" ? (
           <iframe
             width="100%"
             height="500"
-            src={`https://www.youtube.com/embed/${
-              webinar.sessions.data[currentSession - 1].video_url
-            }`}
+            src={`https://www.youtube.com/embed/${webinar.sessions.data[currentSession - 1].video_url
+              }`}
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           ></iframe>
+        ) : webinar?.sessions.data[currentSession - 1]?.type === "PPT" ? (
+          /* RENDER IFRAME UNTUK PPT */
+          <iframe
+            src={webinar.sessions.data[currentSession - 1]?.embed_ppt ?? ''} // Pastikan field ini sesuai dengan API (embed_ppt atau file_url)
+            width="100%"
+            height="610px"
+            frameBorder="0"
+            allowFullScreen
+          ></iframe>
         ) : (
+          /* DEFAULT UNTUK PDF */
           <PdfViewer
             url={webinar?.sessions.data[currentSession - 1]?.file_url || ""}
             title={webinar?.sessions.data[currentSession - 1]?.title || ""}

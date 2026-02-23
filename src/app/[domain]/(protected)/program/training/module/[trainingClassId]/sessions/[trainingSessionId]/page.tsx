@@ -743,6 +743,15 @@ export default function Page({
             </>
           )} */}
 
+          {currentSectionData.type === "PPT" && (
+            <iframe
+              src={currentSectionData.embed_ppt ?? ''}
+              width="100%"
+              height="600"
+              allowFullScreen={true}
+            ></iframe>
+          )}
+
           {currentSectionData.type === "VIDEO" && (
             <div className="relative flex  items-center overflow-hidden rounded-xl bg-black max-lg:h-[273px] lg:aspect-[16/9]">
               <ReactPlayer
